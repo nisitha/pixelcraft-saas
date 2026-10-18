@@ -13,6 +13,7 @@ use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -169,5 +170,52 @@ class CompanyLogoAndPdfMemoryTest extends TestCase
         $this->assertLessThanOrEqual(600, $hAfter);
 
         @unlink($fullPath);
+    }
+
+    public function test_pdf_service_sanitizes_filenames_with_slashes(): void
+    {
+        $rawNumber = 'VHE/2026/MAD/00205\\011-B';
+        $sanitized = PdfService::sanitizeFileName($rawNumber);
+        $this->assertEquals('VHE-2026-MAD-00205-011-B', $sanitized);
+
+        $quotation = new Quotation(['quote_number' => 'VHE/2026/001/A']);
+        $this->assertEquals('Quotation-VHE-2026-001-A.pdf', PdfService::getQuotationFileName($quotation));
+
+        $invoice = new Invoice(['invoice_number' => 'INV/2026/002/B']);
+        $this->assertEquals('Invoice-INV-2026-002-B.pdf', PdfService::getInvoiceFileName($invoice));
+        $this->assertEquals('Receipt-INV-2026-002-B.pdf', PdfService::getPosReceiptFileName($invoice));
+    }
+
+    public function test_download_quotation_and_invoice_pdf_with_slashed_numbers_succeeds(): void
+    {
+        $company = Company::where('slug', 'lanka-solar-solutions')->first();
+
+        // 1. Quotation with slashes in number
+        $quotation = Quotation::where('company_id', $company->id)->first();
+        $quotation->quote_number = 'VHE/2026/MAD/00205/011-B';
+        $quotation->save();
+
+        $quoteUrl = URL::signedRoute('public.document.download', [
+            'type' => 'quotation',
+            'id' => $quotation->id,
+        ]);
+
+        $responseQuote = $this->get($quoteUrl);
+        $responseQuote->assertOk();
+        $responseQuote->assertHeader('Content-Disposition', 'attachment; filename=Quotation-VHE-2026-MAD-00205-011-B.pdf');
+
+        // 2. Invoice with slashes in number
+        $invoice = Invoice::where('company_id', $company->id)->first();
+        $invoice->invoice_number = 'INV/2026/MAD/00881/014-C';
+        $invoice->save();
+
+        $invoiceUrl = URL::signedRoute('public.document.download', [
+            'type' => 'invoice',
+            'id' => $invoice->id,
+        ]);
+
+        $responseInvoice = $this->get($invoiceUrl);
+        $responseInvoice->assertOk();
+        $responseInvoice->assertHeader('Content-Disposition', 'attachment; filename=Invoice-INV-2026-MAD-00881-014-C.pdf');
     }
 }

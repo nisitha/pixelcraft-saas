@@ -98,9 +98,12 @@ class EditQuotation extends EditRecord
                     /** @var Quotation $record */
                     $record = $this->record;
 
+                    $safeNumber = str_replace(['/', '\\'], '-', $record->quote_number);
+                    $filename = "Quotation-{$safeNumber}.pdf";
+
                     return response()->streamDownload(
                         fn () => print (app(PdfService::class)->generateQuotationPdf($record)->output()),
-                        "Quotation-{$record->quote_number}.pdf",
+                        $filename,
                         ['Content-Type' => 'application/pdf']
                     );
                 }),

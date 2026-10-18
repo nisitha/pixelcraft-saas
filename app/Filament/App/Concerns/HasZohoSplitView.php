@@ -213,20 +213,24 @@ trait HasZohoSplitView
         if ($this->documentType === 'quotation') {
             /** @var Quotation $record */
             $record = $this->record;
+            $safeNumber = str_replace(['/', '\\'], '-', $record->quote_number);
+            $filename = "Quotation-{$safeNumber}.pdf";
 
             return response()->streamDownload(
                 fn () => print ($pdfService->generateQuotationPdf($record)->output()),
-                "Quotation-{$record->quote_number}.pdf",
+                $filename,
                 ['Content-Type' => 'application/pdf']
             );
         }
 
         /** @var Invoice $record */
         $record = $this->record;
+        $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+        $filename = "Invoice-{$safeNumber}.pdf";
 
         return response()->streamDownload(
             fn () => print ($pdfService->generateInvoicePdf($record)->output()),
-            "Invoice-{$record->invoice_number}.pdf",
+            $filename,
             ['Content-Type' => 'application/pdf']
         );
     }

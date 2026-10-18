@@ -122,9 +122,12 @@ class InvoicesTable
                     ->icon(Heroicon::ArrowDownTray)
                     ->color('primary')
                     ->action(function (Invoice $record) {
+                        $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+                        $filename = "Invoice-{$safeNumber}.pdf";
+
                         return response()->streamDownload(
                             fn () => print (app(PdfService::class)->generateInvoicePdf($record)->output()),
-                            "Invoice-{$record->invoice_number}.pdf",
+                            $filename,
                             ['Content-Type' => 'application/pdf']
                         );
                     }),
@@ -134,9 +137,12 @@ class InvoicesTable
                     ->icon(Heroicon::ReceiptPercent)
                     ->color('warning')
                     ->action(function (Invoice $record) {
+                        $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+                        $filename = "Receipt-{$safeNumber}.pdf";
+
                         return response()->streamDownload(
                             fn () => print (app(PdfService::class)->generatePosReceiptPdf($record)->output()),
-                            "Receipt-{$record->invoice_number}.pdf",
+                            $filename,
                             ['Content-Type' => 'application/pdf']
                         );
                     }),

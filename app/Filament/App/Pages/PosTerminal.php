@@ -284,9 +284,12 @@ class PosTerminal extends Page
             ->body('Payment recorded via '.strtoupper($this->paymentMethod).'. Generating receipt...')
             ->send();
 
+        $safeNumber = str_replace(['/', '\\'], '-', $invoice->invoice_number);
+        $filename = "Receipt-{$safeNumber}.pdf";
+
         return response()->streamDownload(
             fn () => print (app(PdfService::class)->generatePosReceiptPdf($invoice, $amountTendered, $changeDue)->output()),
-            "Receipt-{$invoice->invoice_number}.pdf",
+            $filename,
             ['Content-Type' => 'application/pdf']
         );
     }

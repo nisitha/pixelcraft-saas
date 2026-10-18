@@ -43,7 +43,8 @@ class PublicDocumentController extends Controller
 
         if ($type === 'quotation') {
             $quotation = Quotation::with(['company', 'contact', 'items.product'])->findOrFail($id);
-            $filename = "Quotation-{$quotation->quote_number}.pdf";
+            $safeNumber = str_replace(['/', '\\'], '-', $quotation->quote_number);
+            $filename = "Quotation-{$safeNumber}.pdf";
 
             return response()->streamDownload(
                 fn () => print ($pdfService->generateQuotationPdf($quotation)->output()),
@@ -54,7 +55,8 @@ class PublicDocumentController extends Controller
 
         if ($type === 'invoice') {
             $invoice = Invoice::with(['company', 'contact', 'items.product', 'payments'])->findOrFail($id);
-            $filename = "Invoice-{$invoice->invoice_number}.pdf";
+            $safeNumber = str_replace(['/', '\\'], '-', $invoice->invoice_number);
+            $filename = "Invoice-{$safeNumber}.pdf";
 
             return response()->streamDownload(
                 fn () => print ($pdfService->generateInvoicePdf($invoice)->output()),

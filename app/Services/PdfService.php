@@ -102,4 +102,33 @@ class PdfService
             'temp_dir' => sys_get_temp_dir(),
         ], mergeWithDefaults: true);
     }
+
+    public static function sanitizeFileName(string $name): string
+    {
+        return str_replace(['/', '\\'], '-', $name);
+    }
+
+    public static function getQuotationFileName(Quotation|string $quotation): string
+    {
+        $number = $quotation instanceof Quotation ? $quotation->quote_number : $quotation;
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "Quotation-{$safeNumber}.pdf";
+    }
+
+    public static function getInvoiceFileName(Invoice|string $invoice): string
+    {
+        $number = $invoice instanceof Invoice ? $invoice->invoice_number : $invoice;
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "Invoice-{$safeNumber}.pdf";
+    }
+
+    public static function getPosReceiptFileName(Invoice|string $invoice): string
+    {
+        $number = $invoice instanceof Invoice ? $invoice->invoice_number : $invoice;
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "Receipt-{$safeNumber}.pdf";
+    }
 }

@@ -40,9 +40,12 @@ class EditInvoice extends EditRecord
                     /** @var Invoice $record */
                     $record = $this->record;
 
+                    $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+                    $filename = "Invoice-{$safeNumber}.pdf";
+
                     return response()->streamDownload(
                         fn () => print (app(PdfService::class)->generateInvoicePdf($record)->output()),
-                        "Invoice-{$record->invoice_number}.pdf",
+                        $filename,
                         ['Content-Type' => 'application/pdf']
                     );
                 }),
