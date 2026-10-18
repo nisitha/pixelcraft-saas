@@ -1,0 +1,20 @@
+---
+# ==============================================================================
+# cPanel Git Version Control Deployment Configuration
+# Target: vertexhomeslk.com / vertexinnovationlk.com
+# ==============================================================================
+# To use this in cPanel:
+# 1. In cPanel > Git Version Control, clone your repository.
+# 2. Click "Manage", go to the "Pull or Deploy" tab, and click "Deploy HEAD Commit".
+# 3. This script will automatically copy files to public_html and run deploy.sh.
+# ==============================================================================
+
+deployment:
+  tasks:
+    # 1. Define target path (default: public_html for primary domain)
+    - export DEPLOYPATH=/home/$(whoami)/public_html
+    # 2. Copy files to deployment target (preserving existing server .env and uploads)
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/rsync -av --exclude='.git' --exclude='.env' --exclude='storage/app/public/*' . $DEPLOYPATH/
+    # 3. Run production optimization script
+    - cd $DEPLOYPATH && /bin/bash deploy.sh --skip-pull
