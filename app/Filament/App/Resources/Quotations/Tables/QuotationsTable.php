@@ -2,8 +2,10 @@
 
 namespace App\Filament\App\Resources\Quotations\Tables;
 
+use App\Filament\App\Resources\CompletionCertificates\CompletionCertificateResource;
 use App\Filament\App\Resources\Invoices\InvoiceResource;
 use App\Filament\App\Resources\Quotations\QuotationResource;
+use App\Models\CompletionCertificate;
 use App\Models\Invoice;
 use App\Models\Quotation;
 use App\Services\PdfService;
@@ -109,6 +111,7 @@ class QuotationsTable
                                 'company_id' => $record->company_id,
                                 'contact_id' => $record->contact_id,
                                 'quotation_id' => $record->id,
+                                'sales_agent_id' => $record->sales_agent_id,
                                 'invoice_number' => 'INV-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
                                 'invoice_date' => now()->toDateString(),
                                 'due_date' => now()->addDays(14)->toDateString(),
@@ -119,6 +122,8 @@ class QuotationsTable
                                 'grand_total' => $record->grand_total,
                                 'paid_amount' => 0.00,
                                 'due_amount' => $record->grand_total,
+                                'commission_amount' => $record->commission_amount ?? 0.00,
+                                'commission_status' => $record->commission_status ?? 'pending',
                                 'status' => 'unpaid',
                             ]);
 
@@ -127,6 +132,7 @@ class QuotationsTable
                                     'product_id' => $item->product_id,
                                     'description' => $item->description,
                                     'quantity' => $item->quantity,
+                                    'cost_price' => $item->cost_price ?? 0.00,
                                     'unit_price' => $item->unit_price,
                                     'tax' => $item->tax ?? 0.00,
                                     'subtotal' => $item->subtotal,
@@ -144,6 +150,44 @@ class QuotationsTable
                             ->send();
 
                         return $action->redirect(InvoiceResource::getUrl('edit', ['record' => $invoice->id]));
+                    }),
+
+                Action::make('issueCertificate')
+                    ->label('Issue Certificate')
+                    ->icon(Heroicon::AcademicCap)
+                    ->color('info')
+                    ->action(function (Quotation $record, Action $action) {
+                        $certificate = CompletionCertificate::create([
+                            'company_id' => $record->company_id,
+                            'contact_id' => $record->contact_id,
+                            'invoice_id' => $record->invoice?->id,
+                            'quotation_id' => $record->id,
+                            'certificate_number' => 'CERT-VHE/'.date('Y').'/RU/'.str_pad((string) rand(1, 999), 3, '0', STR_PAD_LEFT).'/'.str_pad((string) rand(1, 99), 3, '0', STR_PAD_LEFT),
+                            'customer_name' => strtoupper($record->contact?->name ?? 'Customer'),
+                            'system_capacity' => ($record->system_kw ? $record->system_kw.' kW Solar System' : '05 kW+05kw Battery offgrid Solar System'),
+                            'site_address' => $record->contact?->address ?: '260/20, Negombo Road, Sri Lanka',
+                            'commissioning_date' => now()->toDateString(),
+                            'grid_connection' => 'On-Grid Net Metering',
+                            'warranty_period' => '30 Years (Panels) / 10 Years (Inverter+Battery)',
+                            'system_status' => 'Commissioned & Operational',
+                            'verification_status' => 'Engineering Safety Compliant',
+                            'compliance_note' => 'Installed, tested, and commissioned in accordance with standard safety regulations.',
+                            'lead_engineer_name' => 'Lead Engineer',
+                            'lead_engineer_title' => 'Technical Operations',
+                            'director_name' => 'Managing Director',
+                            'director_title' => $record->company?->name ?: 'Vertex Home Solutions (Pvt) Ltd',
+                            'signed_date' => now()->toDateString(),
+                            'paper_size' => 'a4',
+                            'orientation' => 'landscape',
+                            'status' => 'draft',
+                        ]);
+
+                        Notification::make()
+                            ->title("Completion Certificate created: {$certificate->certificate_number}")
+                            ->success()
+                            ->send();
+
+                        return $action->redirect(CompletionCertificateResource::getUrl('edit', ['record' => $certificate->id]));
                     }),
 
                 Action::make('markAsSent')

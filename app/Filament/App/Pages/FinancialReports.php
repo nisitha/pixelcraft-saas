@@ -157,6 +157,16 @@ class FinancialReports extends Page
             ->sum('amount');
     }
 
+    public function getAgentCommissions(): float
+    {
+        $tenantId = Filament::getTenant()?->id;
+
+        return (float) Invoice::where('company_id', $tenantId)
+            ->where('status', '!=', 'cancelled')
+            ->whereBetween('invoice_date', [$this->startDate, $this->endDate])
+            ->sum('commission_amount');
+    }
+
     public function getGrossProfit(): float
     {
         return round($this->getInvoicedSales() - $this->getCostOfGoodsSold(), 2);
@@ -174,7 +184,7 @@ class FinancialReports extends Page
 
     public function getNetProfit(): float
     {
-        return round($this->getGrossProfit() - $this->getOperatingExpenses(), 2);
+        return round($this->getGrossProfit() - $this->getOperatingExpenses() - $this->getAgentCommissions(), 2);
     }
 
     public function getNetMarginPercentage(): float

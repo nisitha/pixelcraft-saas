@@ -4,6 +4,7 @@ namespace App\Filament\App\Concerns;
 
 use App\Models\Contact;
 use App\Models\Product;
+use App\Models\SalesAgent;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
@@ -49,6 +50,19 @@ trait HasZohoDocumentEditor
 
     public bool $quickItemTrackInventory = true;
 
+    // Quick Add Sales Agent Modal
+    public bool $showQuickAgentModal = false;
+
+    public string $quickAgentName = '';
+
+    public string $quickAgentCode = '';
+
+    public string $quickAgentPhone = '';
+
+    public string $quickAgentCommissionType = 'fixed';
+
+    public string|float $quickAgentCommissionValue = 0.00;
+
     // Discount Switching & Tax Presets
     public string $discountType = 'fixed'; // 'fixed' or 'percentage'
 
@@ -85,6 +99,7 @@ trait HasZohoDocumentEditor
         if ($this->record instanceof Model && $this->record->exists) {
             $this->data = array_merge([
                 'contact_id' => $this->record->contact_id,
+                'sales_agent_id' => $this->record->sales_agent_id ?? null,
                 'quote_number' => $this->record->quote_number,
                 'quote_date' => $this->record->quote_date?->format('Y-m-d') ?? now()->toDateString(),
                 'valid_until' => $this->record->valid_until?->format('Y-m-d') ?? now()->addDays(30)->toDateString(),
@@ -100,6 +115,8 @@ trait HasZohoDocumentEditor
                 'discount' => (float) ($this->record->discount ?? 0),
                 'tax' => (float) ($this->record->tax ?? 0),
                 'grand_total' => (float) ($this->record->grand_total ?? 0),
+                'commission_amount' => (float) ($this->record->commission_amount ?? 0),
+                'commission_status' => $this->record->commission_status ?? 'pending',
             ], $this->data ?? []);
 
             $this->data['items'] = $this->record->items->map(function ($item) {
@@ -119,6 +136,7 @@ trait HasZohoDocumentEditor
             $defaultQuoteNo = 'QUO-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT);
             $this->data = array_merge([
                 'contact_id' => null,
+                'sales_agent_id' => null,
                 'quote_number' => $defaultQuoteNo,
                 'quote_date' => now()->toDateString(),
                 'valid_until' => now()->addDays(30)->toDateString(),
@@ -134,6 +152,8 @@ trait HasZohoDocumentEditor
                 'discount' => 0.00,
                 'tax' => 0.00,
                 'grand_total' => 0.00,
+                'commission_amount' => 0.00,
+                'commission_status' => 'pending',
                 'items' => [],
             ], $this->data ?? []);
         }
@@ -145,6 +165,7 @@ trait HasZohoDocumentEditor
             $this->data = array_merge([
                 'contact_id' => $this->record->contact_id,
                 'quotation_id' => $this->record->quotation_id,
+                'sales_agent_id' => $this->record->sales_agent_id ?? null,
                 'invoice_number' => $this->record->invoice_number,
                 'invoice_date' => $this->record->invoice_date?->format('Y-m-d') ?? now()->toDateString(),
                 'due_date' => $this->record->due_date?->format('Y-m-d') ?? now()->addDays(14)->toDateString(),
@@ -158,6 +179,8 @@ trait HasZohoDocumentEditor
                 'grand_total' => (float) ($this->record->grand_total ?? 0),
                 'paid_amount' => (float) ($this->record->paid_amount ?? 0),
                 'due_amount' => (float) ($this->record->due_amount ?? 0),
+                'commission_amount' => (float) ($this->record->commission_amount ?? 0),
+                'commission_status' => $this->record->commission_status ?? 'pending',
             ], $this->data ?? []);
 
             $this->data['items'] = $this->record->items->map(function ($item) {
@@ -178,6 +201,7 @@ trait HasZohoDocumentEditor
             $this->data = array_merge([
                 'contact_id' => null,
                 'quotation_id' => null,
+                'sales_agent_id' => null,
                 'invoice_number' => $defaultInvNo,
                 'invoice_date' => now()->toDateString(),
                 'due_date' => now()->addDays(14)->toDateString(),
@@ -191,6 +215,8 @@ trait HasZohoDocumentEditor
                 'grand_total' => 0.00,
                 'paid_amount' => 0.00,
                 'due_amount' => 0.00,
+                'commission_amount' => 0.00,
+                'commission_status' => 'pending',
                 'items' => [],
             ], $this->data ?? []);
         }
@@ -461,14 +487,78 @@ trait HasZohoDocumentEditor
             ->send();
     }
 
+    public function openQuickAgentModal(): void
+    {
+        $this->showQuickAgentModal = true;
+        $this->quickAgentCode = 'AGT-'.str_pad((string) rand(1, 999), 3, '0', STR_PAD_LEFT);
+        $this->quickAgentName = '';
+        $this->quickAgentPhone = '';
+        $this->quickAgentCommissionType = 'fixed';
+        $this->quickAgentCommissionValue = 0.00;
+    }
+
+    public function closeQuickAgentModal(): void
+    {
+        $this->showQuickAgentModal = false;
+    }
+
+    public function saveQuickAgent(): void
+    {
+        $this->validate([
+            'quickAgentName' => 'required|string|min:2|max:255',
+        ]);
+
+        $companyId = Filament::getTenant()?->id;
+
+        $agent = SalesAgent::create([
+            'company_id' => $companyId,
+            'agent_code' => trim($this->quickAgentCode) ?: ('AGT-'.str_pad((string) rand(1, 999), 3, '0', STR_PAD_LEFT)),
+            'name' => trim($this->quickAgentName),
+            'phone' => trim($this->quickAgentPhone) ?: null,
+            'default_commission_type' => $this->quickAgentCommissionType,
+            'default_commission_value' => (float) $this->quickAgentCommissionValue,
+            'is_active' => true,
+        ]);
+
+        $this->data['sales_agent_id'] = $agent->id;
+        $this->updateSalesAgentCommission();
+        $this->showQuickAgentModal = false;
+
+        Notification::make()
+            ->title("Sales Agent '{$agent->name}' created and assigned")
+            ->success()
+            ->send();
+    }
+
+    public function updateSalesAgentCommission(): void
+    {
+        $agentId = $this->data['sales_agent_id'] ?? null;
+        if (! $agentId) {
+            return;
+        }
+
+        $agent = SalesAgent::find($agentId);
+        if (! $agent) {
+            return;
+        }
+
+        $base = (float) ($this->data['grand_total'] ?? 0);
+        $this->data['commission_amount'] = $agent->calculateCommission($base);
+    }
+
     public function updatedData($value, $key): void
     {
+        if (str_contains($key, 'sales_agent_id')) {
+            $this->updateSalesAgentCommission();
+        }
+
         if (str_contains($key, 'quantity') ||
             str_contains($key, 'unit_price') ||
             str_contains($key, 'cost_price') ||
             str_contains($key, 'discount') ||
             str_contains($key, 'tax') ||
-            str_contains($key, 'paid_amount')) {
+            str_contains($key, 'paid_amount') ||
+            str_contains($key, 'commission_amount')) {
             $this->recalculateZohoTotals();
         }
     }
@@ -752,13 +842,23 @@ trait HasZohoDocumentEditor
         return round($totalCost, 2);
     }
 
-    public function getNetProfitProperty(): float
+    public function getGrossProfitProperty(): float
     {
         $grandTotal = (float) ($this->data['grand_total'] ?? 0);
         $tax = (float) ($this->data['tax'] ?? 0);
         $netRevenue = $grandTotal - $tax;
 
         return round($netRevenue - $this->totalCost, 2);
+    }
+
+    public function getAgentCommissionProperty(): float
+    {
+        return (float) ($this->data['commission_amount'] ?? 0);
+    }
+
+    public function getNetProfitProperty(): float
+    {
+        return round($this->grossProfit - $this->agentCommission, 2);
     }
 
     public function getProfitMarginPercentageProperty(): float

@@ -208,4 +208,19 @@ class Company extends Model implements HasAvatar, HasName
     {
         return $this->hasMany(SubscriptionRequest::class);
     }
+
+    public function completionCertificates(): HasMany
+    {
+        return $this->hasMany(CompletionCertificate::class);
+    }
+
+    public function salesAgents(): HasMany
+    {
+        return $this->hasMany(SalesAgent::class);
+    }
+
+    public function commissionPayouts(): HasMany
+    {
+        return $this->hasMany(CommissionPayout::class);
+    }
 }

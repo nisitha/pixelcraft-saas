@@ -672,21 +672,23 @@
                                         </div>
                                         <span style="font-size: 9px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #a7f3d0; padding: 1px 4px; border-radius: 3px; font-weight: 700;">CONFIDENTIAL</span>
                                     </div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 10px;">
+                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 10px;">
                                         <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Total Cost:</div>
-                                            <div style="font-weight: 700; font-size: 11px; color: #f8fafc;">Rs. {{ number_format($record->total_cost, 2) }}</div>
+                                            <div style="color: #cbd5e1; font-size: 9px;">Cost (COGS):</div>
+                                            <div style="font-weight: 700; font-size: 10.5px; color: #f8fafc;">Rs. {{ number_format($record->total_cost, 2) }}</div>
                                         </div>
                                         <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Est. Net Profit:</div>
-                                            <div style="font-weight: 800; font-size: 12px; color: {{ $record->net_profit >= 0 ? '#34d399' : '#f87171' }};">
-                                                Rs. {{ number_format($record->net_profit, 2) }}
-                                            </div>
+                                            <div style="color: #cbd5e1; font-size: 9px;">Gross Profit:</div>
+                                            <div style="font-weight: 700; font-size: 10.5px; color: #a7f3d0;">Rs. {{ number_format($record->gross_profit, 2) }}</div>
                                         </div>
                                         <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Margin %:</div>
-                                            <div style="font-weight: 800; font-size: 12px; color: {{ $record->profit_margin_percentage >= 20 ? '#34d399' : ($record->profit_margin_percentage >= 0 ? '#fbbf24' : '#f87171') }};">
-                                                {{ $record->profit_margin_percentage }}%
+                                            <div style="color: #cbd5e1; font-size: 9px;">Commission:</div>
+                                            <div style="font-weight: 700; font-size: 10.5px; color: #fde047;">Rs. {{ number_format((float) ($record->commission_amount ?? 0), 2) }}</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #cbd5e1; font-size: 9px;">Net Owner Profit:</div>
+                                            <div style="font-weight: 800; font-size: 11px; color: {{ $record->net_profit >= 0 ? '#34d399' : '#f87171' }};">
+                                                Rs. {{ number_format($record->net_profit, 2) }} ({{ $record->profit_margin_percentage }}%)
                                             </div>
                                         </div>
                                     </div>

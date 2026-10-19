@@ -4,6 +4,7 @@
     $contacts = \App\Models\Contact::where('company_id', $companyId)->orderBy('name')->get();
     $products = \App\Models\Product::where('company_id', $companyId)->orderBy('name')->get();
     $categories = \App\Models\Category::where('company_id', $companyId)->orderBy('name')->get();
+    $salesAgents = \App\Models\SalesAgent::where('company_id', $companyId)->where('is_active', true)->orderBy('name')->get();
 
     $docType = $this->documentType ?? 'quotation';
     $isQuote = $docType === 'quotation';
@@ -708,6 +709,57 @@
                 </div>
             </div>
         </div>
+
+        {{-- Row 3: Sales Agent / Referrer & Commission --}}
+        <div class="zoho-form-row">
+            <label class="zoho-row-label">
+                Sales Agent / Referrer
+            </label>
+            <div class="zoho-row-controls" style="flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 280px; max-width: 440px;">
+                    <select wire:model.live="data.sales_agent_id" class="zoho-select">
+                        <option value="">-- No Introducer / Direct Sale --</option>
+                        @foreach ($salesAgents as $agent)
+                            <option value="{{ $agent->id }}">
+                                {{ $agent->name }} ({{ $agent->agent_code }}) — {{ $agent->default_commission_type === 'percentage' ? "{$agent->default_commission_value}%" : 'Rs. '.number_format($agent->default_commission_value, 2) }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <button
+                        type="button"
+                        wire:click="openQuickAgentModal"
+                        class="zoho-pill-btn-secondary"
+                        style="padding: 6px 10px; font-size: 11px; white-space: nowrap; border-color: #0d9488; color: #0f766e; background: #f0fdfa; display: flex; align-items: center; gap: 4px;"
+                        title="Quick Register Sales Agent"
+                    >
+                        <span>+ Quick Add Agent</span>
+                    </button>
+                </div>
+
+                <div class="zoho-control-group">
+                    <span class="zoho-sublabel">Commission (Rs.):</span>
+                    <input
+                        type="number"
+                        step="any"
+                        min="0"
+                        wire:model.live.debounce.300ms="data.commission_amount"
+                        class="zoho-input right"
+                        style="width: 140px; font-weight: 700; color: #d97706;"
+                        placeholder="0.00"
+                    />
+                </div>
+
+                <div class="zoho-control-group">
+                    <span class="zoho-sublabel">Commission Status:</span>
+                    <select wire:model="data.commission_status" class="zoho-select" style="width: 120px;">
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="paid">Paid</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
 
     @php
@@ -1177,26 +1229,36 @@
                 @if ($isOwnerOrAdmin)
                     @php
                         $cost = $this->totalCost;
+                        $grossProfit = $this->grossProfit;
+                        $commission = $this->agentCommission;
                         $profit = $this->netProfit;
                         $margin = $this->profitMarginPercentage;
                     @endphp
                     <div style="margin-top: 16px; background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 12px 14px;">
                         <div style="font-size: 10.5px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
-                            <span>🔒 Internal Profit Analysis</span>
+                            <span>🔒 Owner Profit Analysis</span>
                             <span style="font-size: 9px; padding: 1px 6px; border-radius: 4px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-weight: 700;" class="dark:bg-emerald-950/80 dark:text-emerald-300">Owner Only</span>
                         </div>
                         <div style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 6px;" class="dark:text-slate-300">
                             <div style="display: flex; justify-content: space-between;">
-                                <span>Total Cost:</span>
+                                <span>Product Cost (COGS):</span>
                                 <strong style="color: #334155;" class="dark:text-slate-200">Rs. {{ number_format($cost, 2) }}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
-                                <span>Estimated Net Profit:</span>
-                                <strong style="color: {{ $profit >= 0 ? '#059669' : '#dc2626' }};">Rs. {{ number_format($profit, 2) }}</strong>
+                                <span>Gross Profit:</span>
+                                <strong style="color: {{ $grossProfit >= 0 ? '#059669' : '#dc2626' }};">Rs. {{ number_format($grossProfit, 2) }}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Agent Commission:</span>
+                                <strong style="color: #d97706;">Rs. {{ number_format($commission, 2) }}</strong>
                             </div>
                             <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(16, 185, 129, 0.3); padding-top: 5px; margin-top: 2px;">
-                                <span>Profit Margin:</span>
-                                <strong style="font-size: 13px; color: {{ $margin >= 20 ? '#059669' : ($margin >= 0 ? '#d97706' : '#dc2626') }};">{{ number_format($margin, 1) }}%</strong>
+                                <span>Net Owner Profit:</span>
+                                <strong style="font-size: 13px; color: {{ $profit >= 0 ? '#059669' : '#dc2626' }};">Rs. {{ number_format($profit, 2) }}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Net Profit Margin:</span>
+                                <strong style="font-size: 12px; color: {{ $margin >= 20 ? '#059669' : ($margin >= 0 ? '#d97706' : '#dc2626') }};">{{ number_format($margin, 1) }}%</strong>
                             </div>
                         </div>
                     </div>
@@ -1420,6 +1482,64 @@
                     </button>
                     <button type="button" wire:click="saveQuickItem" class="zoho-btn-save" style="padding: 6px 18px; font-size: 12px;">
                         Save & Add to Document
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Quick Add Sales Agent Modal --}}
+    @if ($this->showQuickAgentModal)
+        <div class="zoho-modal-overlay">
+            <div class="zoho-modal-container" style="max-width: 500px;">
+                <div class="zoho-modal-header">
+                    <div style="font-weight: 700; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <span>🤝</span> Quick Register Sales Agent / Referrer
+                    </div>
+                    <button type="button" wire:click="closeQuickAgentModal" style="background: transparent; border: none; font-size: 20px; color: #64748b; cursor: pointer;">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="zoho-modal-body" style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Agent Code</label>
+                            <input type="text" wire:model="quickAgentCode" class="zoho-input" placeholder="e.g. AGT-005" />
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Phone / Mobile</label>
+                            <input type="text" wire:model="quickAgentPhone" class="zoho-input" placeholder="e.g. 077 123 4567" />
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 14px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Agent Full Name*</label>
+                        <input type="text" wire:model="quickAgentName" class="zoho-input" placeholder="e.g. Ruwan Jayasinghe" required />
+                        @error('quickAgentName') <span style="font-size: 11px; color: #dc2626;">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Commission Model</label>
+                            <select wire:model="quickAgentCommissionType" class="zoho-select">
+                                <option value="fixed">Fixed LKR Amount</option>
+                                <option value="percentage">Percentage (%) of Total</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Default Value (Rs. / %)</label>
+                            <input type="number" step="any" wire:model="quickAgentCommissionValue" class="zoho-input" placeholder="0.00" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zoho-modal-footer">
+                    <button type="button" wire:click="closeQuickAgentModal" class="zoho-btn-secondary" style="padding: 6px 14px; font-size: 12px;">
+                        Cancel
+                    </button>
+                    <button type="button" wire:click="saveQuickAgent" class="zoho-btn-save" style="padding: 6px 18px; font-size: 12px;">
+                        Save & Assign Agent
                     </button>
                 </div>
             </div>

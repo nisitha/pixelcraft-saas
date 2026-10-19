@@ -4,13 +4,18 @@ namespace Database\Seeders;
 
 use App\Models\AuditLog;
 use App\Models\Category;
+use App\Models\CommissionPayout;
 use App\Models\Company;
+use App\Models\CompletionCertificate;
 use App\Models\Contact;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use App\Models\Plan;
 use App\Models\Product;
 use App\Models\ProductSerial;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
+use App\Models\SalesAgent;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -1261,5 +1266,162 @@ class VertexHomesSeeder extends Seeder
             ],
             'created_at' => now(),
         ]);
+
+        // 10. Create Sales Agents: Aradhana Fernando & Ruwan Jayasinghe
+        $agentAradhana = SalesAgent::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'agent_code' => 'AGT-001',
+            ],
+            [
+                'name' => 'Aradhana Fernando',
+                'nic_number' => '198812345678',
+                'phone' => '077 123 4567',
+                'email' => 'aradhana.fernando@example.com',
+                'address' => 'No. 45, Station Road, Negombo',
+                'bank_name' => 'Commercial Bank',
+                'bank_branch' => 'Negombo Branch',
+                'bank_account_name' => 'M. A. Fernando',
+                'bank_account_no' => '8001234567',
+                'default_commission_type' => 'percentage',
+                'default_commission_value' => 5.00,
+                'is_active' => true,
+                'notes' => 'Senior Solar Referral Partner - Western Province',
+            ]
+        );
+
+        $agentRuwan = SalesAgent::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'agent_code' => 'AGT-002',
+            ],
+            [
+                'name' => 'Ruwan Jayasinghe',
+                'nic_number' => '199276543210',
+                'phone' => '071 987 6543',
+                'email' => 'ruwan.j@example.com',
+                'address' => '12/4, Kandy Road, Mirigama',
+                'bank_name' => 'Sampath Bank',
+                'bank_branch' => 'Mirigama Branch',
+                'bank_account_name' => 'R. Jayasinghe',
+                'bank_account_no' => '00987654321',
+                'default_commission_type' => 'fixed',
+                'default_commission_value' => 35000.00,
+                'is_active' => true,
+                'notes' => 'Gampaha district direct introducer',
+            ]
+        );
+
+        // 11. Create Customer: MR. M A N A M Fernando
+        $customerFernando = Contact::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'name' => 'MR. M A N A M Fernando',
+            ],
+            [
+                'type' => 'customer',
+                'phone' => '+94 77 345 6789',
+                'email' => 'manam.fernando@example.com',
+                'address' => '260/20, Posparati Garden, Katana Road, Thimbitigaskatuwa',
+                'ceb_account_no' => 'CEB-RU-199-005',
+                'tax_no' => 'NIC-651234567V',
+                'balance' => 0.00,
+            ]
+        );
+
+        // 12. Create Invoice for MR. M A N A M Fernando with Sales Agent & Commission
+        $invoiceFernando = Invoice::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'invoice_number' => 'INV-2026-0005',
+            ],
+            [
+                'contact_id' => $customerFernando->id,
+                'sales_agent_id' => $agentRuwan->id,
+                'invoice_date' => '2026-03-10',
+                'due_date' => '2026-03-15',
+                'type' => 'standard',
+                'subtotal' => 1450000.00,
+                'discount' => 0.00,
+                'tax' => 0.00,
+                'grand_total' => 1450000.00,
+                'paid_amount' => 1450000.00,
+                'due_amount' => 0.00,
+                'commission_amount' => 35000.00,
+                'commission_status' => 'paid',
+                'status' => 'paid',
+                'is_sent' => true,
+                'sent_at' => now(),
+            ]
+        );
+
+        InvoiceItem::where('invoice_id', $invoiceFernando->id)->delete();
+        InvoiceItem::create([
+            'invoice_id' => $invoiceFernando->id,
+            'description' => '05 kW Solar PV Panels + 05kW Inverter System Turnkey Installation',
+            'quantity' => 1,
+            'unit_price' => 950000.00,
+            'cost_price' => 700000.00,
+            'subtotal' => 950000.00,
+            'tax' => 0.00,
+        ]);
+        InvoiceItem::create([
+            'invoice_id' => $invoiceFernando->id,
+            'description' => '05kWh Lithium Battery Energy Storage Pack',
+            'quantity' => 1,
+            'unit_price' => 500000.00,
+            'cost_price' => 380000.00,
+            'subtotal' => 500000.00,
+            'tax' => 0.00,
+        ]);
+
+        // 13. Create Sample Solar Completion Certificate for MR. M A N A M Fernando
+        CompletionCertificate::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'certificate_number' => 'CERT-VHE/2026/RU/199/005',
+            ],
+            [
+                'contact_id' => $customerFernando->id,
+                'invoice_id' => $invoiceFernando->id,
+                'customer_name' => 'MR. M A N A M Fernando',
+                'system_capacity' => '05 kW+05kw Battery offgrid Solar System',
+                'site_address' => '260/20, Posparati Garden, Katana Road, Thimbitigaskatuwa',
+                'commissioning_date' => '2026-03-15',
+                'grid_connection' => 'Non',
+                'warranty_period' => '30 Years (Panels) / 10 Years (Inverter+Battery)',
+                'system_status' => 'Commissioned & Operational',
+                'verification_status' => 'Engineering Safety Compliant',
+                'compliance_note' => 'Installed, tested, and commissioned in accordance with standard safety regulations.',
+                'lead_engineer_name' => 'Lead Engineer',
+                'lead_engineer_title' => 'Technical Operations',
+                'director_name' => 'Managing Director',
+                'director_title' => 'VERTEX HOME SOLUTIONS (PVT) LTD',
+                'signed_date' => '2026-03-15',
+                'paper_size' => 'a4',
+                'orientation' => 'landscape',
+                'status' => 'issued',
+            ]
+        );
+
+        // 14. Create Sample Commission Payout Voucher for Ruwan Jayasinghe
+        CommissionPayout::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'voucher_number' => 'COM-VHE-2026-0001',
+            ],
+            [
+                'sales_agent_id' => $agentRuwan->id,
+                'invoice_id' => $invoiceFernando->id,
+                'payout_date' => '2026-03-16',
+                'amount' => 35000.00,
+                'payment_method' => 'bank_transfer',
+                'reference_no' => 'TXN-SMP-2026-9901',
+                'status' => 'paid',
+                'notes' => 'Settlement for referral of Katana Road 5kW Off-Grid Project (Inv: INV-2026-0005)',
+                'paper_size' => 'a4',
+                'orientation' => 'portrait',
+            ]
+        );
     }
 }

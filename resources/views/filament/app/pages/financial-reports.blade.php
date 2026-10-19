@@ -170,6 +170,19 @@
                 </div>
             </div>
 
+            <!-- Agent Commissions -->
+            <div class="vb-metric-card">
+                <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #d97706; margin-bottom: 0.25rem;">
+                    Agent Commissions
+                </div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: #d97706;">
+                    Rs. {{ number_format($this->getAgentCommissions(), 2) }}
+                </div>
+                <div style="font-size: 0.65rem; color: #9ca3af; margin-top: 0.25rem;">
+                    Project introducer payouts
+                </div>
+            </div>
+
             <!-- Net Profit / Loss -->
             <div class="vb-metric-card" style="border-left: 4px solid {{ $this->getNetProfit() >= 0 ? '#059669' : '#e11d48' }};">
                 <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 0.25rem;">
@@ -225,6 +238,10 @@
                         <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;">
                             <span>Less: Total Operating Overhead Expenses</span>
                             <span style="color: #e11d48;">- Rs. {{ number_format($this->getOperatingExpenses(), 2) }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #d97706;">
+                            <span>Less: Sales Agent Referral Commissions</span>
+                            <span style="color: #d97706;">- Rs. {{ number_format($this->getAgentCommissions(), 2) }}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 0.75rem 0.85rem; border-top: 2px solid #059669; font-size: 0.95rem; font-weight: 800; background-color: #f9fafb; border-radius: 0.5rem; margin-top: 0.25rem;">
                             <span style="color: {{ $this->getNetProfit() >= 0 ? '#059669' : '#e11d48' }};">

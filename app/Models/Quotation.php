@@ -16,6 +16,7 @@ class Quotation extends Model
     protected $fillable = [
         'company_id',
         'contact_id',
+        'sales_agent_id',
         'quote_number',
         'quote_date',
         'valid_until',
@@ -28,6 +29,8 @@ class Quotation extends Model
         'discount',
         'tax',
         'grand_total',
+        'commission_amount',
+        'commission_status',
         'terms',
         'status',
         'is_sent',
@@ -44,6 +47,7 @@ class Quotation extends Model
             'discount' => 'decimal:2',
             'tax' => 'decimal:2',
             'grand_total' => 'decimal:2',
+            'commission_amount' => 'decimal:2',
             'is_sent' => 'boolean',
             'sent_at' => 'datetime',
         ];
@@ -52,6 +56,11 @@ class Quotation extends Model
     public function contact(): BelongsTo
     {
         return $this->belongsTo(Contact::class);
+    }
+
+    public function salesAgent(): BelongsTo
+    {
+        return $this->belongsTo(SalesAgent::class);
     }
 
     public function items(): HasMany
@@ -64,6 +73,11 @@ class Quotation extends Model
         return $this->hasOne(Invoice::class);
     }
 
+    public function completionCertificates(): HasMany
+    {
+        return $this->hasMany(CompletionCertificate::class);
+    }
+
     public function getTotalCostAttribute(): float
     {
         return (float) $this->items->sum(function ($item) {
@@ -74,11 +88,16 @@ class Quotation extends Model
         });
     }
 
-    public function getNetProfitAttribute(): float
+    public function getGrossProfitAttribute(): float
     {
         $netRevenue = (float) $this->grand_total - (float) $this->tax;
 
-        return $netRevenue - $this->total_cost;
+        return round($netRevenue - $this->total_cost, 2);
+    }
+
+    public function getNetProfitAttribute(): float
+    {
+        return round($this->gross_profit - (float) ($this->commission_amount ?? 0), 2);
     }
 
     public function getProfitMarginPercentageAttribute(): float

@@ -2,7 +2,10 @@
 
 namespace App\Filament\App\Resources\Invoices\Tables;
 
+use App\Filament\App\Resources\CompletionCertificates\CompletionCertificateResource;
 use App\Filament\App\Resources\Invoices\InvoiceResource;
+use App\Models\CommissionPayout;
+use App\Models\CompletionCertificate;
 use App\Models\Invoice;
 use App\Services\PdfService;
 use Filament\Actions\Action;
@@ -10,6 +13,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -201,6 +208,101 @@ class InvoicesTable
                         );
                     }),
 
+                Action::make('issueCertificate')
+                    ->label('Issue Certificate')
+                    ->icon(Heroicon::AcademicCap)
+                    ->color('info')
+                    ->action(function (Invoice $record, Action $action) {
+                        $certificate = CompletionCertificate::create([
+                            'company_id' => $record->company_id,
+                            'contact_id' => $record->contact_id,
+                            'invoice_id' => $record->id,
+                            'quotation_id' => $record->quotation_id,
+                            'certificate_number' => 'CERT-VHE/'.date('Y').'/RU/'.str_pad((string) rand(1, 999), 3, '0', STR_PAD_LEFT).'/'.str_pad((string) rand(1, 99), 3, '0', STR_PAD_LEFT),
+                            'customer_name' => strtoupper($record->contact?->name ?? 'Customer'),
+                            'system_capacity' => ($record->quotation?->system_kw ? $record->quotation->system_kw.' kW Solar System' : '05 kW+05kw Battery offgrid Solar System'),
+                            'site_address' => $record->contact?->address ?: '260/20, Negombo Road, Sri Lanka',
+                            'commissioning_date' => now()->toDateString(),
+                            'grid_connection' => 'On-Grid Net Metering',
+                            'warranty_period' => '30 Years (Panels) / 10 Years (Inverter+Battery)',
+                            'system_status' => 'Commissioned & Operational',
+                            'verification_status' => 'Engineering Safety Compliant',
+                            'compliance_note' => 'Installed, tested, and commissioned in accordance with standard safety regulations.',
+                            'lead_engineer_name' => 'Lead Engineer',
+                            'lead_engineer_title' => 'Technical Operations',
+                            'director_name' => 'Managing Director',
+                            'director_title' => $record->company?->name ?: 'Vertex Home Solutions (Pvt) Ltd',
+                            'signed_date' => now()->toDateString(),
+                            'paper_size' => 'a4',
+                            'orientation' => 'landscape',
+                            'status' => 'draft',
+                        ]);
+
+                        Notification::make()
+                            ->title("Completion Certificate created: {$certificate->certificate_number}")
+                            ->success()
+                            ->send();
+
+                        return $action->redirect(CompletionCertificateResource::getUrl('edit', ['record' => $certificate->id]));
+                    }),
+
+                Action::make('payCommission')
+                    ->label('Pay Commission')
+                    ->icon(Heroicon::Banknotes)
+                    ->color('success')
+                    ->visible(fn (Invoice $record): bool => (bool) $record->sales_agent_id && $record->commission_status !== 'paid')
+                    ->schema([
+                        DatePicker::make('payout_date')
+                            ->label('Payout Date')
+                            ->default(now())
+                            ->required(),
+                        TextInput::make('amount')
+                            ->label('Commission Amount (Rs.)')
+                            ->numeric()
+                            ->prefix('Rs.')
+                            ->default(fn (Invoice $record) => (float) $record->commission_amount)
+                            ->required(),
+                        Select::make('payment_method')
+                            ->label('Payment Method')
+                            ->options([
+                                'bank_transfer' => 'Bank Transfer',
+                                'cash' => 'Cash',
+                                'cheque' => 'Cheque',
+                            ])
+                            ->default('bank_transfer')
+                            ->required(),
+                        TextInput::make('reference_no')
+                            ->label('Bank Ref / Cheque No')
+                            ->placeholder('e.g., TXN-982183'),
+                        Textarea::make('notes')
+                            ->label('Settlement Notes'),
+                    ])
+                    ->action(function (Invoice $record, array $data) {
+                        $voucherNo = 'COM-VHE-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                        $payout = CommissionPayout::create([
+                            'company_id' => $record->company_id,
+                            'sales_agent_id' => $record->sales_agent_id,
+                            'invoice_id' => $record->id,
+                            'voucher_number' => $voucherNo,
+                            'payout_date' => $data['payout_date'],
+                            'amount' => (float) $data['amount'],
+                            'payment_method' => $data['payment_method'],
+                            'reference_no' => $data['reference_no'] ?? null,
+                            'status' => 'paid',
+                            'notes' => $data['notes'] ?? null,
+                            'paper_size' => 'a4',
+                            'orientation' => 'portrait',
+                        ]);
+
+                        $record->update(['commission_status' => 'paid']);
+
+                        Notification::make()
+                            ->title("Commission Voucher {$payout->voucher_number} created & marked as paid")
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('duplicate')
                     ->label('Duplicate')
                     ->icon(Heroicon::DocumentDuplicate)
@@ -213,6 +315,7 @@ class InvoicesTable
                                 'company_id' => $record->company_id,
                                 'contact_id' => $record->contact_id,
                                 'quotation_id' => $record->quotation_id,
+                                'sales_agent_id' => $record->sales_agent_id,
                                 'invoice_number' => $newNumber,
                                 'invoice_date' => now()->toDateString(),
                                 'due_date' => now()->addDays(14)->toDateString(),
@@ -223,6 +326,8 @@ class InvoicesTable
                                 'grand_total' => $record->grand_total,
                                 'paid_amount' => 0.00,
                                 'due_amount' => $record->grand_total,
+                                'commission_amount' => $record->commission_amount ?? 0.00,
+                                'commission_status' => 'pending',
                                 'status' => 'unpaid',
                                 'terms' => $record->terms,
                                 'is_sent' => false,
@@ -233,6 +338,7 @@ class InvoicesTable
                                     'product_id' => $item->product_id,
                                     'description' => $item->description,
                                     'quantity' => $item->quantity,
+                                    'cost_price' => $item->cost_price ?? 0.00,
                                     'unit_price' => $item->unit_price,
                                     'tax' => $item->tax ?? 0.00,
                                     'subtotal' => $item->subtotal,

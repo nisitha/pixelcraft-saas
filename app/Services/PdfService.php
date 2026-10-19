@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\CommissionPayout;
+use App\Models\CompletionCertificate;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Quotation;
@@ -192,5 +194,64 @@ class PdfService
         $safeNumber = static::sanitizeFileName($number);
 
         return "PaymentReceipt-{$safeNumber}.pdf";
+    }
+
+    public function generateCompletionCertificatePdf(CompletionCertificate $certificate): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $certificate->loadMissing(['company', 'contact', 'invoice', 'quotation']);
+
+        $paperSize = strtolower($certificate->paper_size ?? 'a4');
+        $orientation = strtolower($certificate->orientation ?? 'landscape');
+
+        $pdf = Pdf::loadView('pdf.completion-certificate', [
+            'certificate' => $certificate,
+            'company' => $certificate->company,
+            'contact' => $certificate->contact,
+            'invoice' => $certificate->invoice,
+            'quotation' => $certificate->quotation,
+        ])->setPaper($paperSize, $orientation);
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public static function getCompletionCertificateFileName(CompletionCertificate|string $certificate): string
+    {
+        $number = $certificate instanceof CompletionCertificate ? $certificate->certificate_number : $certificate;
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "Certificate-{$safeNumber}.pdf";
+    }
+
+    public function generateCommissionVoucherPdf(CommissionPayout $payout): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $payout->loadMissing(['company', 'salesAgent', 'invoice.contact']);
+
+        $paperSize = strtolower($payout->paper_size ?? 'a4');
+        $orientation = strtolower($payout->orientation ?? 'portrait');
+
+        $pdf = Pdf::loadView('pdf.commission-voucher', [
+            'payout' => $payout,
+            'company' => $payout->company,
+            'agent' => $payout->salesAgent,
+            'invoice' => $payout->invoice,
+        ])->setPaper($paperSize, $orientation);
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public static function getCommissionVoucherFileName(CommissionPayout|string $payout): string
+    {
+        $number = $payout instanceof CommissionPayout ? $payout->voucher_number : $payout;
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "CommissionVoucher-{$safeNumber}.pdf";
     }
 }
