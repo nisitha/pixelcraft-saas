@@ -67,10 +67,13 @@ class ProductForm
                                 ->required()
                                 ->numeric()
                                 ->default(5),
+                            Toggle::make('track_inventory')
+                                ->label('Track Stock / Inventory Deductions')
+                                ->default(true)
+                                ->helperText('Automatically decrement inventory stock when billed on customer invoices.'),
                             Toggle::make('track_serial')
                                 ->label('Track Serial Numbers (Inverter/Panels)')
-                                ->default(false)
-                                ->columnSpanFull(),
+                                ->default(false),
                         ]),
                     ]),
             ]);

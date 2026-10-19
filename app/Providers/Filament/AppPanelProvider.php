@@ -68,6 +68,57 @@ class AppPanelProvider extends PanelProvider
                         font-weight: 700 !important;
                     }
 
+                    /* Sleek Modern Glassmorphic Workspace Switcher Card */
+                    .fi-tenant-menu-trigger {
+                        background: rgba(255, 255, 255, 0.08) !important;
+                        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+                        border-radius: 12px !important;
+                        padding: 10px 12px !important;
+                        margin: 10px 12px !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        gap: 10px !important;
+                        transition: all 0.2s ease-in-out !important;
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+                    }
+
+                    .fi-tenant-menu-trigger:hover {
+                        background: rgba(255, 255, 255, 0.14) !important;
+                        border-color: rgba(255, 255, 255, 0.25) !important;
+                        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25), 0 0 10px rgba(255, 255, 255, 0.1) !important;
+                        transform: translateY(-1px) !important;
+                    }
+
+                    .fi-tenant-menu-trigger span,
+                    .fi-tenant-menu-trigger p,
+                    .fi-tenant-menu-trigger div,
+                    .fi-tenant-menu-trigger .fi-tenant-name,
+                    .fi-tenant-menu-trigger [class*="tenant"] {
+                        color: #ffffff !important;
+                        font-weight: 700 !important;
+                    }
+
+                    /* Tenant Logo / Avatar styling */
+                    .fi-tenant-menu-trigger .fi-avatar,
+                    .fi-tenant-menu-trigger img,
+                    .fi-tenant-menu-trigger .fi-tenant-avatar {
+                        width: 40px !important;
+                        height: 40px !important;
+                        min-width: 40px !important;
+                        min-height: 40px !important;
+                        border-radius: 10px !important;
+                        object-fit: contain !important;
+                        background-color: #ffffff !important;
+                        padding: 2px !important;
+                        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+                    }
+
+                    .fi-tenant-menu-trigger svg,
+                    .fi-tenant-menu-trigger .fi-icon-btn {
+                        color: #cbd5e1 !important;
+                        margin-left: auto !important;
+                    }
+
                     .fi-sidebar-group-label {
                         color: #94a3b8 !important;
                         font-size: 0.72rem !important;

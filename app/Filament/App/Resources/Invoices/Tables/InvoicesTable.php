@@ -14,6 +14,7 @@ use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class InvoicesTable
 {
@@ -133,7 +134,7 @@ class InvoicesTable
                     }),
 
                 Action::make('downloadReceipt')
-                    ->label('80mm Receipt')
+                    ->label('80mm POS')
                     ->icon(Heroicon::ReceiptPercent)
                     ->color('warning')
                     ->action(function (Invoice $record) {
@@ -145,6 +146,89 @@ class InvoicesTable
                             $filename,
                             ['Content-Type' => 'application/pdf']
                         );
+                    }),
+
+                Action::make('deliveryNote')
+                    ->label('Delivery Note')
+                    ->icon(Heroicon::Truck)
+                    ->color('gray')
+                    ->action(function (Invoice $record) {
+                        $filename = PdfService::getDeliveryNoteFileName($record);
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generateDeliveryNotePdf($record)->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
+
+                Action::make('downloadReceiptVoucher')
+                    ->label('Receipt Voucher')
+                    ->icon(Heroicon::DocumentCheck)
+                    ->color('success')
+                    ->visible(fn (Invoice $record): bool => $record->payments()->count() > 0)
+                    ->action(function (Invoice $record) {
+                        $payment = $record->payments()->latest()->first();
+                        if (! $payment) {
+                            return null;
+                        }
+
+                        $filename = PdfService::getPaymentReceiptFileName($payment);
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generatePaymentReceiptPdf($payment)->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
+
+                Action::make('duplicate')
+                    ->label('Duplicate')
+                    ->icon(Heroicon::DocumentDuplicate)
+                    ->color('gray')
+                    ->action(function (Invoice $record, Action $action) {
+                        $newInvoice = DB::transaction(function () use ($record) {
+                            $newNumber = 'INV-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                            $invoice = Invoice::create([
+                                'company_id' => $record->company_id,
+                                'contact_id' => $record->contact_id,
+                                'quotation_id' => $record->quotation_id,
+                                'invoice_number' => $newNumber,
+                                'invoice_date' => now()->toDateString(),
+                                'due_date' => now()->addDays(14)->toDateString(),
+                                'type' => $record->type,
+                                'subtotal' => $record->subtotal,
+                                'discount' => $record->discount,
+                                'tax' => $record->tax,
+                                'grand_total' => $record->grand_total,
+                                'paid_amount' => 0.00,
+                                'due_amount' => $record->grand_total,
+                                'status' => 'unpaid',
+                                'terms' => $record->terms,
+                                'is_sent' => false,
+                            ]);
+
+                            foreach ($record->items as $item) {
+                                $invoice->items()->create([
+                                    'product_id' => $item->product_id,
+                                    'description' => $item->description,
+                                    'quantity' => $item->quantity,
+                                    'unit_price' => $item->unit_price,
+                                    'tax' => $item->tax ?? 0.00,
+                                    'subtotal' => $item->subtotal,
+                                ]);
+                            }
+
+                            return $invoice;
+                        });
+
+                        Notification::make()
+                            ->title("Invoice duplicated as #{$newInvoice->invoice_number}")
+                            ->success()
+                            ->send();
+
+                        return $action->redirect(InvoiceResource::getUrl('view', ['record' => $newInvoice->id]));
                     }),
 
                 EditAction::make()

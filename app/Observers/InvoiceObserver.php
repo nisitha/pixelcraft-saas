@@ -37,13 +37,17 @@ class InvoiceObserver
             $oldStatus = $invoice->getOriginal('status');
             $userId = Filament::auth()->id() ?? auth()->id();
 
+            $inventoryEnabled = (bool) ($invoice->company?->settings['inventory_enabled'] ?? true);
+
             // Invoice Cancelled: Restore inventory stock and release serials
             if ($newStatus === 'cancelled') {
-                foreach ($invoice->items as $item) {
-                    if ($item->product_id) {
-                        $product = Product::find($item->product_id);
-                        if ($product && $product->type === 'product') {
-                            $product->increment('stock_qty', (float) $item->quantity);
+                if ($inventoryEnabled) {
+                    foreach ($invoice->items as $item) {
+                        if ($item->product_id) {
+                            $product = Product::find($item->product_id);
+                            if ($product && $product->type === 'product' && ($product->track_inventory ?? true)) {
+                                $product->increment('stock_qty', (float) $item->quantity);
+                            }
                         }
                     }
                 }
@@ -73,11 +77,13 @@ class InvoiceObserver
 
             // Un-cancelling an invoice: Re-deduct stock
             if ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
-                foreach ($invoice->items as $item) {
-                    if ($item->product_id) {
-                        $product = Product::find($item->product_id);
-                        if ($product && $product->type === 'product') {
-                            $product->decrement('stock_qty', (float) $item->quantity);
+                if ($inventoryEnabled) {
+                    foreach ($invoice->items as $item) {
+                        if ($item->product_id) {
+                            $product = Product::find($item->product_id);
+                            if ($product && $product->type === 'product' && ($product->track_inventory ?? true)) {
+                                $product->decrement('stock_qty', (float) $item->quantity);
+                            }
                         }
                     }
                 }

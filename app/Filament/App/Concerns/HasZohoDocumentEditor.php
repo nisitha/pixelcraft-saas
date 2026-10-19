@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Concerns;
 
+use App\Models\Contact;
 use App\Models\Product;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
@@ -23,6 +24,35 @@ trait HasZohoDocumentEditor
     public string $bulkSearch = '';
 
     public ?string $bulkCategory = null;
+
+    // Quick Add Customer Modal
+    public bool $showQuickCustomerModal = false;
+
+    public string $quickCustomerName = '';
+
+    public string $quickCustomerPhone = '';
+
+    public string $quickCustomerEmail = '';
+
+    public string $quickCustomerAddress = '';
+
+    // Quick Add Item Modal
+    public bool $showQuickItemModal = false;
+
+    public string $quickItemName = '';
+
+    public string $quickItemSku = '';
+
+    public string|float $quickItemPrice = '';
+
+    public string $quickItemType = 'product';
+
+    public bool $quickItemTrackInventory = true;
+
+    // Discount Switching & Tax Presets
+    public string $discountType = 'fixed'; // 'fixed' or 'percentage'
+
+    public float $discountPercent = 0.00;
 
     /**
      * Initialize document state for Zoho editor.
@@ -256,11 +286,19 @@ trait HasZohoDocumentEditor
             $totalTax += $rowTax;
         }
 
-        $docDiscount = (float) ($this->data['discount'] ?? 0);
-        $grandTotal = max(0, round($subtotal - $docDiscount + $totalTax, 2));
+        if ($this->discountType === 'percentage') {
+            $percent = (float) ($this->discountPercent ?? 0);
+            $docDiscount = round($subtotal * ($percent / 100), 2);
+            $this->data['discount'] = $docDiscount;
+        } else {
+            $docDiscount = (float) ($this->data['discount'] ?? 0);
+        }
+
+        $tax = (float) ($this->data['tax'] ?? $totalTax);
+        $grandTotal = max(0, round($subtotal - $docDiscount + $tax, 2));
 
         $this->data['subtotal'] = round($subtotal, 2);
-        $this->data['tax'] = round($totalTax, 2);
+        $this->data['tax'] = round($tax, 2);
         $this->data['grand_total'] = $grandTotal;
 
         if ($this->documentType === 'invoice') {
@@ -276,6 +314,146 @@ trait HasZohoDocumentEditor
                 $this->data['status'] = 'unpaid';
             }
         }
+    }
+
+    public function setDiscountType(string $type): void
+    {
+        $this->discountType = $type;
+        $this->recalculateZohoTotals();
+    }
+
+    public function updatedDiscountPercent(): void
+    {
+        $this->recalculateZohoTotals();
+    }
+
+    public function applyTaxPreset(float $percent, string $label): void
+    {
+        $subtotal = (float) ($this->data['subtotal'] ?? 0);
+        $this->data['tax'] = round($subtotal * ($percent / 100), 2);
+        $this->recalculateZohoTotals();
+
+        Notification::make()
+            ->title("Tax preset applied: {$label}")
+            ->success()
+            ->send();
+    }
+
+    public function openQuickCustomerModal(): void
+    {
+        $this->resetQuickCustomerForm();
+        $this->showQuickCustomerModal = true;
+    }
+
+    public function closeQuickCustomerModal(): void
+    {
+        $this->showQuickCustomerModal = false;
+        $this->resetQuickCustomerForm();
+    }
+
+    public function resetQuickCustomerForm(): void
+    {
+        $this->quickCustomerName = '';
+        $this->quickCustomerPhone = '';
+        $this->quickCustomerEmail = '';
+        $this->quickCustomerAddress = '';
+    }
+
+    public function saveQuickCustomer(): void
+    {
+        $this->validate([
+            'quickCustomerName' => 'required|string|min:2|max:255',
+        ]);
+
+        $companyId = Filament::getTenant()?->id;
+
+        $customer = Contact::create([
+            'company_id' => $companyId,
+            'name' => trim($this->quickCustomerName),
+            'phone' => trim($this->quickCustomerPhone) ?: null,
+            'email' => trim($this->quickCustomerEmail) ?: null,
+            'address' => trim($this->quickCustomerAddress) ?: null,
+            'type' => 'customer',
+        ]);
+
+        $this->data['contact_id'] = $customer->id;
+        $this->showQuickCustomerModal = false;
+        $this->resetQuickCustomerForm();
+
+        Notification::make()
+            ->title("Customer {$customer->name} created and selected")
+            ->success()
+            ->send();
+    }
+
+    public function openQuickItemModal(): void
+    {
+        $this->resetQuickItemForm();
+        $this->showQuickItemModal = true;
+    }
+
+    public function closeQuickItemModal(): void
+    {
+        $this->showQuickItemModal = false;
+        $this->resetQuickItemForm();
+    }
+
+    public function resetQuickItemForm(): void
+    {
+        $this->quickItemName = '';
+        $this->quickItemSku = '';
+        $this->quickItemPrice = '';
+        $this->quickItemType = 'product';
+        $this->quickItemTrackInventory = true;
+    }
+
+    public function saveQuickItem(): void
+    {
+        $this->validate([
+            'quickItemName' => 'required|string|min:2|max:255',
+            'quickItemPrice' => 'required|numeric|min:0',
+        ]);
+
+        $companyId = Filament::getTenant()?->id;
+
+        $product = Product::create([
+            'company_id' => $companyId,
+            'name' => trim($this->quickItemName),
+            'sku' => trim($this->quickItemSku) ?: ('SKU-'.strtoupper(substr(uniqid(), -6))),
+            'unit_price' => (float) $this->quickItemPrice,
+            'type' => $this->quickItemType,
+            'track_inventory' => $this->quickItemTrackInventory,
+            'stock_qty' => 0.00,
+        ]);
+
+        $items = $this->data['items'] ?? [];
+        $isFirstEmpty = count($items) === 1 && empty($items[0]['product_id']) && empty($items[0]['description']);
+
+        $newItem = [
+            'id' => null,
+            'product_id' => $product->id,
+            'description' => $product->name,
+            'quantity' => 1,
+            'unit_price' => (float) $product->unit_price,
+            'discount_rate' => 0.00,
+            'tax' => 0.00,
+            'subtotal' => (float) $product->unit_price,
+        ];
+
+        if ($isFirstEmpty) {
+            $this->data['items'] = [$newItem];
+        } else {
+            $this->data['items'][] = $newItem;
+        }
+
+        $this->showQuickItemModal = false;
+        $this->resetQuickItemForm();
+        $this->recalculateZohoTotals();
+
+        Notification::make()
+            ->title("Item '{$product->name}' created and added to table")
+            ->success()
+            ->send();
     }
 
     public function updatedData($value, $key): void

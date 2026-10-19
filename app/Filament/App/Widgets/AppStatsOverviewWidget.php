@@ -38,7 +38,7 @@ class AppStatsOverviewWidget extends BaseWidget
             ->whereColumn('stock_qty', '<=', 'alert_qty')
             ->count();
 
-        return [
+        $stats = [
             Stat::make('Total Revenue', 'Rs. '.number_format((float) $totalRevenue, 2))
                 ->description('Collected revenue')
                 ->descriptionIcon(Heroicon::ArrowTrendingUp)
@@ -54,11 +54,16 @@ class AppStatsOverviewWidget extends BaseWidget
                 ->description('Rs. '.number_format((float) $pendingDueAmount, 2).' outstanding')
                 ->descriptionIcon(Heroicon::Clock)
                 ->color('warning'),
+        ];
 
-            Stat::make('Low Stock Products', (string) $lowStockCount)
+        $inventoryEnabled = (bool) ($tenant?->settings['inventory_enabled'] ?? true);
+        if ($inventoryEnabled) {
+            $stats[] = Stat::make('Low Stock Products', (string) $lowStockCount)
                 ->description('Items below alert threshold')
                 ->descriptionIcon(Heroicon::ExclamationTriangle)
-                ->color($lowStockCount > 0 ? 'danger' : 'success'),
-        ];
+                ->color($lowStockCount > 0 ? 'danger' : 'success');
+        }
+
+        return $stats;
     }
 }

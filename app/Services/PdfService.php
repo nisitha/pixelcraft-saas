@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Quotation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPdfWrapper;
@@ -41,6 +42,47 @@ class PdfService
             'contact' => $invoice->contact,
             'items' => $invoice->items,
             'payments' => $invoice->payments,
+        ])->setPaper('a4', 'portrait');
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public function generateDeliveryNotePdf(Invoice|Quotation $record, ?string $vehicleNo = null, ?string $driverName = null): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $record->loadMissing(['company', 'contact', 'items.product']);
+
+        $referenceNumber = $record instanceof Invoice ? $record->invoice_number : $record->quote_number;
+
+        $pdf = Pdf::loadView('pdf.delivery-note', [
+            'record' => $record,
+            'company' => $record->company,
+            'contact' => $record->contact,
+            'items' => $record->items,
+            'referenceNumber' => $referenceNumber,
+            'vehicleNo' => $vehicleNo,
+            'driverName' => $driverName,
+        ])->setPaper('a4', 'portrait');
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public function generatePaymentReceiptPdf(Payment $payment): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $payment->loadMissing(['company', 'invoice.contact']);
+
+        $pdf = Pdf::loadView('pdf.payment-receipt', [
+            'payment' => $payment,
+            'company' => $payment->company,
+            'invoice' => $payment->invoice,
+            'contact' => $payment->invoice?->contact,
         ])->setPaper('a4', 'portrait');
 
         $this->applyDompdfOptions($pdf);
@@ -130,5 +172,25 @@ class PdfService
         $safeNumber = static::sanitizeFileName($number);
 
         return "Receipt-{$safeNumber}.pdf";
+    }
+
+    public static function getDeliveryNoteFileName(Invoice|Quotation|string $record): string
+    {
+        $number = is_string($record)
+            ? $record
+            : ($record instanceof Invoice ? $record->invoice_number : $record->quote_number);
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "DeliveryNote-{$safeNumber}.pdf";
+    }
+
+    public static function getPaymentReceiptFileName(Payment|string $payment): string
+    {
+        $number = is_string($payment)
+            ? $payment
+            : ($payment->reference_no ?: ('REC-'.$payment->id));
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "PaymentReceipt-{$safeNumber}.pdf";
     }
 }

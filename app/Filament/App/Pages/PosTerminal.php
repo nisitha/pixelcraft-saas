@@ -32,6 +32,17 @@ class PosTerminal extends Page
 
     protected string $view = 'filament.app.pages.pos-terminal';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        $tenant = Filament::getTenant();
+
+        if (! $tenant) {
+            return true;
+        }
+
+        return (bool) ($tenant->settings['enable_pos_module'] ?? true);
+    }
+
     public string $search = '';
 
     public ?int $selectedCategoryId = null;
@@ -112,6 +123,23 @@ class PosTerminal extends Page
 
         if (! $product) {
             return;
+        }
+
+        $tenant = Filament::getTenant();
+        $inventoryEnabled = (bool) ($tenant?->settings['inventory_enabled'] ?? true);
+        $allowOutOfStock = (bool) ($tenant?->settings['allow_out_of_stock_invoicing'] ?? true);
+
+        if ($inventoryEnabled && ! $allowOutOfStock && $product->type === 'product' && ($product->track_inventory ?? true)) {
+            $currentQtyInCart = isset($this->cart[$productId]) ? $this->cart[$productId]['quantity'] : 0;
+            if ($product->stock_qty <= $currentQtyInCart) {
+                Notification::make()
+                    ->title('Out of Stock')
+                    ->body("Product {$product->name} is out of stock and out-of-stock invoicing is disabled.")
+                    ->danger()
+                    ->send();
+
+                return;
+            }
         }
 
         if (isset($this->cart[$productId])) {

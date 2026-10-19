@@ -199,6 +199,42 @@ class EditCompanyProfile extends EditTenantProfile
                                         ]),
                                     ]),
                             ]),
+
+                        Tab::make('Inventory & Business Mode')
+                            ->icon('heroicon-o-cube')
+                            ->schema([
+                                Section::make('Inventory Tracking & Invoicing Rules')
+                                    ->description('Configure inventory automation, stock deductions, and billing flexibility.')
+                                    ->schema([
+                                        Grid::make(2)->schema([
+                                            Toggle::make('settings.inventory_enabled')
+                                                ->label('Enable Inventory & Stock Tracking')
+                                                ->default(true)
+                                                ->helperText('Track stock quantities, low-stock alerts, and auto-deduct stock upon invoicing. Disable for purely service-based businesses.'),
+
+                                            Toggle::make('settings.allow_out_of_stock_invoicing')
+                                                ->label('Allow Out-of-Stock Invoicing')
+                                                ->default(true)
+                                                ->helperText('Allow creating and finalizing invoices even when product inventory is 0 or negative.'),
+                                        ]),
+                                    ]),
+
+                                Section::make('Workspace Modules & Engineering Specs')
+                                    ->description('Enable or disable industry-specific modules and document fields.')
+                                    ->schema([
+                                        Grid::make(2)->schema([
+                                            Toggle::make('settings.enable_pos_module')
+                                                ->label('Enable POS Terminal Module')
+                                                ->default(true)
+                                                ->helperText('Display the Point of Sale cashier interface in the workspace navigation.'),
+
+                                            Toggle::make('settings.enable_solar_specs')
+                                                ->label('Enable Solar & Engineering Specs')
+                                                ->default(true)
+                                                ->helperText('Show solar system sizing (kWp, Phase, Inverter, Panels) and CEB account fields across quotes and invoices.'),
+                                        ]),
+                                    ]),
+                            ]),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -209,6 +245,16 @@ class EditCompanyProfile extends EditTenantProfile
         if (empty($data['logo_path']) && ! empty($data['settings']['logo_path'])) {
             $data['logo_path'] = $data['settings']['logo_path'];
         }
+
+        $settings = $data['settings'] ?? [];
+        if (! is_array($settings)) {
+            $settings = [];
+        }
+        $settings['inventory_enabled'] = $settings['inventory_enabled'] ?? true;
+        $settings['allow_out_of_stock_invoicing'] = $settings['allow_out_of_stock_invoicing'] ?? true;
+        $settings['enable_pos_module'] = $settings['enable_pos_module'] ?? true;
+        $settings['enable_solar_specs'] = $settings['enable_solar_specs'] ?? true;
+        $data['settings'] = $settings;
 
         return $data;
     }

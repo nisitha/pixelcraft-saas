@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\Products\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -13,6 +14,8 @@ class ProductsTable
 {
     public static function configure(Table $table): Table
     {
+        $inventoryEnabled = (bool) (Filament::getTenant()?->settings['inventory_enabled'] ?? true);
+
         return $table
             ->columns([
                 TextColumn::make('company.name')
@@ -34,12 +37,20 @@ class ProductsTable
                     ->sortable(),
                 TextColumn::make('stock_qty')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible($inventoryEnabled),
                 TextColumn::make('alert_qty')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->visible($inventoryEnabled),
+                IconColumn::make('track_inventory')
+                    ->label('Track Stock')
+                    ->boolean()
+                    ->toggleable()
+                    ->visible($inventoryEnabled),
                 IconColumn::make('track_serial')
-                    ->boolean(),
+                    ->boolean()
+                    ->visible($inventoryEnabled),
                 TextColumn::make('warranty_months')
                     ->numeric()
                     ->sortable(),

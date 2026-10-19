@@ -176,6 +176,70 @@ class QuotationsTable
                         );
                     }),
 
+                Action::make('deliveryNote')
+                    ->label('Delivery Note')
+                    ->icon(Heroicon::Truck)
+                    ->color('gray')
+                    ->action(function (Quotation $record) {
+                        $filename = PdfService::getDeliveryNoteFileName($record);
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generateDeliveryNotePdf($record)->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
+
+                Action::make('duplicate')
+                    ->label('Duplicate')
+                    ->icon(Heroicon::DocumentDuplicate)
+                    ->color('gray')
+                    ->action(function (Quotation $record, Action $action) {
+                        $newQuote = DB::transaction(function () use ($record) {
+                            $newNumber = 'QUO-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                            $quote = Quotation::create([
+                                'company_id' => $record->company_id,
+                                'contact_id' => $record->contact_id,
+                                'quote_number' => $newNumber,
+                                'quote_date' => now()->toDateString(),
+                                'valid_until' => now()->addDays(30)->toDateString(),
+                                'status' => 'draft',
+                                'system_kw' => $record->system_kw,
+                                'phase_type' => $record->phase_type,
+                                'roof_type' => $record->roof_type,
+                                'inverter_brand' => $record->inverter_brand,
+                                'panel_brand' => $record->panel_brand,
+                                'subtotal' => $record->subtotal,
+                                'discount' => $record->discount,
+                                'tax' => $record->tax,
+                                'grand_total' => $record->grand_total,
+                                'terms' => $record->terms,
+                                'is_sent' => false,
+                            ]);
+
+                            foreach ($record->items as $item) {
+                                $quote->items()->create([
+                                    'product_id' => $item->product_id,
+                                    'description' => $item->description,
+                                    'quantity' => $item->quantity,
+                                    'unit_price' => $item->unit_price,
+                                    'tax' => $item->tax ?? 0.00,
+                                    'subtotal' => $item->subtotal,
+                                ]);
+                            }
+
+                            return $quote;
+                        });
+
+                        Notification::make()
+                            ->title("Quotation duplicated as #{$newQuote->quote_number}")
+                            ->success()
+                            ->send();
+
+                        return $action->redirect(QuotationResource::getUrl('view', ['record' => $newQuote->id]));
+                    }),
+
                 EditAction::make()
                     ->visible(fn (Quotation $record): bool => ! ($record->is_sent ?? false)),
             ])

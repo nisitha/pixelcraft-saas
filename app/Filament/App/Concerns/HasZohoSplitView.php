@@ -235,6 +235,152 @@ trait HasZohoSplitView
         );
     }
 
+    public function downloadDeliveryNote(): StreamedResponse
+    {
+        $pdfService = app(PdfService::class);
+        $filename = PdfService::getDeliveryNoteFileName($this->record);
+
+        return response()->streamDownload(
+            fn () => print ($pdfService->generateDeliveryNotePdf($this->record)->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
+    public function downloadReceiptVoucher(): ?StreamedResponse
+    {
+        if ($this->documentType !== 'invoice' || ! $this->record) {
+            return null;
+        }
+
+        $payment = $this->record->payments()->latest()->first();
+        if (! $payment) {
+            Notification::make()
+                ->title('No payments recorded for this invoice yet.')
+                ->warning()
+                ->send();
+
+            return null;
+        }
+
+        $pdfService = app(PdfService::class);
+        $filename = PdfService::getPaymentReceiptFileName($payment);
+
+        return response()->streamDownload(
+            fn () => print ($pdfService->generatePaymentReceiptPdf($payment)->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
+    public function duplicateRecord()
+    {
+        if (! $this->record) {
+            return null;
+        }
+
+        $companyId = Filament::getTenant()?->id;
+
+        if ($this->documentType === 'quotation') {
+            /** @var Quotation $source */
+            $source = $this->record;
+
+            $newQuote = DB::transaction(function () use ($source, $companyId) {
+                $newNumber = 'QUO-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                $quote = Quotation::create([
+                    'company_id' => $companyId,
+                    'contact_id' => $source->contact_id,
+                    'quote_number' => $newNumber,
+                    'quote_date' => now()->toDateString(),
+                    'valid_until' => now()->addDays(30)->toDateString(),
+                    'status' => 'draft',
+                    'system_kw' => $source->system_kw,
+                    'phase_type' => $source->phase_type,
+                    'roof_type' => $source->roof_type,
+                    'inverter_brand' => $source->inverter_brand,
+                    'panel_brand' => $source->panel_brand,
+                    'subtotal' => $source->subtotal,
+                    'discount' => $source->discount,
+                    'tax' => $source->tax,
+                    'grand_total' => $source->grand_total,
+                    'terms' => $source->terms,
+                    'is_sent' => false,
+                ]);
+
+                foreach ($source->items as $item) {
+                    $quote->items()->create([
+                        'product_id' => $item->product_id,
+                        'description' => $item->description,
+                        'quantity' => $item->quantity,
+                        'unit_price' => $item->unit_price,
+                        'tax' => $item->tax ?? 0.00,
+                        'subtotal' => $item->subtotal,
+                    ]);
+                }
+
+                return $quote;
+            });
+
+            Notification::make()
+                ->title("Quotation duplicated as #{$newQuote->quote_number}")
+                ->success()
+                ->send();
+
+            $this->selectRecord($newQuote->id);
+
+            return null;
+        } else {
+            /** @var Invoice $source */
+            $source = $this->record;
+
+            $newInvoice = DB::transaction(function () use ($source, $companyId) {
+                $newNumber = 'INV-'.date('Y').'-'.str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                $invoice = Invoice::create([
+                    'company_id' => $companyId,
+                    'contact_id' => $source->contact_id,
+                    'quotation_id' => $source->quotation_id,
+                    'invoice_number' => $newNumber,
+                    'invoice_date' => now()->toDateString(),
+                    'due_date' => now()->addDays(14)->toDateString(),
+                    'type' => $source->type,
+                    'subtotal' => $source->subtotal,
+                    'discount' => $source->discount,
+                    'tax' => $source->tax,
+                    'grand_total' => $source->grand_total,
+                    'paid_amount' => 0.00,
+                    'due_amount' => $source->grand_total,
+                    'status' => 'unpaid',
+                    'terms' => $source->terms,
+                    'is_sent' => false,
+                ]);
+
+                foreach ($source->items as $item) {
+                    $invoice->items()->create([
+                        'product_id' => $item->product_id,
+                        'description' => $item->description,
+                        'quantity' => $item->quantity,
+                        'unit_price' => $item->unit_price,
+                        'tax' => $item->tax ?? 0.00,
+                        'subtotal' => $item->subtotal,
+                    ]);
+                }
+
+                return $invoice;
+            });
+
+            Notification::make()
+                ->title("Invoice duplicated as #{$newInvoice->invoice_number}")
+                ->success()
+                ->send();
+
+            $this->selectRecord($newInvoice->id);
+
+            return null;
+        }
+    }
+
     public function convertToInvoice()
     {
         if ($this->documentType !== 'quotation' || ! $this->record) {

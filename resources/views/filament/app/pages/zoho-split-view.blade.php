@@ -396,6 +396,20 @@
                     <button type="button" wire:click="downloadPdf" class="action-btn action-btn-default">
                         📄 PDF / Print
                     </button>
+
+                    <button type="button" wire:click="downloadDeliveryNote" class="action-btn action-btn-default" title="Print Delivery Note / Gate Pass without prices">
+                        🚚 Delivery Note
+                    </button>
+
+                    @if (! $isQuote && $record && $record->payments()->count() > 0)
+                        <button type="button" wire:click="downloadReceiptVoucher" class="action-btn action-btn-default" title="Download Official Payment Receipt Voucher">
+                            🧾 Receipt Voucher
+                        </button>
+                    @endif
+
+                    <button type="button" wire:click="duplicateRecord" class="action-btn action-btn-default" title="1-Click Clone / Duplicate">
+                        📑 Duplicate
+                    </button>
                 </div>
 
                 <div class="zoho-action-btn-group">

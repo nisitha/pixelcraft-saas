@@ -490,10 +490,17 @@
                     @endforeach
                 </select>
 
-                <button type="button" class="zoho-btn-search" title="Customer Search">
-                    <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                <button
+                    type="button"
+                    wire:click="openQuickCustomerModal"
+                    class="zoho-pill-btn-primary"
+                    style="padding: 6px 12px; font-size: 12px; white-space: nowrap; display: flex; align-items: center; gap: 4px;"
+                    title="Quick Add New Customer"
+                >
+                    <svg style="width: 0.875rem; height: 0.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                     </svg>
+                    + Quick Add Customer
                 </button>
             </div>
 
@@ -591,62 +598,68 @@
         </div>
     </div>
 
-    {{-- Sleek Collapsible Bar for Solar System Specifications --}}
-    <div wire:click="toggleSolarSpecs" class="zoho-solar-specs-toggle-bar">
-        <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: #15803d;">
-            <span>☀️</span>
-            <span>Solar System Engineering Specifications (kWp, Phase, Roof, Inverter, Panel)</span>
-            <span style="font-size: 11px; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-weight: 500;">
-                {{ $this->data['system_kw'] ?? 5 }} kWp • {{ ucfirst($this->data['phase_type'] ?? 'single') }} Phase
-            </span>
-        </div>
-        <div style="color: #166534; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
-            <span>{{ $this->showSolarSpecs ? 'Collapse' : 'Expand Specifications' }}</span>
-            <svg style="width: 1rem; height: 1rem; transform: {{ $this->showSolarSpecs ? 'rotate(180deg)' : 'rotate(0)' }}; transition: transform 0.2s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-        </div>
-    </div>
+    @php
+        $solarSpecsEnabled = (bool) ($tenant?->settings['enable_solar_specs'] ?? ($tenant?->settings['show_solar_specs'] ?? true));
+    @endphp
 
-    @if ($this->showSolarSpecs)
-        <div class="zoho-solar-specs-content">
-            <div style="grid-column: span 3;">
-                <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">System Capacity (kWp)</label>
-                <div style="position: relative;">
-                    <input type="number" step="0.01" wire:model.live.debounce.300ms="data.system_kw" class="zoho-input" placeholder="5.00" />
-                    <span style="position: absolute; right: 10px; top: 8px; font-size: 11px; color: #94a3b8; font-weight: 600;">kWp</span>
+    @if ($solarSpecsEnabled)
+        {{-- Sleek Collapsible Bar for Solar System Specifications --}}
+        <div wire:click="toggleSolarSpecs" class="zoho-solar-specs-toggle-bar">
+            <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: #15803d;">
+                <span>☀️</span>
+                <span>Solar System Engineering Specifications (kWp, Phase, Roof, Inverter, Panel)</span>
+                <span style="font-size: 11px; background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-weight: 500;">
+                    {{ $this->data['system_kw'] ?? 5 }} kWp • {{ ucfirst($this->data['phase_type'] ?? 'single') }} Phase
+                </span>
+            </div>
+            <div style="color: #166534; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                <span>{{ $this->showSolarSpecs ? 'Collapse' : 'Expand Specifications' }}</span>
+                <svg style="width: 1rem; height: 1rem; transform: {{ $this->showSolarSpecs ? 'rotate(180deg)' : 'rotate(0)' }}; transition: transform 0.2s;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+        </div>
+
+        @if ($this->showSolarSpecs)
+            <div class="zoho-solar-specs-content">
+                <div style="grid-column: span 3;">
+                    <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">System Capacity (kWp)</label>
+                    <div style="position: relative;">
+                        <input type="number" step="0.01" wire:model.live.debounce.300ms="data.system_kw" class="zoho-input" placeholder="5.00" />
+                        <span style="position: absolute; right: 10px; top: 8px; font-size: 11px; color: #94a3b8; font-weight: 600;">kWp</span>
+                    </div>
+                </div>
+
+                <div style="grid-column: span 3;">
+                    <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">Grid Connection Phase</label>
+                    <select wire:model="data.phase_type" class="zoho-select">
+                        <option value="single">Single Phase (230V)</option>
+                        <option value="three">Three Phase (400V)</option>
+                    </select>
+                </div>
+
+                <div style="grid-column: span 6;">
+                    <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">Roof Structure Mounting</label>
+                    <select wire:model="data.roof_type" class="zoho-select">
+                        <option value="Tile Roof">Tile Roof (Standard Sri Lankan Clay Tile)</option>
+                        <option value="Asbestos Sheet">Asbestos / Corrugated Sheet</option>
+                        <option value="Zinc-Alum / Corrugated">Zinc-Alum / Standing Seam Roof</option>
+                        <option value="Flat Concrete Slab">Flat Concrete Slab (Ballasted/Elevated)</option>
+                        <option value="Ground Mount">Ground Mount Structure</option>
+                    </select>
+                </div>
+
+                <div style="grid-column: span 6;">
+                    <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">Inverter Brand & Model</label>
+                    <input type="text" wire:model="data.inverter_brand" class="zoho-input" placeholder="e.g. GoodWe GW5000D-NS / Huawei SUN2000" />
+                </div>
+
+                <div style="grid-column: span 6;">
+                    <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">PV Panel Brand & Rating</label>
+                    <input type="text" wire:model="data.panel_brand" class="zoho-input" placeholder="e.g. METEOR 610W-630W N-type TopCon Bifacial" />
                 </div>
             </div>
-
-            <div style="grid-column: span 3;">
-                <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">Grid Connection Phase</label>
-                <select wire:model="data.phase_type" class="zoho-select">
-                    <option value="single">Single Phase (230V)</option>
-                    <option value="three">Three Phase (400V)</option>
-                </select>
-            </div>
-
-            <div style="grid-column: span 6;">
-                <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">Roof Structure Mounting</label>
-                <select wire:model="data.roof_type" class="zoho-select">
-                    <option value="Tile Roof">Tile Roof (Standard Sri Lankan Clay Tile)</option>
-                    <option value="Asbestos Sheet">Asbestos / Corrugated Sheet</option>
-                    <option value="Zinc-Alum / Corrugated">Zinc-Alum / Standing Seam Roof</option>
-                    <option value="Flat Concrete Slab">Flat Concrete Slab (Ballasted/Elevated)</option>
-                    <option value="Ground Mount">Ground Mount Structure</option>
-                </select>
-            </div>
-
-            <div style="grid-column: span 6;">
-                <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">Inverter Brand & Model</label>
-                <input type="text" wire:model="data.inverter_brand" class="zoho-input" placeholder="e.g. GoodWe GW5000D-NS / Huawei SUN2000" />
-            </div>
-
-            <div style="grid-column: span 6;">
-                <label style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; display: block;">PV Panel Brand & Rating</label>
-                <input type="text" wire:model="data.panel_brand" class="zoho-input" placeholder="e.g. METEOR 610W-630W N-type TopCon Bifacial" />
-            </div>
-        </div>
+        @endif
     @endif
 
     {{-- True Zoho "Item Table" HTML Grid --}}
@@ -708,13 +721,14 @@
                 @foreach ($this->data['items'] ?? [] as $index => $item)
                     <tr wire:key="item-row-{{ $index }}">
                         {{-- ITEM DETAILS: Product Dropdown + Description Textarea --}}
+                        {{-- ITEM DETAILS: Product Dropdown or Custom Free-Text --}}
                         <td>
                             <select
                                 wire:change="updateItemProduct({{ $index }}, $event.target.value)"
                                 class="zoho-select"
                                 style="margin-bottom: 6px; font-weight: 500;"
                             >
-                                <option value="">Select a product or service...</option>
+                                <option value="">-- Custom Item / Free-Text Entry --</option>
                                 @foreach ($products as $prod)
                                     <option value="{{ $prod->id }}" @selected(($item['product_id'] ?? null) == $prod->id)>
                                         {{ $prod->name }} — Rs. {{ number_format($prod->unit_price, 2) }}
@@ -726,7 +740,7 @@
                                 wire:model="data.items.{{ $index }}.description"
                                 rows="2"
                                 class="zoho-textarea"
-                                placeholder="Add specifications or custom line item description..."
+                                placeholder="Item name, specifications or custom ad-hoc description..."
                                 style="font-size: 12px;"
                             ></textarea>
                         </td>
@@ -811,6 +825,13 @@
                 + Add New Row
             </button>
 
+            <button type="button" wire:click="openQuickItemModal" class="zoho-pill-btn-secondary" style="border-color: #3b82f6; color: #2563eb; background: #eff6ff;">
+                <svg style="width: 0.875rem; height: 0.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                + Quick Add New Item
+            </button>
+
             <button type="button" wire:click="openBulkModal" class="zoho-pill-btn-secondary">
                 <svg style="width: 0.875rem; height: 0.875rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -884,21 +905,86 @@
                     </div>
 
                     <div class="zoho-summary-row">
-                        <span>Promotional Discount (Rs.)</span>
-                        <div style="max-width: 140px;">
-                            <input
-                                type="number"
-                                step="any"
-                                wire:model.live.debounce.300ms="data.discount"
-                                class="zoho-input right"
-                                style="padding: 4px 8px; font-size: 12px; font-weight: 600; text-align: right;"
-                            />
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span>Discount</span>
+                            <div style="display: inline-flex; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; font-size: 11px;">
+                                <button
+                                    type="button"
+                                    wire:click="setDiscountType('fixed')"
+                                    style="padding: 2px 7px; border: none; font-weight: 700; cursor: pointer; {{ $this->discountType === 'fixed' ? 'background: #047857; color: #ffffff;' : 'background: #f1f5f9; color: #64748b;' }}"
+                                >
+                                    LKR
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="setDiscountType('percentage')"
+                                    style="padding: 2px 7px; border: none; font-weight: 700; cursor: pointer; {{ $this->discountType === 'percentage' ? 'background: #047857; color: #ffffff;' : 'background: #f1f5f9; color: #64748b;' }}"
+                                >
+                                    %
+                                </button>
+                            </div>
+                        </div>
+                        <div style="max-width: 150px; text-align: right;">
+                            @if ($this->discountType === 'percentage')
+                                <div style="position: relative;">
+                                    <input
+                                        type="number"
+                                        step="0.1"
+                                        min="0"
+                                        max="100"
+                                        wire:model.live.debounce.300ms="discountPercent"
+                                        class="zoho-input right"
+                                        style="padding: 4px 22px 4px 8px; font-size: 12px; font-weight: 600; text-align: right;"
+                                        placeholder="0"
+                                    />
+                                    <span style="position: absolute; right: 6px; top: 6px; font-size: 11px; color: #94a3b8; font-weight: 700;">%</span>
+                                </div>
+                                <div style="font-size: 10px; color: #047857; margin-top: 2px; font-weight: 600;">
+                                    - Rs. {{ number_format($this->data['discount'] ?? 0, 2) }}
+                                </div>
+                            @else
+                                <input
+                                    type="number"
+                                    step="any"
+                                    wire:model.live.debounce.300ms="data.discount"
+                                    class="zoho-input right"
+                                    style="padding: 4px 8px; font-size: 12px; font-weight: 600; text-align: right;"
+                                />
+                            @endif
                         </div>
                     </div>
 
-                    <div class="zoho-summary-row">
-                        <span>Tax / Applicable VAT (Rs.)</span>
-                        <div style="max-width: 140px;">
+                    <div class="zoho-summary-row" style="align-items: flex-start;">
+                        <div>
+                            <div>Tax / Applicable VAT (Rs.)</div>
+                            <div style="display: flex; gap: 4px; margin-top: 4px;">
+                                <button
+                                    type="button"
+                                    wire:click="applyTaxPreset(0, 'Tax Exempt')"
+                                    style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 10px; padding: 2px 6px; color: #475569; font-weight: 600; cursor: pointer;"
+                                    title="0% Tax Exempt"
+                                >
+                                    Exempt
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="applyTaxPreset(18, 'VAT 18%')"
+                                    style="background: #eff6ff; border: 1px solid #93c5fd; border-radius: 4px; font-size: 10px; padding: 2px 6px; color: #1d4ed8; font-weight: 700; cursor: pointer;"
+                                    title="Sri Lanka 18% VAT"
+                                >
+                                    18% VAT
+                                </button>
+                                <button
+                                    type="button"
+                                    wire:click="applyTaxPreset(2.5, 'SSCL 2.5%')"
+                                    style="background: #fefce8; border: 1px solid #fde047; border-radius: 4px; font-size: 10px; padding: 2px 6px; color: #854d0e; font-weight: 700; cursor: pointer;"
+                                    title="Sri Lanka 2.5% SSCL"
+                                >
+                                    2.5% SSCL
+                                </button>
+                            </div>
+                        </div>
+                        <div style="max-width: 150px;">
                             <input
                                 type="number"
                                 step="any"
@@ -1051,6 +1137,116 @@
                     </button>
                     <button type="button" wire:click="addSelectedBulkProducts" class="zoho-btn-save" style="padding: 6px 16px; font-size: 12px;">
                         Add Selected ({{ count($this->selectedBulkProducts) }} items)
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Quick Add Customer Modal --}}
+    @if ($this->showQuickCustomerModal)
+        <div class="zoho-modal-overlay">
+            <div class="zoho-modal-container" style="max-width: 500px;">
+                <div class="zoho-modal-header">
+                    <div style="font-weight: 700; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <span>👤</span> Quick Add New Customer
+                    </div>
+                    <button type="button" wire:click="closeQuickCustomerModal" style="background: transparent; border: none; font-size: 20px; color: #64748b; cursor: pointer;">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="zoho-modal-body" style="padding: 20px;">
+                    <div style="margin-bottom: 14px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Customer / Business Name*</label>
+                        <input type="text" wire:model="quickCustomerName" class="zoho-input" placeholder="e.g. Kasun Perera / Apex Engineering" required />
+                        @error('quickCustomerName') <span style="font-size: 11px; color: #dc2626;">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Phone Number</label>
+                            <input type="text" wire:model="quickCustomerPhone" class="zoho-input" placeholder="e.g. 0771234567" />
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Email Address</label>
+                            <input type="email" wire:model="quickCustomerEmail" class="zoho-input" placeholder="customer@domain.lk" />
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Installation / Billing Address</label>
+                        <textarea wire:model="quickCustomerAddress" rows="2" class="zoho-textarea" placeholder="No. 45, Galle Road, Colombo..."></textarea>
+                    </div>
+                </div>
+
+                <div class="zoho-modal-footer">
+                    <button type="button" wire:click="closeQuickCustomerModal" class="zoho-btn-secondary" style="padding: 6px 14px; font-size: 12px;">
+                        Cancel
+                    </button>
+                    <button type="button" wire:click="saveQuickCustomer" class="zoho-btn-save" style="padding: 6px 18px; font-size: 12px;">
+                        Save & Select Customer
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Quick Add Item Modal --}}
+    @if ($this->showQuickItemModal)
+        <div class="zoho-modal-overlay">
+            <div class="zoho-modal-container" style="max-width: 500px;">
+                <div class="zoho-modal-header">
+                    <div style="font-weight: 700; font-size: 15px; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                        <span>📦</span> Quick Add Product / Service
+                    </div>
+                    <button type="button" wire:click="closeQuickItemModal" style="background: transparent; border: none; font-size: 20px; color: #64748b; cursor: pointer;">
+                        &times;
+                    </button>
+                </div>
+
+                <div class="zoho-modal-body" style="padding: 20px;">
+                    <div style="margin-bottom: 14px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Item / Service Name*</label>
+                        <input type="text" wire:model="quickItemName" class="zoho-input" placeholder="e.g. 550W Bifacial Solar Panel / Labor Charge" required />
+                        @error('quickItemName') <span style="font-size: 11px; color: #dc2626;">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">SKU / Code</label>
+                            <input type="text" wire:model="quickItemSku" class="zoho-input" placeholder="e.g. SP-550W" />
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Unit Selling Price (Rs.)*</label>
+                            <input type="number" step="any" wire:model="quickItemPrice" class="zoho-input" placeholder="0.00" required />
+                            @error('quickItemPrice') <span style="font-size: 11px; color: #dc2626;">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: #334155; margin-bottom: 4px;">Item Type</label>
+                            <select wire:model="quickItemType" class="zoho-select">
+                                <option value="product">Physical Product / Hardware</option>
+                                <option value="service">Service / Installation / Consulting</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: center; padding-top: 18px;">
+                            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer;">
+                                <input type="checkbox" wire:model="quickItemTrackInventory" style="cursor: pointer;" />
+                                Track Stock Inventory
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zoho-modal-footer">
+                    <button type="button" wire:click="closeQuickItemModal" class="zoho-btn-secondary" style="padding: 6px 14px; font-size: 12px;">
+                        Cancel
+                    </button>
+                    <button type="button" wire:click="saveQuickItem" class="zoho-btn-save" style="padding: 6px 18px; font-size: 12px;">
+                        Save & Add to Document
                     </button>
                 </div>
             </div>

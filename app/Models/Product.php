@@ -23,6 +23,7 @@ class Product extends Model
         'stock_qty',
         'alert_qty',
         'track_serial',
+        'track_inventory',
         'warranty_months',
     ];
 
@@ -34,6 +35,7 @@ class Product extends Model
             'stock_qty' => 'decimal:2',
             'alert_qty' => 'decimal:2',
             'track_serial' => 'boolean',
+            'track_inventory' => 'boolean',
             'warranty_months' => 'integer',
         ];
     }

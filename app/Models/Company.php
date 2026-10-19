@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
-class Company extends Model implements HasName
+class Company extends Model implements HasAvatar, HasName
 {
     use HasFactory;
 
@@ -39,6 +41,21 @@ class Company extends Model implements HasName
     public function getFilamentName(): string
     {
         return $this->name;
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $path = $this->logo_path ?? ($this->settings['logo_path'] ?? null);
+
+        if (! $path) {
+            return null;
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 
     public function isSubscriptionActive(): bool

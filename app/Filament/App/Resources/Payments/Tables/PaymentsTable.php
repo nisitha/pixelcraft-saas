@@ -2,9 +2,13 @@
 
 namespace App\Filament\App\Resources\Payments\Tables;
 
+use App\Models\Payment;
+use App\Services\PdfService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -14,21 +18,28 @@ class PaymentsTable
     {
         return $table
             ->columns([
-                TextColumn::make('company.name')
-                    ->searchable(),
-                TextColumn::make('invoice.id')
-                    ->searchable(),
+                TextColumn::make('invoice.invoice_number')
+                    ->label('Invoice #')
+                    ->searchable()
+                    ->weight('bold'),
                 TextColumn::make('payment_date')
-                    ->date()
+                    ->label('Date')
+                    ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('amount')
-                    ->numeric()
+                    ->label('Amount')
+                    ->money('LKR')
+                    ->weight('bold')
                     ->sortable(),
                 TextColumn::make('method')
-                    ->searchable(),
+                    ->label('Payment Method')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => strtoupper(str_replace('_', ' ', $state ?? 'CASH'))),
                 TextColumn::make('reference_no')
+                    ->label('Reference #')
                     ->searchable(),
                 TextColumn::make('milestone_label')
+                    ->label('Milestone / Purpose')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -43,6 +54,19 @@ class PaymentsTable
                 //
             ])
             ->recordActions([
+                Action::make('downloadVoucher')
+                    ->label('Receipt Voucher')
+                    ->icon(Heroicon::DocumentCheck)
+                    ->color('success')
+                    ->action(function (Payment $record) {
+                        $filename = PdfService::getPaymentReceiptFileName($record);
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generatePaymentReceiptPdf($record)->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
                 EditAction::make(),
             ])
             ->toolbarActions([
