@@ -13,6 +13,7 @@ class InvoiceItem extends Model
     protected $fillable = [
         'invoice_id',
         'product_id',
+        'cost_price',
         'description',
         'quantity',
         'unit_price',
@@ -23,6 +24,7 @@ class InvoiceItem extends Model
     protected function casts(): array
     {
         return [
+            'cost_price' => 'decimal:2',
             'quantity' => 'decimal:2',
             'unit_price' => 'decimal:2',
             'tax' => 'decimal:2',

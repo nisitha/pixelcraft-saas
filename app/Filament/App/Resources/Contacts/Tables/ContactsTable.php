@@ -30,7 +30,7 @@ class ContactsTable
                 TextColumn::make('tax_no')
                     ->searchable(),
                 TextColumn::make('balance')
-                    ->numeric()
+                    ->money('LKR')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

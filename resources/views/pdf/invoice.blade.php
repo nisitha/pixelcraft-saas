@@ -492,13 +492,46 @@
 
     <!-- Payment Instructions & Terms -->
     <div class="terms-box">
-        <strong>Bank Transfer & Payment Remittance Details:</strong><br>
-        @if(!empty($company->settings['bank_details']))
-            {!! nl2br(e($company->settings['bank_details'])) !!}<br>
+        <strong>Bank Wire & Electronic Transfer Remittance Details:</strong>
+        @php
+            $bankAccounts = $company->getBankAccountsList();
+        @endphp
+        @if(!empty($bankAccounts))
+            <table style="width: 100%; border-collapse: separate; border-spacing: 8px 0; margin: 6px 0;">
+                <tr>
+                    @foreach($bankAccounts as $acc)
+                        <td style="width: {{ 100 / max(1, count($bankAccounts)) }}%; vertical-align: top; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 7px 10px;">
+                            <div style="font-weight: bold; font-size: 10.5px; color: {{ $primaryColor }}; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-bottom: 4px;">
+                                🏛️ {{ $acc['bank'] ?? 'Bank Account' }}
+                            </div>
+                            <table style="width: 100%; font-size: 9px; line-height: 1.45;">
+                                <tr>
+                                    <td style="color: #64748b; width: 38%;">Account Name:</td>
+                                    <td style="font-weight: 600; color: #0f172a;">{{ $acc['account_name'] ?? $company->name }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b;">Account No:</td>
+                                    <td style="font-weight: bold; font-family: 'Courier New', monospace; font-size: 10.5px; color: {{ $primaryColor }}; letter-spacing: 0.05em;">{{ $acc['account_no'] ?? '-' }}</td>
+                                </tr>
+                                @if(!empty($acc['branch']))
+                                    <tr>
+                                        <td style="color: #64748b;">Branch:</td>
+                                        <td style="color: #334155;">{{ $acc['branch'] }}</td>
+                                    </tr>
+                                @endif
+                            </table>
+                        </td>
+                    @endforeach
+                </tr>
+            </table>
         @else
-            Please remit payments to: <strong>{{ $company->name ?? 'Vertex Books Solutions' }}</strong> | Bank of Ceylon / Commercial Bank PLC | Account No: <strong>008492019482</strong> | Branch: Corporate City Branch.<br>
+            <div style="margin: 4px 0;">
+                Please remit payments to: <strong>{{ $company->name ?? 'Vertex Books Solutions' }}</strong> (Direct Bank Wire / Online Transfer).
+            </div>
         @endif
-        <em>Please quote Invoice Ref {{ $invoice->invoice_number }} as transaction description.</em>
+        <div style="margin-top: 4px; font-size: 9px; color: #64748b;">
+            <em>Please quote Invoice Ref <strong>{{ $invoice->invoice_number }}</strong> as the transaction description / reference.</em>
+        </div>
         @if(!empty($company->settings['default_invoice_terms']))
             <div style="margin-top: 6px; padding-top: 4px; border-top: 1px dashed #cbd5e1;">
                 <strong>Terms & Conditions:</strong> {!! nl2br(e($company->settings['default_invoice_terms'])) !!}

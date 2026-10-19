@@ -45,7 +45,7 @@ class VertexHomesSeeder extends Seeder
                     'currency' => 'LKR',
                     'currency_symbol' => 'Rs.',
                     'website' => 'vertexhomeslk.com',
-                    'bank_details' => "Bank Account 1: DFCC Bank | Acc Name: VERTEX HOME SOLUTIONS (PVT) LTD | Acc No: 101001490231 | Branch: Giriulla\nBank Account 2: Bank Of Ceylon (BOC) | Acc Name: VERTEX HOME SOLUTIONS (PVT) LTD | Acc No: 97194769 | Branch: Giriulla",
+                    'bank_details' => "DFCC Bank - Acc No: 101001490231 (Branch: Giriulla) - VERTEX HOME SOLUTIONS (PVT) LTD\nBank Of Ceylon (BOC) - Acc No: 97194769 (Branch: Giriulla) - VERTEX HOME SOLUTIONS (PVT) LTD",
                     'default_quote_terms' => "1. Valid for 07 days from the date of issue.\n2. 60% advance upon confirmation, 20% on delivery, 20% after commissioning.\n3. Goods once sold will be covered strictly under manufacturer warranty terms.\n4. No additional or hidden charges will be applied beyond this agreed quotation.\nFor inquiries, call: Karunanayaka - 0777 48 15 34",
                     'default_invoice_terms' => "1. Valid for 07 days from the date of issue.\n2. 60% advance upon confirmation, 20% on delivery, 20% after commissioning.\n3. Goods once sold will be covered strictly under manufacturer warranty terms.\n4. No additional or hidden charges will be applied beyond this agreed quotation.",
                     'pos_footer_note' => 'Thank you for choosing Vertex Home Solutions! Customer Care: +94 70 2 271 271',

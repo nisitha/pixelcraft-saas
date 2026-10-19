@@ -108,6 +108,7 @@ trait HasZohoDocumentEditor
                     'product_id' => $item->product_id,
                     'description' => $item->description,
                     'quantity' => (float) $item->quantity,
+                    'cost_price' => (float) ($item->cost_price ?? ($item->product?->cost_price ?? 0)),
                     'unit_price' => (float) $item->unit_price,
                     'discount_rate' => 0.00,
                     'tax' => (float) ($item->tax ?? 0),
@@ -165,6 +166,7 @@ trait HasZohoDocumentEditor
                     'product_id' => $item->product_id,
                     'description' => $item->description,
                     'quantity' => (float) $item->quantity,
+                    'cost_price' => (float) ($item->cost_price ?? ($item->product?->cost_price ?? 0)),
                     'unit_price' => (float) $item->unit_price,
                     'discount_rate' => 0.00,
                     'tax' => (float) ($item->tax ?? 0),
@@ -220,6 +222,7 @@ trait HasZohoDocumentEditor
             'product_id' => null,
             'description' => '',
             'quantity' => 1,
+            'cost_price' => 0.00,
             'unit_price' => 0.00,
             'discount_rate' => 0.00,
             'tax' => 0.00,
@@ -256,6 +259,7 @@ trait HasZohoDocumentEditor
             $product = Product::find($productId);
             if ($product) {
                 $this->data['items'][$index]['description'] = $product->name;
+                $this->data['items'][$index]['cost_price'] = (float) ($product->cost_price ?? 0);
                 $this->data['items'][$index]['unit_price'] = (float) $product->unit_price;
                 $qty = (float) ($this->data['items'][$index]['quantity'] ?: 1);
                 $this->data['items'][$index]['subtotal'] = round($qty * (float) $product->unit_price, 2);
@@ -434,6 +438,7 @@ trait HasZohoDocumentEditor
             'product_id' => $product->id,
             'description' => $product->name,
             'quantity' => 1,
+            'cost_price' => (float) ($product->cost_price ?? 0),
             'unit_price' => (float) $product->unit_price,
             'discount_rate' => 0.00,
             'tax' => 0.00,
@@ -460,6 +465,7 @@ trait HasZohoDocumentEditor
     {
         if (str_contains($key, 'quantity') ||
             str_contains($key, 'unit_price') ||
+            str_contains($key, 'cost_price') ||
             str_contains($key, 'discount') ||
             str_contains($key, 'tax') ||
             str_contains($key, 'paid_amount')) {
@@ -513,6 +519,7 @@ trait HasZohoDocumentEditor
                 'product_id' => $prod->id,
                 'description' => $prod->name,
                 'quantity' => 1,
+                'cost_price' => (float) ($prod->cost_price ?? 0),
                 'unit_price' => (float) $prod->unit_price,
                 'discount_rate' => 0.00,
                 'tax' => 0.00,
@@ -591,6 +598,7 @@ trait HasZohoDocumentEditor
                 'product_id' => $product?->id,
                 'description' => $product?->name ?? $itemSpec['name'],
                 'quantity' => $itemSpec['qty'],
+                'cost_price' => $product ? (float) ($product->cost_price ?? 0) : round($itemSpec['price'] * 0.75, 2),
                 'unit_price' => $product ? (float) $product->unit_price : $itemSpec['price'],
                 'discount_rate' => 0.00,
                 'tax' => 0.00,
@@ -649,6 +657,7 @@ trait HasZohoDocumentEditor
                         'product_id' => $item['product_id'] ?? null,
                         'description' => $item['description'] ?? 'Item',
                         'quantity' => (float) ($item['quantity'] ?? 1),
+                        'cost_price' => (float) ($item['cost_price'] ?? 0),
                         'unit_price' => (float) ($item['unit_price'] ?? 0),
                         'tax' => (float) ($item['tax'] ?? 0),
                         'subtotal' => (float) ($item['subtotal'] ?? 0),
@@ -712,6 +721,7 @@ trait HasZohoDocumentEditor
                         'product_id' => $item['product_id'] ?? null,
                         'description' => $item['description'] ?? 'Item',
                         'quantity' => (float) ($item['quantity'] ?? 1),
+                        'cost_price' => (float) ($item['cost_price'] ?? 0),
                         'unit_price' => (float) ($item['unit_price'] ?? 0),
                         'tax' => (float) ($item['tax'] ?? 0),
                         'subtotal' => (float) ($item['subtotal'] ?? 0),
@@ -728,5 +738,36 @@ trait HasZohoDocumentEditor
         if ($shouldRedirect) {
             $this->redirect($this->getResource()::getUrl('index'));
         }
+    }
+
+    public function getTotalCostProperty(): float
+    {
+        $totalCost = 0.0;
+        foreach ($this->data['items'] ?? [] as $item) {
+            $qty = (float) ($item['quantity'] ?? 0);
+            $cost = (float) ($item['cost_price'] ?? 0);
+            $totalCost += ($qty * $cost);
+        }
+
+        return round($totalCost, 2);
+    }
+
+    public function getNetProfitProperty(): float
+    {
+        $grandTotal = (float) ($this->data['grand_total'] ?? 0);
+        $tax = (float) ($this->data['tax'] ?? 0);
+        $netRevenue = $grandTotal - $tax;
+
+        return round($netRevenue - $this->totalCost, 2);
+    }
+
+    public function getProfitMarginPercentageProperty(): float
+    {
+        $grandTotal = (float) ($this->data['grand_total'] ?? 0);
+        if ($grandTotal <= 0) {
+            return 0.0;
+        }
+
+        return round(($this->netProfit / $grandTotal) * 100, 1);
     }
 }

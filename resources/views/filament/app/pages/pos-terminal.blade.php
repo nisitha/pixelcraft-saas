@@ -92,6 +92,45 @@
             color: #bfdbfe;
             border-color: #1d4ed8;
         }
+
+        /* Dark Mode POS UI */
+        .dark .vb-pos-card {
+            background-color: #111827 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        .dark .vb-pos-card h4 {
+            color: #f8fafc !important;
+        }
+        .dark .vb-pos-card div[style*="border-top"] {
+            border-top-color: rgba(255, 255, 255, 0.08) !important;
+        }
+        .dark input[type="text"], .dark select, .dark input[type="number"] {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+        }
+        .dark div[style*="background-color: #f9fafb"], .dark div[style*="background-color: #ffffff"] {
+            background-color: #111827 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+        }
+        .dark div[style*="border-bottom: 1px solid #f3f4f6"] {
+            border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+        }
+        .dark div[style*="border-top: 1px solid #f3f4f6"] {
+            border-top-color: rgba(255, 255, 255, 0.06) !important;
+        }
+        .dark span[style*="color: #111827"], .dark div[style*="color: #111827"], .dark label {
+            color: #f8fafc !important;
+        }
+        .dark span[style*="color: #4b5563"], .dark div[style*="color: #4b5563"], .dark div[style*="color: #6b7280"] {
+            color: #94a3b8 !important;
+        }
+        .dark button[style*="background-color: #f3f4f6"] {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #cbd5e1 !important;
+        }
     </style>
 
     <div class="vb-pos-root">

@@ -83,10 +83,46 @@
             color: #333;
         }
     </style>
+    @php
+        $resolveImagePath = function (?string $path): ?string {
+            if (empty($path)) {
+                return null;
+            }
+
+            $resolved = null;
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+                $resolved = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+            } elseif (file_exists(public_path('storage/' . $path))) {
+                $resolved = public_path('storage/' . $path);
+            } elseif (file_exists(storage_path('app/public/' . $path))) {
+                $resolved = storage_path('app/public/' . $path);
+            } elseif (file_exists($path)) {
+                $resolved = realpath($path) ?: $path;
+            }
+
+            if (! $resolved || ! file_exists($resolved)) {
+                return null;
+            }
+
+            $extension = strtolower(pathinfo($resolved, PATHINFO_EXTENSION));
+            if ($extension === 'svg') {
+                return null;
+            }
+
+            return $resolved;
+        };
+
+        $logoPath = $resolveImagePath($company->logo_path ?? ($company->settings['logo_path'] ?? null));
+    @endphp
 </head>
 <body>
 
     <div class="company-header text-center">
+        @if($logoPath)
+            <div style="margin-bottom: 5px;">
+                <img src="{{ $logoPath }}" style="max-height: 40px; max-width: 140px; margin: 0 auto; display: block;" alt="{{ $company->name }}">
+            </div>
+        @endif
         <div class="company-name">{{ $company->name ?? 'Vertex Books' }}</div>
         <div>{{ $company->address ?? 'Colombo, Sri Lanka' }}</div>
         @if(!empty($company->phone)) <div>Tel: {{ $company->phone }}</div> @endif

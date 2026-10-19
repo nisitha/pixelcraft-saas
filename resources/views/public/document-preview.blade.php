@@ -252,8 +252,8 @@
 
     <header class="portal-header">
         <div class="portal-brand">
-            @if ($company->logo_path)
-                <img src="{{ asset('storage/' . $company->logo_path) }}" class="portal-logo" alt="{{ $company->name }}">
+            @if ($company->getFilamentAvatarUrl())
+                <img src="{{ $company->getFilamentAvatarUrl() }}" class="portal-logo" alt="{{ $company->name }}">
             @endif
             <div>
                 <div class="portal-title">{{ $company->name }}</div>
@@ -277,8 +277,8 @@
         <!-- Document Header -->
         <div class="header-grid">
             <div>
-                @if ($company->logo_path)
-                    <img src="{{ asset('storage/' . $company->logo_path) }}" style="max-height: 52px; max-width: 200px; margin-bottom: 8px;" alt="{{ $company->name }}">
+                @if ($company->getFilamentAvatarUrl())
+                    <img src="{{ $company->getFilamentAvatarUrl() }}" style="max-height: 52px; max-width: 200px; margin-bottom: 8px;" alt="{{ $company->name }}">
                 @endif
                 <h1 style="font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 4px;">{{ $company->name }}</h1>
                 <div style="font-size: 12px; color: #475569; line-height: 1.5;">
@@ -356,7 +356,34 @@
         <!-- Bottom Summary & Bank Details -->
         <div class="summary-split">
             <div>
-                @if (!empty($company->settings['bank_details']))
+                @php
+                    $bankAccounts = $company->getBankAccountsList();
+                @endphp
+                @if (!empty($bankAccounts))
+                    <div style="margin-top: 14px;">
+                        <div style="font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <span>🏦</span> Electronic Bank Wire Remittance
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            @foreach ($bankAccounts as $acc)
+                                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-top: 3px solid var(--primary); border-radius: 6px; padding: 10px 12px; font-size: 11px; line-height: 1.5;">
+                                    <div style="font-weight: 800; color: #0f172a; font-size: 12px; margin-bottom: 4px;">{{ $acc['bank'] ?? 'Bank Transfer' }}</div>
+                                    @if (!empty($acc['account_name']))
+                                        <div style="color: #475569; font-size: 10px;">Account Name:</div>
+                                        <div style="font-weight: 600; color: #1e293b; margin-bottom: 3px;">{{ $acc['account_name'] }}</div>
+                                    @endif
+                                    @if (!empty($acc['account_no']))
+                                        <div style="color: #475569; font-size: 10px;">Account Number:</div>
+                                        <div style="font-family: monospace; font-size: 13px; font-weight: 800; color: #0f172a; letter-spacing: 0.05em; margin-bottom: 3px;">{{ $acc['account_no'] }}</div>
+                                    @endif
+                                    @if (!empty($acc['branch']))
+                                        <div style="color: #64748b; font-size: 10px;">Branch: <strong>{{ $acc['branch'] }}</strong></div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @elseif (!empty($company->settings['bank_details']))
                     <div class="bank-box">
                         <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;">🏦 Electronic Bank Wire Transfer Details:</div>
                         {!! nl2br(e($company->settings['bank_details'])) !!}

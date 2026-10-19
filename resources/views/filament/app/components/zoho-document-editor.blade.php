@@ -8,6 +8,7 @@
     $docType = $this->documentType ?? 'quotation';
     $isQuote = $docType === 'quotation';
     $isEdit = isset($this->record) && $this->record instanceof \Illuminate\Database\Eloquent\Model && $this->record->exists;
+    $isOwnerOrAdmin = auth()->user()?->isTenantOwnerOrAdmin() ?? false;
 @endphp
 
 <div class="zoho-invoice-container">
@@ -474,6 +475,117 @@
             justify-content: flex-end;
             gap: 10px;
         }
+
+        /* Dark Mode SaaS Palette */
+        .dark .zoho-invoice-container {
+            background: #0f172a;
+            color: #f8fafc;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-top-zone {
+            background-color: #111827;
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-select, .dark .zoho-input, .dark .zoho-textarea {
+            background-color: #1e293b;
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #f8fafc;
+        }
+        .dark .zoho-select:focus, .dark .zoho-input:focus, .dark .zoho-textarea:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        .dark .zoho-meta-section {
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-row-label {
+            color: #94a3b8;
+        }
+        .dark .zoho-solar-specs-toggle-bar {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        .dark .zoho-solar-specs-content {
+            background-color: #111827;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-table-card {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-table-header-bar {
+            background-color: #111827;
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-table-title {
+            color: #f8fafc;
+        }
+        .dark .zoho-grid-table th {
+            background-color: #111827;
+            color: #94a3b8;
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-grid-table td {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+            color: #f8fafc;
+        }
+        .dark .zoho-grid-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .dark .zoho-table-footer-buttons {
+            background-color: #111827;
+            border-top-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-pill-btn-primary {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        .dark .zoho-pill-btn-secondary {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        .dark .zoho-bottom-split {
+            background-color: #0f172a;
+            border-top-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-summary-box {
+            background-color: #111827;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-summary-row {
+            color: #94a3b8;
+        }
+        .dark .zoho-grand-total-row {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+        .dark .zoho-grand-total-label {
+            color: #f8fafc;
+        }
+        .dark .zoho-bank-details-card {
+            background-color: #111827;
+            border-color: rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+        .dark .zoho-action-bar {
+            background-color: #111827;
+            border-top-color: rgba(255, 255, 255, 0.08);
+        }
+        .dark .zoho-btn-secondary {
+            background-color: #1e293b;
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+        }
+        .dark .zoho-modal-container {
+            background-color: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #f8fafc;
+        }
+        .dark .zoho-modal-header, .dark .zoho-modal-footer {
+            background-color: #111827;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
     </style>
 
     {{-- Top Subtle Gray Zone for Customer Selection --}}
@@ -743,6 +855,22 @@
                                 placeholder="Item name, specifications or custom ad-hoc description..."
                                 style="font-size: 12px;"
                             ></textarea>
+
+                            @if ($isOwnerOrAdmin)
+                                <div style="font-size: 10.5px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-weight: 600;">🔒 Unit Cost: Rs.</span>
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        min="0"
+                                        wire:model.live.debounce.300ms="data.items.{{ $index }}.cost_price"
+                                        class="zoho-input"
+                                        style="width: 90px; padding: 2px 6px; font-size: 11px; text-align: right; height: 24px;"
+                                        title="Internal Unit Cost (Owner/Admin Only - Never visible on customer PDFs)"
+                                    />
+                                    <span style="font-size: 9.5px; color: #94a3b8;">(Owner only)</span>
+                                </div>
+                            @endif
                         </td>
 
                         {{-- QUANTITY: Right aligned numeric input --}}
@@ -869,16 +997,32 @@
                     placeholder="Enter document warranty & payment milestone terms..."
                 ></textarea>
 
-                <div class="zoho-bank-details-card">
-                    <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                        <span>🏦</span> Company Verified Remittance Accounts (Vertex Home Solutions):
+                @php
+                    $editorBankAccounts = $tenant?->getBankAccountsList() ?? [];
+                @endphp
+                @if (!empty($editorBankAccounts))
+                    <div class="zoho-bank-details-card">
+                        <div style="font-weight: 700; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;" class="dark:text-slate-100">
+                            <span>🏦</span> Verified Company Remittance Accounts:
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px;">
+                            @foreach ($editorBankAccounts as $acc)
+                                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2.5px solid #047857; border-radius: 6px; padding: 8px 10px; font-size: 11px; line-height: 1.45;" class="dark:!bg-slate-800 dark:!border-slate-700">
+                                    <div style="font-weight: 800; color: #0f172a;" class="dark:text-slate-100">{{ $acc['bank'] ?? 'Bank' }}</div>
+                                    @if (!empty($acc['account_name']))
+                                        <div style="color: #64748b; font-size: 10px;" class="dark:text-slate-400">{{ $acc['account_name'] }}</div>
+                                    @endif
+                                    @if (!empty($acc['account_no']))
+                                        <div style="font-family: monospace; font-size: 12px; font-weight: 800; color: #0f172a; margin: 2px 0;" class="dark:text-emerald-400">{{ $acc['account_no'] }}</div>
+                                    @endif
+                                    @if (!empty($acc['branch']))
+                                        <div style="color: #64748b; font-size: 10px;" class="dark:text-slate-400">Branch: <strong>{{ $acc['branch'] }}</strong></div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                    <div>• <strong>DFCC Bank</strong> | Acc Name: VERTEX HOME SOLUTIONS (PVT) LTD | Acc No: <code>101001490231</code> | Branch: Giriulla</div>
-                    <div>• <strong>Bank Of Ceylon (BOC)</strong> | Acc Name: VERTEX HOME SOLUTIONS (PVT) LTD | Acc No: <code>97194769</code> | Branch: Giriulla</div>
-                    <div style="margin-top: 6px; font-style: italic; color: #64748b;">
-                        Milestones: 60% Advance on signing • 20% on delivery of solar panels/inverter • 20% upon CEB/LECO grid connection.
-                    </div>
-                </div>
+                @endif
             </div>
         </div>
 
@@ -1025,6 +1169,35 @@
                             <span style="font-size: 16px; font-weight: 800; color: #dc2626;">
                                 Rs. {{ number_format($this->data['due_amount'] ?? 0, 2) }}
                             </span>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Internal Profit Analysis (Strictly Owner/Admin Only) --}}
+                @if ($isOwnerOrAdmin)
+                    @php
+                        $cost = $this->totalCost;
+                        $profit = $this->netProfit;
+                        $margin = $this->profitMarginPercentage;
+                    @endphp
+                    <div style="margin-top: 16px; background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.4); border-radius: 8px; padding: 12px 14px;">
+                        <div style="font-size: 10.5px; font-weight: 800; color: #059669; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                            <span>🔒 Internal Profit Analysis</span>
+                            <span style="font-size: 9px; padding: 1px 6px; border-radius: 4px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-weight: 700;" class="dark:bg-emerald-950/80 dark:text-emerald-300">Owner Only</span>
+                        </div>
+                        <div style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 6px;" class="dark:text-slate-300">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Total Cost:</span>
+                                <strong style="color: #334155;" class="dark:text-slate-200">Rs. {{ number_format($cost, 2) }}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Estimated Net Profit:</span>
+                                <strong style="color: {{ $profit >= 0 ? '#059669' : '#dc2626' }};">Rs. {{ number_format($profit, 2) }}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 1px dashed rgba(16, 185, 129, 0.3); padding-top: 5px; margin-top: 2px;">
+                                <span>Profit Margin:</span>
+                                <strong style="font-size: 13px; color: {{ $margin >= 20 ? '#059669' : ($margin >= 0 ? '#d97706' : '#dc2626') }};">{{ number_format($margin, 1) }}%</strong>
+                            </div>
                         </div>
                     </div>
                 @endif

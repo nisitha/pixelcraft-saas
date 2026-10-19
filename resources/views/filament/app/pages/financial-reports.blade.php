@@ -35,6 +35,37 @@
                 min-width: 0;
             }
         }
+
+        /* Dark Mode Financial Reports */
+        .dark button[style*="background-color: #f9fafb"] {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #cbd5e1 !important;
+        }
+        .dark input[type="date"] {
+            background-color: #1e293b !important;
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            color: #f8fafc !important;
+        }
+        .dark div[style*="background-color: #f9fafb"] {
+            background-color: #111827 !important;
+            border-color: rgba(255, 255, 255, 0.08) !important;
+            color: #f8fafc !important;
+        }
+        .dark div[style*="border-bottom: 1px solid #f3f4f6"] {
+            border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+        }
+        .dark div[style*="color: #111827"], .dark span[style*="color: #111827"] {
+            color: #f8fafc !important;
+        }
+        .dark div[style*="color: #4b5563"], .dark span[style*="color: #4b5563"] {
+            color: #94a3b8 !important;
+        }
+        .dark div[style*="background-color: #ecfdf5"] {
+            background-color: rgba(5, 150, 105, 0.15) !important;
+            color: #a7f3d0 !important;
+            border-color: rgba(5, 150, 105, 0.3) !important;
+        }
     </style>
 
     <div style="display: flex; flex-direction: column; gap: 1.5rem;">

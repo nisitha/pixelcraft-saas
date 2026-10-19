@@ -63,4 +63,31 @@ class Quotation extends Model
     {
         return $this->hasOne(Invoice::class);
     }
+
+    public function getTotalCostAttribute(): float
+    {
+        return (float) $this->items->sum(function ($item) {
+            $cost = (float) ($item->cost_price ?? 0);
+            $qty = (float) ($item->quantity ?? 1);
+
+            return $cost * $qty;
+        });
+    }
+
+    public function getNetProfitAttribute(): float
+    {
+        $netRevenue = (float) $this->grand_total - (float) $this->tax;
+
+        return $netRevenue - $this->total_cost;
+    }
+
+    public function getProfitMarginPercentageAttribute(): float
+    {
+        $grandTotal = (float) $this->grand_total;
+        if ($grandTotal <= 0) {
+            return 0.0;
+        }
+
+        return round(($this->net_profit / $grandTotal) * 100, 2);
+    }
 }

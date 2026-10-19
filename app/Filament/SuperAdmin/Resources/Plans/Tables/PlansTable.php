@@ -20,10 +20,10 @@ class PlansTable
                 TextColumn::make('slug')
                     ->searchable(),
                 TextColumn::make('price_monthly')
-                    ->numeric()
+                    ->money('LKR')
                     ->sortable(),
                 TextColumn::make('price_yearly')
-                    ->numeric()
+                    ->money('LKR')
                     ->sortable(),
                 TextColumn::make('max_users')
                     ->numeric()

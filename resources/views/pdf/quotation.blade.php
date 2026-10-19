@@ -440,8 +440,32 @@
         </tr>
     </table>
 
-    <!-- Terms & Conditions -->
+    <!-- Terms & Conditions & Remittance -->
     <div class="terms-box">
+        @php
+            $bankAccounts = $company->getBankAccountsList();
+        @endphp
+        @if(!empty($bankAccounts))
+            <div style="margin-bottom: 8px;">
+                <strong>Electronic Bank Wire Remittance Details:</strong>
+                <table style="width: 100%; border-collapse: separate; border-spacing: 6px 0; margin-top: 4px;">
+                    <tr>
+                        @foreach($bankAccounts as $acc)
+                            <td style="width: {{ 100 / max(1, count($bankAccounts)) }}%; vertical-align: top; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                                <div style="font-weight: bold; font-size: 10px; color: {{ $primaryColor }}; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; margin-bottom: 3px;">
+                                    🏛️ {{ $acc['bank'] ?? 'Bank Account' }}
+                                </div>
+                                <div style="font-size: 8.5px; color: #475569; line-height: 1.4;">
+                                    <strong>A/C Name:</strong> {{ $acc['account_name'] ?? $company->name }}<br>
+                                    <strong>A/C No:</strong> <span style="font-family: 'Courier New', monospace; font-weight: bold; font-size: 10px; color: {{ $primaryColor }}; letter-spacing: 0.05em;">{{ $acc['account_no'] ?? '-' }}</span>
+                                    @if(!empty($acc['branch'])) <br><strong>Branch:</strong> {{ $acc['branch'] }} @endif
+                                </div>
+                            </td>
+                        @endforeach
+                    </tr>
+                </table>
+            </div>
+        @endif
         <strong>Terms & Conditions:</strong><br>
         {{ !empty($quotation->terms) ? $quotation->terms : ($company->settings['default_quote_terms'] ?? '1. Quotation validity is 30 days from date of issue due to import currency fluctuations. 2. Milestone payments must be made per schedule above. 3. 25-30 Years Solar Panel Linear Performance Warranty, 5-10 Years Inverter Warranty, 1 Year Free Maintenance.') }}
     </div>

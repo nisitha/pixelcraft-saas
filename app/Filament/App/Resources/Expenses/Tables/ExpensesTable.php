@@ -21,7 +21,7 @@ class ExpensesTable
                 TextColumn::make('title')
                     ->searchable(),
                 TextColumn::make('amount')
-                    ->numeric()
+                    ->money('LKR')
                     ->sortable(),
                 TextColumn::make('expense_date')
                     ->date()

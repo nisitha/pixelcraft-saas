@@ -53,6 +53,25 @@ class QuotationsTable
                     ->money('LKR')
                     ->weight('bold')
                     ->sortable(),
+                TextColumn::make('total_cost')
+                    ->label('Total Cost (LKR)')
+                    ->money('LKR')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
+                TextColumn::make('net_profit')
+                    ->label('Net Profit (LKR)')
+                    ->money('LKR')
+                    ->badge()
+                    ->color(fn (float $state): string => $state >= 0 ? 'success' : 'danger')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
+                TextColumn::make('profit_margin_percentage')
+                    ->label('Profit Margin (%)')
+                    ->formatStateUsing(fn ($state): string => number_format((float) $state, 1).'%')
+                    ->badge()
+                    ->color(fn (float $state): string => $state >= 20 ? 'success' : ($state >= 0 ? 'warning' : 'danger'))
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {

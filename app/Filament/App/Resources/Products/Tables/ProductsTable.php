@@ -30,10 +30,10 @@ class ProductsTable
                 TextColumn::make('type')
                     ->searchable(),
                 TextColumn::make('unit_price')
-                    ->money()
+                    ->money('LKR')
                     ->sortable(),
                 TextColumn::make('cost_price')
-                    ->money()
+                    ->money('LKR')
                     ->sortable(),
                 TextColumn::make('stock_qty')
                     ->numeric()

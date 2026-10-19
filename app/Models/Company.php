@@ -52,10 +52,86 @@ class Company extends Model implements HasAvatar, HasName
         }
 
         if (filter_var($path, FILTER_VALIDATE_URL)) {
-            return $path;
+            $url = $path;
+        } else {
+            $url = Storage::disk('public')->url($path);
         }
 
-        return Storage::disk('public')->url($path);
+        if ($this->updated_at) {
+            $separator = str_contains($url, '?') ? '&' : '?';
+            $url .= $separator.'v='.$this->updated_at->timestamp;
+        }
+
+        return $url;
+    }
+
+    public function getBankAccountsList(): array
+    {
+        $settings = $this->settings ?? [];
+        if (! empty($settings['bank_accounts']) && is_array($settings['bank_accounts'])) {
+            $valid = array_filter($settings['bank_accounts'], fn ($acc) => is_array($acc) && (! empty($acc['bank']) || ! empty($acc['account_no'])));
+            if (! empty($valid)) {
+                return array_values($valid);
+            }
+        }
+
+        $raw = $settings['bank_details'] ?? '';
+        if (empty($raw)) {
+            return [];
+        }
+
+        // Automatic parsing if existing data uses | or newlines
+        $lines = preg_split('/[\r\n]+/', trim($raw));
+        $accounts = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if (empty($line)) {
+                continue;
+            }
+
+            $parts = array_map('trim', explode('|', $line));
+            $bank = '';
+            $accountName = '';
+            $accountNo = '';
+            $branch = '';
+
+            foreach ($parts as $part) {
+                if (preg_match('/^(?:Bank\s*(?:Account\s*\d+)?:\s*|Bank Name:\s*)(.+)$/i', $part, $m)) {
+                    $bank = trim($m[1]);
+                } elseif (preg_match('/^(?:Acc(?:ount)?\s*Name:\s*)(.+)$/i', $part, $m)) {
+                    $accountName = trim($m[1]);
+                } elseif (preg_match('/^(?:Acc(?:ount)?\s*(?:No|Number)?:\s*)(.+)$/i', $part, $m)) {
+                    $accountNo = trim($m[1]);
+                } elseif (preg_match('/^(?:Branch:\s*)(.+)$/i', $part, $m)) {
+                    $branch = trim($m[1]);
+                }
+            }
+
+            if (empty($bank) && count($parts) >= 1) {
+                $bank = trim(preg_replace('/^Bank\s*(?:Account\s*\d+)?:\s*/i', '', $parts[0]));
+            }
+            if (empty($accountName) && count($parts) >= 2) {
+                $accountName = trim(preg_replace('/^Acc(?:ount)?\s*Name:\s*/i', '', $parts[1]));
+            }
+            if (empty($accountNo) && count($parts) >= 3) {
+                $accountNo = trim(preg_replace('/^Acc(?:ount)?\s*(?:No|Number)?:\s*/i', '', $parts[2]));
+            }
+            if (empty($branch) && count($parts) >= 4) {
+                $branch = trim(preg_replace('/^Branch:\s*/i', '', $parts[3]));
+            }
+
+            if (! empty($bank) || ! empty($accountNo)) {
+                $accounts[] = [
+                    'bank' => $bank ?: 'Bank Remittance',
+                    'account_name' => $accountName ?: $this->name,
+                    'account_no' => $accountNo ?: '',
+                    'branch' => $branch ?: '',
+                ];
+            }
+        }
+
+        return $accounts;
     }
 
     public function isSubscriptionActive(): bool

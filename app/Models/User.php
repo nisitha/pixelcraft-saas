@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,10 +16,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 
-class User extends Authenticatable implements FilamentUser, HasTenants
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenants
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return Filament::getTenant()?->getFilamentAvatarUrl();
+    }
 
     protected $fillable = [
         'name',

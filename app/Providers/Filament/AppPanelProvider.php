@@ -172,11 +172,76 @@ class AppPanelProvider extends PanelProvider
                         font-weight: 700 !important;
                     }
 
-                    /* Zoho Clean White Main Content Area */
-                    body.fi-body,
-                    .fi-main-ctn,
-                    main.fi-main {
+                    /* Light Mode: Zoho Clean White Main Content Area */
+                    html:not(.dark) body.fi-body,
+                    html:not(.dark) .fi-main-ctn,
+                    html:not(.dark) main.fi-main {
                         background-color: #f8fafc !important;
+                    }
+
+                    /* Executive Premium Dark Mode Palette (Linear/Stripe inspired) */
+                    html.dark body,
+                    html.dark body.fi-body,
+                    html.dark .fi-body,
+                    html.dark .fi-main,
+                    html.dark .fi-main-ctn {
+                        background-color: #0b0f19 !important;
+                        color: #f8fafc !important;
+                    }
+
+                    html.dark .fi-topbar,
+                    html.dark header.fi-topbar {
+                        background-color: #0f172a !important;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+                    }
+
+                    html.dark aside.fi-sidebar,
+                    html.dark .fi-sidebar,
+                    html.dark .fi-main-sidebar {
+                        background-color: #0f172a !important;
+                        border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+                    }
+
+                    html.dark .fi-sidebar-header,
+                    html.dark .fi-sidebar-header-ctn,
+                    html.dark .fi-sidebar-footer {
+                        background-color: #0f172a !important;
+                        border-color: rgba(255, 255, 255, 0.07) !important;
+                    }
+
+                    html.dark .fi-section,
+                    html.dark .fi-wi-stats-overview-stat,
+                    html.dark .fi-ta-ctn,
+                    html.dark .fi-modal-window {
+                        background-color: #111827 !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+                    }
+
+                    html.dark .fi-header-heading,
+                    html.dark .fi-section-header-heading,
+                    html.dark .fi-ta-header-heading,
+                    html.dark .fi-wi-stats-overview-stat-value {
+                        color: #f8fafc !important;
+                    }
+
+                    html.dark .fi-header-subheading,
+                    html.dark .fi-section-header-description,
+                    html.dark .fi-ta-header-description,
+                    html.dark .fi-wi-stats-overview-stat-label,
+                    html.dark .fi-sidebar-group-label {
+                        color: #94a3b8 !important;
+                    }
+
+                    html.dark .fi-ta-header,
+                    html.dark .fi-ta-content,
+                    html.dark .fi-ta-filter,
+                    html.dark .fi-ta-record-checkbox {
+                        border-color: rgba(255, 255, 255, 0.08) !important;
+                    }
+
+                    html.dark .fi-ta-row:hover {
+                        background-color: rgba(255, 255, 255, 0.03) !important;
                     }
                 </style>
                 ',

@@ -33,11 +33,20 @@
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
+        .dark .zoho-left-pane {
+            background: #111827;
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+        }
 
         .zoho-left-header {
             padding: 16px;
             background-color: #f8fafc;
             border-bottom: 1px solid #e2e8f0;
+        }
+        .dark .zoho-left-header {
+            background-color: #0f172a;
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
         .zoho-left-search {
@@ -48,6 +57,11 @@
             border-radius: 6px;
             outline: none;
             background-color: #ffffff;
+        }
+        .dark .zoho-left-search {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border-color: #334155;
         }
         .zoho-left-search:focus {
             border-color: #3b82f6;
@@ -72,6 +86,11 @@
             cursor: pointer;
             white-space: nowrap;
         }
+        .dark .zoho-filter-btn {
+            background: #1e293b;
+            color: #cbd5e1;
+            border-color: #334155;
+        }
         .zoho-filter-btn.active {
             background-color: #3b82f6;
             border-color: #3b82f6;
@@ -91,12 +110,22 @@
             transition: all 0.15s ease;
             position: relative;
         }
+        .dark .zoho-record-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+        }
         .zoho-record-item:hover {
             background-color: #f8fafc;
+        }
+        .dark .zoho-record-item:hover {
+            background-color: rgba(255, 255, 255, 0.04);
         }
         .zoho-record-item.active {
             background-color: #eff6ff;
             border-left: 4px solid #3b82f6;
+        }
+        .dark .zoho-record-item.active {
+            background-color: rgba(59, 130, 246, 0.15);
         }
 
         /* Right Detail Pane (68%) */
@@ -117,6 +146,10 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .dark .zoho-detail-action-bar {
+            background: #0f172a;
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
         .zoho-action-btn-group {
@@ -147,6 +180,14 @@
         .action-btn-default:hover {
             background-color: #f1f5f9;
             color: #0f172a;
+        }
+        .dark .action-btn-default {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border-color: #334155;
+        }
+        .dark .action-btn-default:hover {
+            background-color: #334155;
         }
 
         .action-btn-primary {
@@ -192,7 +233,7 @@
 
         /* Live A4 Paper Preview Container */
         .zoho-a4-container {
-            background: #ffffff;
+            background: #f1f5f9;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 32px 16px;
@@ -201,14 +242,19 @@
             display: flex;
             justify-content: center;
         }
+        .dark .zoho-a4-container {
+            background-color: #0b0f19;
+            border-color: rgba(255, 255, 255, 0.08);
+        }
 
         .a4-paper {
             width: 100%;
             max-width: 210mm;
             min-height: 297mm;
-            background: #ffffff;
+            background: #ffffff !important;
+            color: #1e293b !important;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.06);
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e2e8f0 !important;
             border-radius: 4px;
             padding: 40px 44px;
             position: relative;
@@ -461,8 +507,8 @@
                     <!-- Document Header -->
                     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 24px; margin-bottom: 24px;">
                         <div>
-                            @if ($company->logo_path)
-                                <img src="{{ asset('storage/' . $company->logo_path) }}" style="max-height: 52px; max-width: 200px; margin-bottom: 6px;" alt="{{ $company->name }}">
+                            @if ($company->getFilamentAvatarUrl())
+                                <img src="{{ $company->getFilamentAvatarUrl() }}" style="max-height: 52px; max-width: 200px; margin-bottom: 6px; object-fit: contain;" alt="{{ $company->name }}">
                             @endif
                             <h2 style="font-size: 20px; font-weight: 800; color: {{ $primaryColor }}; margin-bottom: 4px;">{{ $company->name }}</h2>
                             <div style="font-size: 11px; color: #475569; line-height: 1.5;">
@@ -546,7 +592,30 @@
                     <!-- Bottom Summary & Remittance -->
                     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 20px;">
                         <div>
-                            @if (!empty($company->settings['bank_details']))
+                            @php
+                                $bankAccounts = $company->getBankAccountsList();
+                            @endphp
+                            @if (!empty($bankAccounts))
+                                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 10px; line-height: 1.5;">
+                                    <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px; font-size: 11px;">🏦 Electronic Bank Wire Remittance:</div>
+                                    <div style="display: grid; grid-template-columns: {{ count($bankAccounts) > 1 ? '1fr 1fr' : '1fr' }}; gap: 8px;">
+                                        @foreach($bankAccounts as $acc)
+                                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 8px;">
+                                                <div style="font-weight: 700; color: {{ $primaryColor }}; font-size: 10.5px; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; margin-bottom: 3px;">
+                                                    🏛️ {{ $acc['bank'] ?? 'Bank Account' }}
+                                                </div>
+                                                <div style="font-size: 9.5px; color: #475569; line-height: 1.45;">
+                                                    <div><span style="color: #64748b;">Acc Name:</span> <strong>{{ $acc['account_name'] ?? $company->name }}</strong></div>
+                                                    <div><span style="color: #64748b;">Acc No:</span> <code style="font-weight: 800; font-family: monospace; font-size: 10.5px; color: {{ $primaryColor }};">{{ $acc['account_no'] ?? '-' }}</code></div>
+                                                    @if(!empty($acc['branch']))
+                                                        <div><span style="color: #64748b;">Branch:</span> {{ $acc['branch'] }}</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @elseif(!empty($company->settings['bank_details']))
                                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 10px; line-height: 1.5;">
                                     <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px;">🏦 Electronic Bank Wire Remittance:</div>
                                     {!! nl2br(e($company->settings['bank_details'])) !!}
@@ -594,6 +663,35 @@
                                     </tr>
                                 @endif
                             </table>
+
+                            @if (auth()->user()?->isTenantOwnerOrAdmin())
+                                <div style="margin-top: 14px; background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 6px; padding: 10px 12px; color: #ffffff;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 4px; margin-bottom: 6px;">
+                                        <div style="font-size: 10px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; letter-spacing: 0.05em;">
+                                            🔒 Internal Profit Analysis (Owner Only)
+                                        </div>
+                                        <span style="font-size: 9px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #a7f3d0; padding: 1px 4px; border-radius: 3px; font-weight: 700;">CONFIDENTIAL</span>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; font-size: 10px;">
+                                        <div>
+                                            <div style="color: #cbd5e1; font-size: 9px;">Total Cost:</div>
+                                            <div style="font-weight: 700; font-size: 11px; color: #f8fafc;">Rs. {{ number_format($record->total_cost, 2) }}</div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #cbd5e1; font-size: 9px;">Est. Net Profit:</div>
+                                            <div style="font-weight: 800; font-size: 12px; color: {{ $record->net_profit >= 0 ? '#34d399' : '#f87171' }};">
+                                                Rs. {{ number_format($record->net_profit, 2) }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div style="color: #cbd5e1; font-size: 9px;">Margin %:</div>
+                                            <div style="font-weight: 800; font-size: 12px; color: {{ $record->profit_margin_percentage >= 20 ? '#34d399' : ($record->profit_margin_percentage >= 0 ? '#fbbf24' : '#f87171') }};">
+                                                {{ $record->profit_margin_percentage }}%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
                             @if (!empty($company->settings['signature_path']))
                                 <div style="margin-top: 20px; text-align: right;">

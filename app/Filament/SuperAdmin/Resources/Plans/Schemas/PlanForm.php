@@ -20,10 +20,12 @@ class PlanForm
                 TextInput::make('price_monthly')
                     ->required()
                     ->numeric()
+                    ->prefix('Rs.')
                     ->default(0.0),
                 TextInput::make('price_yearly')
                     ->required()
                     ->numeric()
+                    ->prefix('Rs.')
                     ->default(0.0),
                 TextInput::make('max_users')
                     ->required()

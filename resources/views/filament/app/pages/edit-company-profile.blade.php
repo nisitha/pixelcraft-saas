@@ -15,7 +15,8 @@
         $invoicePrefix = $settings['invoice_prefix'] ?? 'INV-2026-';
 
         $logoPath = $tenant->logo_path ?? ($settings['logo_path'] ?? null);
-        $logoUrl = $logoPath ? asset('storage/' . $logoPath) : null;
+        $logoUrl = $tenant ? $tenant->getFilamentAvatarUrl() : ($logoPath ? asset('storage/' . $logoPath) : null);
+        $bankAccounts = $tenant ? $tenant->getBankAccountsList() : [];
 
         $signaturePath = $settings['signature_path'] ?? null;
         $signatureUrl = $signaturePath ? asset('storage/' . $signaturePath) : null;
@@ -32,6 +33,7 @@
             address: @js($tenant->address ?? 'No. 142/A, High Level Road, Colombo 05, Sri Lanka'),
             taxNumber: @js($tenant->tax_number ?? 'VAT-100293847'),
             bankDetails: @js($bankDetails),
+            bankAccounts: @js($bankAccounts),
             defaultInvoiceTerms: @js($defaultInvoiceTerms),
             quotePrefix: @js($quotePrefix),
             invoicePrefix: @js($invoicePrefix),
@@ -468,14 +470,28 @@
 
                             {{-- Bank Wire Remittance --}}
                             <div class="info-card-box" style="margin-bottom: 10px; padding: 8px 10px;">
-                                <div style="font-weight: 700; font-size: 10px; color: #0f172a; margin-bottom: 2px;">
-                                    🏦 Electronic Bank Wire Remittance:
+                                <div style="font-weight: 700; font-size: 10px; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                    <span>🏦</span> Electronic Bank Wire Remittance:
                                 </div>
-                                <div
-                                    style="font-size: 9.5px; color: #475569; line-height: 1.45; white-space: pre-line;"
-                                    x-text="bankDetails || '• Bank of Ceylon (BOC) | Acc: 97194769 (Branch: Colombo Fort)\n• DFCC Bank | Acc: 101001490231 (Branch: Corporate Head Office)'"
-                                >
-                                </div>
+                                <template x-if="bankAccounts && bankAccounts.length > 0">
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px;">
+                                        <template x-for="(acc, idx) in bankAccounts" :key="idx">
+                                            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-top: 2.5px solid; border-radius: 4px; padding: 5px 8px; font-size: 9px; line-height: 1.4;" :style="'border-top-color: ' + primaryColor">
+                                                <div style="font-weight: 800; color: #0f172a;" x-text="acc.bank || 'Bank'"></div>
+                                                <div style="color: #64748b; font-size: 8px;" x-show="acc.account_name" x-text="acc.account_name"></div>
+                                                <div style="font-family: monospace; font-size: 10px; font-weight: 800; color: #0f172a; margin: 2px 0;" x-show="acc.account_no" x-text="acc.account_no"></div>
+                                                <div style="color: #64748b; font-size: 8px;" x-show="acc.branch" x-text="'Branch: ' + acc.branch"></div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template x-if="!bankAccounts || bankAccounts.length === 0">
+                                    <div
+                                        style="font-size: 9.5px; color: #475569; line-height: 1.45; white-space: pre-line;"
+                                        x-text="bankDetails || '• Bank of Ceylon (BOC) - Acc: 97194769 (Branch: Colombo Fort)\n• DFCC Bank - Acc: 101001490231 (Branch: Corporate Head Office)'"
+                                    >
+                                    </div>
+                                </template>
                             </div>
 
                             {{-- Terms & Conditions --}}
@@ -569,6 +585,7 @@
                 address: initialData.address || '',
                 taxNumber: initialData.taxNumber || '',
                 bankDetails: initialData.bankDetails || '',
+                bankAccounts: initialData.bankAccounts || [],
                 defaultInvoiceTerms: initialData.defaultInvoiceTerms || '',
                 quotePrefix: initialData.quotePrefix || 'QUO-2026-',
                 invoicePrefix: initialData.invoicePrefix || 'INV-2026-',
@@ -606,6 +623,11 @@
                         });
                         this.$watch('$wire.data.settings.bank_details', (val) => {
                             if (val) this.bankDetails = val;
+                        });
+                        this.$watch('$wire.data.settings.bank_accounts', (val) => {
+                            if (Array.isArray(val)) {
+                                this.bankAccounts = val.filter(a => a && (a.bank || a.account_no));
+                            }
                         });
                         this.$watch('$wire.data.settings.default_invoice_terms', (val) => {
                             if (val) this.defaultInvoiceTerms = val;

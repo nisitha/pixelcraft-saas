@@ -5,6 +5,7 @@ namespace App\Filament\App\Pages\Tenancy;
 use App\Models\Company;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -152,11 +153,36 @@ class EditCompanyProfile extends EditTenantProfile
                             ->schema([
                                 Section::make('Bank Remittance & Default Terms')
                                     ->schema([
+                                        Repeater::make('settings.bank_accounts')
+                                            ->label('Structured Bank Accounts (Wire Remittance)')
+                                            ->schema([
+                                                TextInput::make('bank')
+                                                    ->label('Bank Name')
+                                                    ->placeholder('e.g. DFCC Bank / Bank of Ceylon')
+                                                    ->required(),
+                                                TextInput::make('account_name')
+                                                    ->label('Account Name')
+                                                    ->placeholder('e.g. VERTEX HOME SOLUTIONS (PVT) LTD')
+                                                    ->required(),
+                                                TextInput::make('account_no')
+                                                    ->label('Account Number')
+                                                    ->placeholder('e.g. 101001490231')
+                                                    ->required(),
+                                                TextInput::make('branch')
+                                                    ->label('Branch')
+                                                    ->placeholder('e.g. Giriulla')
+                                                    ->nullable(),
+                                            ])
+                                            ->columns(4)
+                                            ->defaultItems(1)
+                                            ->collapsible()
+                                            ->helperText('Configured bank accounts will render as clean, professional side-by-side cards without pipe symbols on invoices, quotations, and live previews.'),
+
                                         Textarea::make('settings.bank_details')
-                                            ->label('Bank Account & Wire Remittance Details')
-                                            ->placeholder("• DFCC Bank | Acc: 101001490231 (Branch: Giriulla)\n• Bank Of Ceylon (BOC) | Acc: 97194769 (Branch: Giriulla)")
-                                            ->rows(3)
-                                            ->helperText('Displayed at the bottom of customer invoices for direct wire or online bank transfers.'),
+                                            ->label('Additional / Fallback Remittance Notes')
+                                            ->placeholder('Any extra wire transfer instructions...')
+                                            ->rows(2)
+                                            ->helperText('Optional extra notes appended below the structured bank cards on documents.'),
 
                                         Textarea::make('settings.default_notes')
                                             ->label('Default Customer Notes')
@@ -254,6 +280,11 @@ class EditCompanyProfile extends EditTenantProfile
         $settings['allow_out_of_stock_invoicing'] = $settings['allow_out_of_stock_invoicing'] ?? true;
         $settings['enable_pos_module'] = $settings['enable_pos_module'] ?? true;
         $settings['enable_solar_specs'] = $settings['enable_solar_specs'] ?? true;
+
+        if (empty($settings['bank_accounts']) && $this->tenant instanceof Company) {
+            $settings['bank_accounts'] = $this->tenant->getBankAccountsList();
+        }
+
         $data['settings'] = $settings;
 
         return $data;
@@ -287,6 +318,22 @@ class EditCompanyProfile extends EditTenantProfile
             $mergedSettings['logo_path'] = $data['logo_path'];
         }
 
+        if (! empty($mergedSettings['bank_accounts']) && is_array($mergedSettings['bank_accounts'])) {
+            $lines = [];
+            foreach ($mergedSettings['bank_accounts'] as $acc) {
+                if (! empty($acc['bank']) || ! empty($acc['account_no'])) {
+                    $b = $acc['bank'] ?? 'Bank';
+                    $n = $acc['account_name'] ?? '';
+                    $no = $acc['account_no'] ?? '';
+                    $br = ! empty($acc['branch']) ? " (Branch: {$acc['branch']})" : '';
+                    $lines[] = "{$b} - Acc: {$no}{$br} - {$n}";
+                }
+            }
+            if (! empty($lines)) {
+                $mergedSettings['bank_details'] = implode("\n", $lines);
+            }
+        }
+
         if (isset($mergedSettings['signature_path'])) {
             if (is_array($mergedSettings['signature_path'])) {
                 $mergedSettings['signature_path'] = array_values($mergedSettings['signature_path'])[0] ?? null;
@@ -314,6 +361,7 @@ class EditCompanyProfile extends EditTenantProfile
 
         $record->fill($data);
         $record->save();
+        $record->touch();
 
         return $record;
     }
