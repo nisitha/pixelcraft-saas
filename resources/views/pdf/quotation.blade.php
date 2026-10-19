@@ -5,11 +5,14 @@
     <title>Quotation - {{ $quotation->quote_number }}</title>
     @php
         $primaryColor = $company->settings['primary_color'] ?? '#047857';
-        $tableHeaderColor = $company->settings['table_header_color'] ?? '#0f172a';
+        $tableHeaderColor = $company->settings['table_header_color'] ?? '#047857';
         $textColor = $company->settings['text_color'] ?? '#ffffff';
         $showSolarSpecs = $company->settings['show_solar_specs'] ?? true;
         $showCebAccount = $company->settings['show_ceb_account'] ?? true;
         $showMilestones = $company->settings['show_milestones'] ?? true;
+
+        $contact = $contact ?? ($quotation->contact ?? null);
+        $items = $items ?? ($quotation->items ?? []);
 
         $resolveImagePath = function (?string $path): ?string {
             if (empty($path)) {

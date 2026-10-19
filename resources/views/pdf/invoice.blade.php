@@ -5,11 +5,16 @@
     <title>Invoice - {{ $invoice->invoice_number }}</title>
     @php
         $primaryColor = $company->settings['primary_color'] ?? '#047857';
-        $tableHeaderColor = $company->settings['table_header_color'] ?? '#0f172a';
+        $tableHeaderColor = $company->settings['table_header_color'] ?? '#047857';
         $textColor = $company->settings['text_color'] ?? '#ffffff';
         $showSolarSpecs = $company->settings['show_solar_specs'] ?? true;
         $showCebAccount = $company->settings['show_ceb_account'] ?? true;
         $showMilestones = $company->settings['show_milestones'] ?? true;
+
+        $contact = $contact ?? ($invoice->contact ?? null);
+        $quotation = $quotation ?? ($invoice->quotation ?? null);
+        $items = $items ?? ($invoice->items ?? []);
+        $payments = $payments ?? ($invoice->payments ?? []);
 
         $resolveImagePath = function (?string $path): ?string {
             if (empty($path)) {
@@ -217,7 +222,7 @@
             font-size: 11px;
         }
         .totals-table .grand-row {
-            background-color: #0f172a;
+            background-color: {{ $primaryColor }};
             color: #ffffff;
             font-weight: bold;
             font-size: 12px;
@@ -296,8 +301,8 @@
                     <strong>Invoice No:</strong> {{ $invoice->invoice_number }}<br>
                     <strong>Date:</strong> {{ $invoice->invoice_date ? $invoice->invoice_date->format('d M Y') : now()->format('d M Y') }}<br>
                     <strong>Due Date:</strong> {{ $invoice->due_date ? $invoice->due_date->format('d M Y') : 'Due on receipt' }}<br>
-                    @if($quotation)
-                        <strong>Originating Quote:</strong> {{ $quotation->quote_number }}<br>
+                    @if(!empty($quotation ?? ($invoice->quotation ?? null)))
+                        <strong>Originating Quote:</strong> {{ ($quotation ?? $invoice->quotation)->quote_number }}<br>
                     @endif
                     <strong>Status:</strong> 
                     <span class="status-badge {{ $invoice->status === 'paid' ? 'status-paid' : ($invoice->status === 'partial' ? 'status-partial' : 'status-unpaid') }}">

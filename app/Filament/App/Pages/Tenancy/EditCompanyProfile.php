@@ -13,12 +13,21 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class EditCompanyProfile extends EditTenantProfile
 {
+    protected string $view = 'filament.app.pages.edit-company-profile';
+
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::Full;
+    }
+
     public static function getLabel(): string
     {
         return 'Company Profile & Branding';
@@ -93,6 +102,8 @@ class EditCompanyProfile extends EditTenantProfile
                                 Section::make('Brand Colors & Document Styling')
                                     ->description('Customize the visual theme of your invoices, quotations, and public customer portal.')
                                     ->schema([
+                                        View::make('filament.app.components.branding-preset-picker'),
+
                                         Grid::make(3)->schema([
                                             ColorPicker::make('settings.primary_color')
                                                 ->label('Primary Brand Color')
