@@ -254,6 +254,20 @@ class QuotationsTable
                         );
                     }),
 
+                Action::make('downloadSolarAgreement')
+                    ->label('Solar Agreement')
+                    ->icon(Heroicon::DocumentCheck)
+                    ->color('success')
+                    ->action(function (Quotation $record) {
+                        $filename = PdfService::getSolarAgreementFileName($record);
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generateSolarAgreementPdf($record)->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
+
                 Action::make('deliveryNote')
                     ->label('Delivery Note')
                     ->icon(Heroicon::Truck)

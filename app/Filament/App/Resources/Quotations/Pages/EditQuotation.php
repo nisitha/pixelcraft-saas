@@ -126,6 +126,22 @@ class EditQuotation extends EditRecord
                     );
                 }),
 
+            Action::make('downloadSolarAgreement')
+                ->label('Solar Agreement')
+                ->icon(Heroicon::DocumentCheck)
+                ->color('success')
+                ->action(function () {
+                    /** @var Quotation $record */
+                    $record = $this->record;
+                    $filename = PdfService::getSolarAgreementFileName($record);
+
+                    return response()->streamDownload(
+                        fn () => print (app(PdfService::class)->generateSolarAgreementPdf($record)->output()),
+                        $filename,
+                        ['Content-Type' => 'application/pdf']
+                    );
+                }),
+
             DeleteAction::make(),
         ];
     }

@@ -255,4 +255,58 @@ class PdfService
 
         return "CommissionVoucher-{$safeNumber}.pdf";
     }
+
+    public function generateSolarAgreementPdf(Invoice|Quotation $record): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $record->loadMissing(['company', 'contact', 'items.product', 'salesAgent']);
+
+        $company = $record->company;
+        $contact = $record->contact;
+
+        $agreementNumber = $record instanceof Invoice
+            ? ($record->quotation?->quote_number ?: $record->invoice_number)
+            : $record->quote_number;
+
+        $quotationNumber = $record instanceof Invoice
+            ? ($record->quotation?->quote_number ?: null)
+            : $record->quote_number;
+
+        $agreementDate = $record instanceof Invoice
+            ? ($record->invoice_date?->format('Y-m-d') ?? now()->format('Y-m-d'))
+            : ($record->quote_date?->format('Y-m-d') ?? now()->format('Y-m-d'));
+
+        $agentName = $record->salesAgent?->name ?: 'Krishantha (AGT-003)';
+
+        $pdf = Pdf::loadView('pdf.solar-agreement', [
+            'record' => $record,
+            'company' => $company,
+            'contact' => $contact,
+            'items' => $record->items,
+            'agreementNumber' => $agreementNumber,
+            'quotationNumber' => $quotationNumber,
+            'agreementDate' => $agreementDate,
+            'agentName' => $agentName,
+        ])->setPaper('a4', 'portrait');
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public static function getSolarAgreementFileName(Invoice|Quotation|string $record): string
+    {
+        if (is_string($record)) {
+            $number = $record;
+        } elseif ($record instanceof Invoice) {
+            $number = $record->quotation?->quote_number ?: $record->invoice_number;
+        } else {
+            $number = $record->quote_number;
+        }
+
+        $safeNumber = static::sanitizeFileName($number);
+
+        return "SolarAgreement-{$safeNumber}.pdf";
+    }
 }

@@ -71,6 +71,22 @@ class EditInvoice extends EditRecord
                     );
                 }),
 
+            Action::make('downloadSolarAgreement')
+                ->label('Solar Agreement')
+                ->icon(Heroicon::DocumentCheck)
+                ->color('success')
+                ->action(function () {
+                    /** @var Invoice $record */
+                    $record = $this->record;
+                    $filename = PdfService::getSolarAgreementFileName($record);
+
+                    return response()->streamDownload(
+                        fn () => print (app(PdfService::class)->generateSolarAgreementPdf($record)->output()),
+                        $filename,
+                        ['Content-Type' => 'application/pdf']
+                    );
+                }),
+
             Action::make('issueCertificate')
                 ->label('Issue Certificate')
                 ->icon(Heroicon::AcademicCap)

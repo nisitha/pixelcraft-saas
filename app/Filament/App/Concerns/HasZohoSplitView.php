@@ -298,6 +298,19 @@ trait HasZohoSplitView
             : $this->downloadItemizedPdf();
     }
 
+    public function downloadSolarAgreement(): StreamedResponse
+    {
+        $pdfService = app(PdfService::class);
+        $record = $this->record;
+        $filename = PdfService::getSolarAgreementFileName($record);
+
+        return response()->streamDownload(
+            fn () => print ($pdfService->generateSolarAgreementPdf($record)->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
     public function downloadDeliveryNote(): StreamedResponse
     {
         $pdfService = app(PdfService::class);

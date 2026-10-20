@@ -447,6 +447,10 @@
                         📄 Itemized PDF
                     </button>
 
+                    <button type="button" wire:click="downloadSolarAgreement" class="action-btn action-btn-default" style="color: #047857; font-weight: 700; border-color: #a7f3d0; background: #ecfdf5;" title="1-Click Download Official 2-Page Solar System Installation Agreement PDF">
+                        ☀️ Solar Agreement
+                    </button>
+
                     <button type="button" wire:click="downloadDeliveryNote" class="action-btn action-btn-default" title="Print Delivery Note / Gate Pass without prices">
                         🚚 Delivery Note
                     </button>
