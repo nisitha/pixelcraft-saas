@@ -69,8 +69,6 @@
     $aspectRatioDisplay = $activeConfig['ratio'];
     $physicalDimensions = $activeConfig['mm'];
 
-    $initialEstimatedHeight = $isPortrait ? 650 : 360;
-
     $canvasData = compact(
         'customerName', 'systemCapacity', 'certificateNumber', 'siteAddress',
         'commissioningDate', 'gridConnection', 'warrantyPeriod', 'systemStatus',
@@ -84,8 +82,7 @@
     x-data="{
         baseWidth: {{ $baseWidth }},
         baseHeight: {{ $baseHeight }},
-        scale: 0.5,
-        viewportHeight: {{ $initialEstimatedHeight }},
+        scale: {{ $isPortrait ? 0.55 : 0.42 }},
         isFullscreen: false,
         modalZoom: 1.0,
 
@@ -93,19 +90,23 @@
             this.updateScale();
             this.$nextTick(() => {
                 this.updateScale();
-                if (window.ResizeObserver && this.$refs.previewViewport) {
-                    const ro = new ResizeObserver(() => this.updateScale());
-                    ro.observe(this.$refs.previewViewport);
-                }
             });
+            if (window.ResizeObserver && this.$refs.studioFrame) {
+                this.ro = new ResizeObserver(() => {
+                    this.updateScale();
+                });
+                this.ro.observe(this.$refs.studioFrame);
+            }
+            window.addEventListener('resize', () => this.updateScale());
         },
 
         updateScale() {
-            if (!this.$refs.previewViewport) return;
-            const w = this.$refs.previewViewport.clientWidth;
+            let w = this.$refs.studioFrame ? this.$refs.studioFrame.clientWidth : 0;
+            if (!w && this.$el) {
+                w = Math.max(0, this.$el.clientWidth - 40);
+            }
             if (w > 0 && this.baseWidth > 0) {
                 this.scale = w / this.baseWidth;
-                this.viewportHeight = Math.round(this.baseHeight * this.scale);
             }
         },
 
@@ -121,7 +122,7 @@
         },
 
         zoomIn() {
-            this.modalZoom = Math.min(2.0, Math.round((this.modalZoom + 0.15) * 100) / 100);
+            this.modalZoom = Math.min(2.5, Math.round((this.modalZoom + 0.15) * 100) / 100);
         },
 
         zoomOut() {
@@ -132,91 +133,171 @@
             this.modalZoom = 1.0;
         }
     }"
-    wire:key="cert-preview-wrapper-{{ $paperSize }}-{{ $orientation }}"
-    class="w-full cert-preview-card"
-    style="position: -webkit-sticky; position: sticky; top: 1.5rem; align-self: flex-start; z-index: 20;"
+    wire:key="cert-preview-studio-{{ $paperSize }}-{{ $orientation }}"
+    class="w-full"
 >
     <style>
-        .cert-preview-card svg {
-            width: 18px !important;
-            height: 18px !important;
-            min-width: 18px !important;
-            max-width: 20px !important;
-            display: inline-block !important;
-            vertical-align: middle !important;
+        /* Responsive Two-Column Able Pro Layout: 55% Form / 45% Sticky Preview Studio */
+        @media (min-width: 1024px) {
+            .able-pro-cert-studio-layout {
+                display: flex !important;
+                flex-direction: row !important;
+                gap: 1.5rem !important;
+                align-items: flex-start !important;
+            }
+            .able-pro-form-col {
+                flex: 0 0 55% !important;
+                max-width: 55% !important;
+                width: 55% !important;
+            }
+            .able-pro-preview-col {
+                flex: 0 0 calc(45% - 1.5rem) !important;
+                max-width: calc(45% - 1.5rem) !important;
+                width: calc(45% - 1.5rem) !important;
+                position: -webkit-sticky !important;
+                position: sticky !important;
+                top: 1.5rem !important;
+                align-self: flex-start !important;
+                z-index: 20;
+            }
+        }
+
+        /* Left Column Form Inputs: Sleek Able Pro Cards */
+        .able-pro-form-col .fi-section,
+        .able-pro-card {
+            background: #ffffff !important;
+            border: 1px solid #e8ebee !important;
+            border-radius: 12px !important;
+            padding: 20px !important;
+            box-shadow: 0 2px 10px rgba(33, 40, 50, 0.04) !important;
+            margin-bottom: 1.25rem !important;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+        .able-pro-card:hover {
+            box-shadow: 0 4px 16px rgba(33, 40, 50, 0.08) !important;
+        }
+        .dark .able-pro-form-col .fi-section,
+        .dark .able-pro-card {
+            background: #1e293b !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        /* Form Inputs Able Pro Focus Borders */
+        .able-pro-form-col input:focus,
+        .able-pro-form-col select:focus,
+        .able-pro-form-col textarea:focus,
+        .able-pro-form-col .fi-input:focus,
+        .able-pro-form-col .fi-select-input:focus,
+        .able-pro-form-col .fi-input-wrp:focus-within {
+            border-color: #4680ff !important;
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(70, 128, 255, 0.2) !important;
+            --tw-ring-color: rgba(70, 128, 255, 0.2) !important;
+        }
+
+        /* Dedicated Able Pro Live Preview Studio (Right Column) */
+        .able-pro-studio-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px;
+            position: sticky;
+            top: 1.5rem;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+        }
+        .dark .able-pro-studio-card {
+            background: #111827;
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Certificate Paper Frame with Realistic Shadow */
+        .able-pro-paper-frame {
+            box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+            border-radius: 4px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .dark .able-pro-paper-frame {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Able Pro Royal Blue Button */
+        .able-pro-btn-primary {
+            background-color: #4680ff !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(70, 128, 255, 0.35) !important;
+            transition: all 0.2s ease !important;
+        }
+        .able-pro-btn-primary:hover {
+            background-color: #3b74ee !important;
+            box-shadow: 0 4px 12px rgba(70, 128, 255, 0.45) !important;
+        }
+        .able-pro-btn-primary:active {
+            transform: translateY(1px);
         }
     </style>
 
-    {{-- Executive SaaS Live Preview Container Card --}}
-    <div class="rounded-2xl border border-slate-700/80 bg-slate-900 text-slate-100 shadow-2xl shadow-slate-950/40 overflow-hidden">
-        
-        {{-- Toolbar Top Row: Live Status & Technical Badges --}}
-        <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
-            {{-- Left: Live Pulse Indicator --}}
-            <div class="flex items-center gap-2.5">
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm shadow-emerald-500"></span>
+    {{-- Dedicated Able Pro Live Preview Studio Card --}}
+    <div class="able-pro-studio-card">
+        {{-- Top Header Bar --}}
+        <div class="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200/80 dark:border-slate-800">
+            {{-- Left: Live Studio badge (● LIVE PREVIEW in emerald green) + Paper size pill (A4 • LANDSCAPE) --}}
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60 shadow-sm">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    LIVE PREVIEW
                 </span>
-                <span class="text-xs font-extrabold tracking-wider text-slate-100 uppercase">
-                    Live Certificate Preview
-                </span>
-            </div>
 
-            {{-- Right: High-Visibility Dimension Badges --}}
-            <div class="flex items-center gap-1.5 flex-wrap">
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wide uppercase bg-teal-500/20 text-teal-300 border border-teal-500/40">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-white text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 shadow-sm">
                     {{ strtoupper($paperSize) }} • {{ strtoupper($orientation) }}
                 </span>
-                <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-semibold text-slate-300 bg-slate-800/90 border border-slate-700">
-                    {{ $aspectRatioDisplay }}
-                </span>
-                @if ($status === 'issued')
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                        Issued
-                    </span>
-                @else
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                        Draft
-                    </span>
-                @endif
-            </div>
-        </div>
-
-        {{-- Toolbar Action Row: Fullscreen HD & Download PDF Direct Action --}}
-        <div class="px-3.5 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-2 flex-wrap">
-            <div class="text-[11px] text-slate-400 font-medium hidden sm:block">
-                Physical standard: <span class="text-slate-200 font-semibold">{{ $physicalDimensions }}</span>
             </div>
 
-            <div class="flex items-center gap-2 ml-auto">
-                {{-- Fullscreen HD Modal Trigger --}}
+            {{-- Right: Action buttons --}}
+            <div class="flex items-center gap-2">
+                {{-- Fullscreen Modal Preview (heroicon-o-arrows-pointing-out) --}}
                 <button
                     type="button"
                     @click="openFullscreen()"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700 transition shadow-sm hover:text-white"
-                    title="Inspect high-resolution full screen certificate"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700 transition shadow-sm"
+                    title="Fullscreen Modal Preview"
                 >
-                    <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                    </svg>
-                    <span>Fullscreen Preview</span>
+                    <x-filament::icon
+                        icon="heroicon-o-arrows-pointing-out"
+                        style="width: 1rem; height: 1rem; min-width: 1rem; min-height: 1rem; display: inline-block;"
+                    />
+                    <span class="hidden sm:inline">Fullscreen</span>
                 </button>
 
-                {{-- Direct PDF Download Button --}}
+                {{-- Download PDF button in Able Pro Royal Blue (#4680ff) --}}
                 <button
                     type="button"
                     wire:click="downloadPdf"
                     wire:loading.attr="disabled"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white transition shadow-sm disabled:opacity-50"
-                    title="Download generated vector PDF"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg able-pro-btn-primary disabled:opacity-50"
+                    title="Download PDF Certificate"
                 >
-                    <svg wire:loading.remove wire:target="downloadPdf" style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                    </svg>
-                    <svg wire:loading wire:target="downloadPdf" style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                    <x-filament::icon
+                        wire:loading.remove
+                        wire:target="downloadPdf"
+                        icon="heroicon-o-arrow-down-tray"
+                        style="width: 1rem; height: 1rem; min-width: 1rem; min-height: 1rem; display: inline-block;"
+                    />
+                    <svg
+                        wire:loading
+                        wire:target="downloadPdf"
+                        class="animate-spin text-white"
+                        style="width: 1rem; height: 1rem; min-width: 1rem; min-height: 1rem; display: inline-block;"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                     </svg>
@@ -225,38 +306,36 @@
             </div>
         </div>
 
-        {{-- Dynamic Scaled Viewport Area (Zero overlap, mathematically scaled to exact container width) --}}
-        <div class="p-3 bg-slate-950 flex items-center justify-center overflow-hidden">
+        {{-- Certificate Paper Frame Stage (Centered perfectly using flexbox) --}}
+        <div class="flex items-center justify-center w-full py-1">
             <div
-                x-ref="previewViewport"
-                class="w-full relative overflow-hidden"
-                :style="'height: ' + viewportHeight + 'px; min-height: ' + viewportHeight + 'px;'"
+                x-ref="studioFrame"
+                class="able-pro-paper-frame w-full"
+                :style="'aspect-ratio: ' + baseWidth + ' / ' + baseHeight + ';'"
             >
-                {{-- Inner Exact-Coordinate Certificate Sheet --}}
+                {{-- Centered Scaled Sheet --}}
                 <div
-                    class="absolute top-0 left-0 bg-white shadow-2xl transition-transform duration-75 origin-top-left"
-                    :style="'width: ' + baseWidth + 'px; height: ' + baseHeight + 'px; transform: scale(' + scale + ');'"
+                    class="absolute top-0 left-0 bg-white origin-top-left"
+                    :style="'width: ' + baseWidth + 'px; height: ' + baseHeight + 'px; transform: scale(' + scale + '); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;'"
                 >
                     @include('filament.app.resources.completion-certificates.certificate-canvas', $canvasData)
                 </div>
             </div>
         </div>
 
-        {{-- Footer Status Bar --}}
-        <div class="px-3.5 py-2 bg-slate-950/90 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-            <div class="flex items-center gap-1.5 text-slate-300">
-                <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-                <span>Vector accurate preview</span>
+        {{-- Studio Footer Meta Bar --}}
+        <div class="flex items-center justify-between pt-3 mt-3 border-t border-slate-200/80 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-1.5 font-medium">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span>Vector accurate canvas</span>
             </div>
-            <div class="font-mono text-slate-400">
-                {{ $certificateNumber ?: 'DRAFT' }}
+            <div class="text-[11px] font-mono text-slate-400 dark:text-slate-500">
+                {{ $aspectRatioDisplay }} &bull; {{ $physicalDimensions }}
             </div>
         </div>
     </div>
 
-    {{-- Fullscreen High-Resolution Modal --}}
+    {{-- Fullscreen High-Resolution Modal Preview --}}
     <template x-teleport="body">
         <div
             x-show="isFullscreen"
@@ -264,14 +343,17 @@
             @keydown.escape.window="closeFullscreen()"
             class="fixed inset-0 z-[99999] flex flex-col bg-slate-950/95 backdrop-blur-md text-slate-100"
         >
-            {{-- Modal Header --}}
-            <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-4 flex-wrap">
+            {{-- Modal Top Navigation Bar --}}
+            <div class="px-6 py-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-4 flex-wrap">
                 <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full bg-teal-400 shadow-sm shadow-teal-400"></div>
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
                     <div>
                         <div class="text-sm font-bold text-white flex items-center gap-2">
-                            <span>Certificate Fullscreen View</span>
-                            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-teal-300 border border-slate-700">
+                            <span>Completion Certificate Preview</span>
+                            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-sky-400 border border-slate-700">
                                 {{ $certificateNumber ?: 'DRAFT' }}
                             </span>
                         </div>
@@ -281,19 +363,19 @@
                     </div>
                 </div>
 
-                {{-- Modal Center Controls: Zoom In / Out / Reset --}}
-                <div class="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700 rounded-lg p-1">
+                {{-- Zoom Controls --}}
+                <div class="flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 rounded-lg p-1">
                     <button
                         type="button"
                         @click="zoomOut()"
                         class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition"
                         title="Zoom Out"
                     >
-                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                         </svg>
                     </button>
-                    <span class="px-2 text-xs font-mono font-bold text-teal-300 min-w-[50px] text-center" x-text="Math.round(modalZoom * 100) + '%'">
+                    <span class="px-2 text-xs font-mono font-bold text-sky-400 min-w-[50px] text-center" x-text="Math.round(modalZoom * 100) + '%'">
                         100%
                     </span>
                     <button
@@ -302,29 +384,27 @@
                         class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition"
                         title="Zoom In"
                     >
-                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                     </button>
                     <button
                         type="button"
                         @click="resetZoom()"
-                        class="px-2 py-1 text-[11px] font-semibold text-slate-300 hover:text-white hover:bg-slate-700 rounded transition border-l border-slate-700 ml-1"
+                        class="px-2.5 py-1 text-[11px] font-medium text-slate-300 hover:text-white hover:bg-slate-700 rounded transition border-l border-slate-700 ml-1"
                     >
-                        Reset 100%
+                        Reset
                     </button>
                 </div>
 
-                {{-- Modal Right Actions: Print, Download, Close --}}
+                {{-- Modal Actions --}}
                 <div class="flex items-center gap-2">
                     <button
                         type="button"
                         onclick="window.print()"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
                     >
-                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                        </svg>
+                        <x-filament::icon icon="heroicon-o-printer" style="width: 1rem; height: 1rem;" />
                         <span>Print</span>
                     </button>
 
@@ -332,11 +412,9 @@
                         type="button"
                         wire:click="downloadPdf"
                         wire:loading.attr="disabled"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-500 text-white transition shadow-sm"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg able-pro-btn-primary"
                     >
-                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
+                        <x-filament::icon wire:loading.remove wire:target="downloadPdf" icon="heroicon-o-arrow-down-tray" style="width: 1rem; height: 1rem;" />
                         <span>Download PDF</span>
                     </button>
 
@@ -346,7 +424,7 @@
                         class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
                         title="Close Fullscreen (Esc)"
                     >
-                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
