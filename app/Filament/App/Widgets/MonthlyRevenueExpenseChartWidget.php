@@ -12,11 +12,11 @@ class MonthlyRevenueExpenseChartWidget extends ChartWidget
 {
     protected static ?int $sort = 2;
 
-    protected ?string $maxHeight = '260px';
+    protected ?string $maxHeight = '220px';
 
-    protected ?string $heading = 'Monthly Revenue & Expenses (Cash Flow)';
+    protected ?string $heading = 'Monthly Cash Flow';
 
-    protected ?string $description = 'Comparing received payments vs operational expenses over the last 6 months';
+    protected ?string $description = 'Comparing received revenue vs operational expenses (Last 6 Months)';
 
     protected int|string|array $columnSpan = 1;
 
@@ -53,21 +53,69 @@ class MonthlyRevenueExpenseChartWidget extends ChartWidget
                 [
                     'label' => 'Revenue / Cash In (Rs.)',
                     'data' => $revenueData,
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.75)',
-                    'borderColor' => '#059669',
-                    'borderWidth' => 2,
-                    'borderRadius' => 6,
+                    'backgroundColor' => 'rgba(16, 185, 129, 0.85)',
+                    'borderColor' => '#10b981',
+                    'borderWidth' => 1.5,
+                    'borderRadius' => 4,
                 ],
                 [
                     'label' => 'Expenses / Cash Out (Rs.)',
                     'data' => $expenseData,
-                    'backgroundColor' => 'rgba(239, 68, 68, 0.75)',
-                    'borderColor' => '#dc2626',
-                    'borderWidth' => 2,
-                    'borderRadius' => 6,
+                    'backgroundColor' => 'rgba(113, 113, 122, 0.65)',
+                    'borderColor' => '#71717a',
+                    'borderWidth' => 1.5,
+                    'borderRadius' => 4,
                 ],
             ],
             'labels' => $labels,
+        ];
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                    'position' => 'top',
+                    'align' => 'end',
+                    'labels' => [
+                        'boxWidth' => 8,
+                        'boxHeight' => 8,
+                        'usePointStyle' => true,
+                        'pointStyle' => 'circle',
+                        'font' => [
+                            'size' => 11,
+                            'weight' => '500',
+                        ],
+                    ],
+                ],
+            ],
+            'scales' => [
+                'x' => [
+                    'grid' => [
+                        'display' => false,
+                    ],
+                    'ticks' => [
+                        'font' => [
+                            'size' => 10,
+                        ],
+                    ],
+                ],
+                'y' => [
+                    'border' => [
+                        'dash' => [3, 3],
+                    ],
+                    'grid' => [
+                        'color' => 'rgba(255, 255, 255, 0.05)',
+                    ],
+                    'ticks' => [
+                        'font' => [
+                            'size' => 10,
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 

@@ -2,11 +2,12 @@
 
 namespace App\Filament\App\Pages;
 
+use App\Filament\App\Widgets\AppQuickActionBarWidget;
+use App\Filament\App\Widgets\AppStatsOverviewWidget;
 use App\Filament\App\Widgets\MonthlyRevenueExpenseChartWidget;
 use App\Filament\App\Widgets\RecentInvoicesWidget;
 use App\Filament\App\Widgets\RecentSolarQuotationsWidget;
 use App\Filament\App\Widgets\SolarPipelineAndStockWidget;
-use App\Filament\App\Widgets\ZohoReceivablesOverviewWidget;
 use BackedEnum;
 use Filament\Pages\Dashboard as BaseDashboard;
 use Filament\Support\Icons\Heroicon;
@@ -23,7 +24,8 @@ class Dashboard extends BaseDashboard
     public function getWidgets(): array
     {
         return [
-            ZohoReceivablesOverviewWidget::class,
+            AppQuickActionBarWidget::class,
+            AppStatsOverviewWidget::class,
             MonthlyRevenueExpenseChartWidget::class,
             SolarPipelineAndStockWidget::class,
             RecentSolarQuotationsWidget::class,

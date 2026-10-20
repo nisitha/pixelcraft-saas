@@ -1,237 +1,337 @@
-<div class="zoho-pipeline-stock-card">
+<div class="linear-pipeline-card">
     <style>
-        .zoho-pipeline-stock-card {
+        .linear-pipeline-card {
             background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px 22px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e4e4e7;
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: none;
             display: flex;
             flex-direction: column;
             gap: 16px;
             height: 100%;
         }
 
-        html.dark .zoho-pipeline-stock-card {
-            background: #111827;
+        html.dark .linear-pipeline-card {
+            background: #121316;
             border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: none;
         }
 
-        .zoho-sec-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #64748b;
+        .linear-card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        html.dark .zoho-sec-title {
-            color: #94a3b8;
+        .linear-card-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        /* 4-Column Pipeline Grid */
-        .zoho-pipe-grid {
+        .linear-conversion-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f4f4f5;
+        }
+
+        html.dark .linear-conversion-wrap {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+
+        .linear-conversion-metric-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .linear-conversion-val {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #09090b;
+        }
+
+        html.dark .linear-conversion-val {
+            color: #f4f4f5;
+        }
+
+        .linear-conversion-sub {
+            font-size: 11.5px;
+            color: #71717a;
+            font-weight: 450;
+        }
+
+        .linear-progress-track {
+            width: 100%;
+            height: 6px;
+            background: #f4f4f5;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        html.dark .linear-progress-track {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .linear-progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: #10b981;
+            transition: width 0.4s ease;
+        }
+
+        /* 4-Item Pipeline Micro Counters */
+        .linear-stage-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
         }
 
-        @media (max-width: 640px) {
-            .zoho-pipe-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        .zoho-pipe-box {
-            padding: 10px 8px;
-            border-radius: 8px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+        .linear-stage-box {
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: #fafafa;
+            border: 1px solid #e4e4e7;
             text-align: center;
-            transition: all 0.15s ease;
         }
 
-        html.dark .zoho-pipe-box {
-            background: #1f2937;
-            border-color: #374151;
+        html.dark .linear-stage-box {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.06);
         }
 
-        .zoho-pipe-box:hover {
-            transform: translateY(-1px);
-        }
-
-        .zoho-pipe-count {
-            font-size: 18px;
-            font-weight: 800;
-            line-height: 1.2;
-        }
-
-        .zoho-pipe-lbl {
-            font-size: 11px;
+        .linear-stage-count {
+            font-size: 13px;
             font-weight: 600;
-            color: #64748b;
+            color: #18181b;
+        }
+
+        html.dark .linear-stage-count {
+            color: #f4f4f5;
+        }
+
+        .linear-stage-lbl {
+            font-size: 10px;
+            font-weight: 500;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
             margin-top: 2px;
         }
 
-        html.dark .zoho-pipe-lbl {
-            color: #94a3b8;
-        }
-
-        .zoho-pipe-val {
-            font-size: 10px;
-            font-weight: 700;
-            color: #475569;
-            margin-top: 4px;
-        }
-
-        html.dark .zoho-pipe-val {
-            color: #cbd5e1;
-        }
-
-        /* Stock Alert List */
-        .zoho-stock-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .zoho-stock-row {
+        /* Recent Activity Status List */
+        .linear-list-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: #fef2f2;
-            border: 1px solid #fee2e2;
+            font-size: 11px;
+            font-weight: 500;
+            color: #a1a1aa;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .linear-list-link {
+            font-size: 11px;
+            font-weight: 500;
+            color: #71717a;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .linear-list-link:hover {
+            color: #09090b;
+        }
+
+        html.dark .linear-list-link:hover {
+            color: #f4f4f5;
+        }
+
+        .linear-quote-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .linear-quote-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 10px;
+            border-radius: 6px;
+            background: #fafafa;
+            border: 1px solid #f4f4f5;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        html.dark .linear-quote-row {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .linear-quote-row:hover {
+            border-color: #d4d4d8;
+            background: #ffffff;
+        }
+
+        html.dark .linear-quote-row:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .linear-quote-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .linear-status-dot {
+            width: 7px;
+            height: 7px;
+            min-width: 7px;
+            border-radius: 50%;
+        }
+
+        .linear-dot-draft { background-color: #71717a; }
+        .linear-dot-sent { background-color: #3b82f6; }
+        .linear-dot-accepted { background-color: #10b981; }
+        .linear-dot-invoiced { background-color: #8b5cf6; }
+
+        .linear-quote-customer {
             font-size: 12px;
-        }
-
-        html.dark .zoho-stock-row {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-
-        .zoho-stock-name {
-            font-weight: 600;
-            color: #991b1b;
+            font-weight: 500;
+            color: #18181b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 220px;
+            max-width: 150px;
         }
 
-        html.dark .zoho-stock-name {
-            color: #fca5a5;
+        html.dark .linear-quote-customer {
+            color: #f4f4f5;
         }
 
-        .zoho-stock-badge {
-            font-size: 10.5px;
-            font-weight: 700;
-            background: #ef4444;
-            color: #ffffff;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            white-space: nowrap;
+        .linear-quote-kw {
+            font-size: 11px;
+            font-weight: 450;
+            color: #71717a;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 1px 6px;
+            border-radius: 4px;
         }
 
-        /* Commission Banner */
-        .zoho-comm-banner {
+        html.dark .linear-quote-kw {
+            background: rgba(255, 255, 255, 0.05);
+            color: #a1a1aa;
+        }
+
+        .linear-quote-right {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 10px 14px;
-            border-radius: 8px;
-            background: #fffbeb;
-            border: 1px solid #fef3c7;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
-        html.dark .zoho-comm-banner {
-            background: rgba(245, 158, 11, 0.1);
-            border-color: rgba(245, 158, 11, 0.2);
+        .linear-quote-number {
+            font-size: 11px;
+            color: #71717a;
+            font-family: ui-monospace, monospace;
+        }
+
+        .linear-quote-amount {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #09090b;
+        }
+
+        html.dark .linear-quote-amount {
+            color: #f4f4f5;
         }
     </style>
 
-    <!-- Quotation Pipeline Section -->
-    <div>
-        <div class="zoho-sec-title" style="margin-bottom: 10px;">
-            <span>☀️ Solar Quotation Pipeline</span>
-            <a href="{{ $quotationsUrl }}" style="font-size: 11px; text-decoration: none; color: #3b82f6; font-weight: 600;">View All &rarr;</a>
+    <!-- Header & Conversion Progress Bar -->
+    <div class="linear-conversion-wrap">
+        <div class="linear-card-header">
+            <span class="linear-card-title">Quotation Pipeline & Conversion</span>
+            <span class="linear-conversion-sub">{{ $invoicedCount }} / {{ $totalQuotesCount }} Invoiced</span>
         </div>
 
-        <div class="zoho-pipe-grid">
-            <div class="zoho-pipe-box" style="border-top: 3px solid #94a3b8;">
-                <div class="zoho-pipe-count" style="color: #64748b;">{{ $pipeline['draft']['count'] }}</div>
-                <div class="zoho-pipe-lbl">Draft</div>
-                <div class="zoho-pipe-val">Rs. {{ number_format($pipeline['draft']['total'], 0) }}</div>
-            </div>
+        <div class="linear-conversion-metric-row">
+            <span class="linear-conversion-val">{{ $conversionRate }}%</span>
+            <span class="linear-conversion-sub">Conversion Rate</span>
+        </div>
 
-            <div class="zoho-pipe-box" style="border-top: 3px solid #3b82f6;">
-                <div class="zoho-pipe-count" style="color: #2563eb;">{{ $pipeline['sent']['count'] }}</div>
-                <div class="zoho-pipe-lbl">Sent</div>
-                <div class="zoho-pipe-val">Rs. {{ number_format($pipeline['sent']['total'], 0) }}</div>
-            </div>
-
-            <div class="zoho-pipe-box" style="border-top: 3px solid #10b981;">
-                <div class="zoho-pipe-count" style="color: #059669;">{{ $pipeline['accepted']['count'] }}</div>
-                <div class="zoho-pipe-lbl">Accepted</div>
-                <div class="zoho-pipe-val">Rs. {{ number_format($pipeline['accepted']['total'], 0) }}</div>
-            </div>
-
-            <div class="zoho-pipe-box" style="border-top: 3px solid #6366f1;">
-                <div class="zoho-pipe-count" style="color: #4f46e5;">{{ $pipeline['invoiced']['count'] }}</div>
-                <div class="zoho-pipe-lbl">Invoiced</div>
-                <div class="zoho-pipe-val">Rs. {{ number_format($pipeline['invoiced']['total'], 0) }}</div>
-            </div>
+        <div class="linear-progress-track">
+            <div class="linear-progress-fill" style="width: {{ min(100, max(0, $conversionRate)) }}%;"></div>
         </div>
     </div>
 
-    <!-- Low Stock Inventory Alerts -->
+    <!-- Pipeline Stages Row -->
+    <div class="linear-stage-row">
+        <div class="linear-stage-box">
+            <div class="linear-stage-count">{{ $pipeline['draft']['count'] }}</div>
+            <div class="linear-stage-lbl">Draft</div>
+        </div>
+        <div class="linear-stage-box">
+            <div class="linear-stage-count">{{ $pipeline['sent']['count'] }}</div>
+            <div class="linear-stage-lbl">Sent</div>
+        </div>
+        <div class="linear-stage-box">
+            <div class="linear-stage-count">{{ $pipeline['accepted']['count'] }}</div>
+            <div class="linear-stage-lbl">Accepted</div>
+        </div>
+        <div class="linear-stage-box">
+            <div class="linear-stage-count">{{ $pipeline['invoiced']['count'] }}</div>
+            <div class="linear-stage-lbl">Invoiced</div>
+        </div>
+    </div>
+
+    <!-- Recent Status List -->
     <div>
-        <div class="zoho-sec-title" style="margin-bottom: 8px;">
-            <span>⚠️ Low Stock Alerts</span>
-            <span style="font-size: 11px; font-weight: 700; color: {{ $totalLowStockCount > 0 ? '#dc2626' : '#059669' }};">
-                {{ $totalLowStockCount }} {{ Str::plural('Item', $totalLowStockCount) }} Below Threshold
-            </span>
+        <div class="linear-list-header" style="margin-bottom: 8px;">
+            <span>Recent Pipeline Activity</span>
+            <a href="{{ $quotationsUrl }}" class="linear-list-link">View All &rarr;</a>
         </div>
 
-        @if($lowStockProducts->isNotEmpty())
-            <div class="zoho-stock-list">
-                @foreach($lowStockProducts as $prod)
-                    <div class="zoho-stock-row">
-                        <span class="zoho-stock-name" title="{{ $prod->name }}">{{ $prod->name }}</span>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 11px; color: #64748b;">Alert: {{ (int) $prod->alert_qty }}</span>
-                            <span class="zoho-stock-badge">{{ (int) $prod->stock_qty }} Left</span>
+        @if($recentQuotations->isNotEmpty())
+            <div class="linear-quote-list">
+                @foreach($recentQuotations as $quote)
+                    @php
+                        $status = strtolower($quote->status ?? 'draft');
+                        $dotClass = match($status) {
+                            'sent' => 'linear-dot-sent',
+                            'accepted' => 'linear-dot-accepted',
+                            'invoiced' => 'linear-dot-invoiced',
+                            default => 'linear-dot-draft',
+                        };
+                        $customerName = $quote->contact?->name ?? 'Direct Customer';
+                        $kwText = $quote->system_kw ? number_format($quote->system_kw, 1) . ' kWp' : 'PV';
+                    @endphp
+                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('edit', ['record' => $quote->id]) }}" class="linear-quote-row" title="{{ $customerName }} - {{ $quote->quote_number }}">
+                        <div class="linear-quote-left">
+                            <span class="linear-status-dot {{ $dotClass }}" title="{{ ucfirst($status) }}"></span>
+                            <span class="linear-quote-customer">{{ $customerName }}</span>
+                            <span class="linear-quote-kw">{{ $kwText }}</span>
                         </div>
-                    </div>
+                        <div class="linear-quote-right">
+                            <span class="linear-quote-number">{{ $quote->quote_number }}</span>
+                            <span class="linear-quote-amount">Rs. {{ number_format($quote->grand_total, 0) }}</span>
+                        </div>
+                    </a>
                 @endforeach
             </div>
         @else
-            <div style="padding: 10px 12px; border-radius: 8px; background: #ecfdf5; border: 1px solid #d1fae5; font-size: 11.5px; color: #065f46; display: flex; align-items: center; gap: 6px;">
-                <span>✅</span> All inventory items are adequately stocked above alert thresholds.
+            <div style="font-size: 12px; color: #71717a; padding: 12px 0; text-align: center;">
+                No quotations recorded yet.
             </div>
         @endif
-    </div>
-
-    <!-- Pending Agent Commissions -->
-    <div class="zoho-comm-banner">
-        <div>
-            <div style="font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 0.05em;">
-                💼 Pending Sales Commissions
-            </div>
-            <div style="font-size: 15px; font-weight: 800; color: #b45309; margin-top: 2px;">
-                Rs. {{ number_format($pendingCommissionsAmount, 2) }}
-            </div>
-            <div style="font-size: 10.5px; color: #78350f;">
-                {{ $pendingCommissionsCount }} {{ Str::plural('invoice commission', $pendingCommissionsCount) }} awaiting payout
-            </div>
-        </div>
-        <a href="{{ $commissionsUrl }}" style="font-size: 11px; font-weight: 700; color: #b45309; background: #ffffff; border: 1px solid #fde68a; padding: 6px 12px; border-radius: 6px; text-decoration: none;">
-            Manage &rarr;
-        </a>
     </div>
 </div>

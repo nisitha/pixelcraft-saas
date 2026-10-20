@@ -5,7 +5,6 @@ namespace App\Filament\App\Widgets;
 use App\Filament\App\Resources\CommissionPayouts\CommissionPayoutResource;
 use App\Filament\App\Resources\Products\ProductResource;
 use App\Filament\App\Resources\Quotations\QuotationResource;
-use App\Models\Invoice;
 use App\Models\Product;
 use App\Models\Quotation;
 use Filament\Facades\Filament;
@@ -24,34 +23,45 @@ class SolarPipelineAndStockWidget extends Widget
         $tenant = Filament::getTenant();
         $tenantId = $tenant?->id;
 
-        // 1. Quotation Pipeline Breakdown
+        // 1. Quotation Pipeline & Conversion Rate
         $quotes = Quotation::where('company_id', $tenantId)->get();
+        $totalQuotesCount = $quotes->count();
 
         $draftQuotes = $quotes->where('status', 'draft');
         $sentQuotes = $quotes->where('status', 'sent');
         $acceptedQuotes = $quotes->where('status', 'accepted');
         $invoicedQuotes = $quotes->where('status', 'invoiced');
 
+        $invoicedCount = $invoicedQuotes->count();
+        $conversionRate = $totalQuotesCount > 0 ? round(($invoicedCount / $totalQuotesCount) * 100, 1) : 0.0;
+
         $pipeline = [
             'draft' => [
                 'count' => $draftQuotes->count(),
-                'total' => $draftQuotes->sum('grand_total'),
+                'total' => (float) $draftQuotes->sum('grand_total'),
             ],
             'sent' => [
                 'count' => $sentQuotes->count(),
-                'total' => $sentQuotes->sum('grand_total'),
+                'total' => (float) $sentQuotes->sum('grand_total'),
             ],
             'accepted' => [
                 'count' => $acceptedQuotes->count(),
-                'total' => $acceptedQuotes->sum('grand_total'),
+                'total' => (float) $acceptedQuotes->sum('grand_total'),
             ],
             'invoiced' => [
-                'count' => $invoicedQuotes->count(),
-                'total' => $invoicedQuotes->sum('grand_total'),
+                'count' => $invoicedCount,
+                'total' => (float) $invoicedQuotes->sum('grand_total'),
             ],
         ];
 
-        // 2. Low Stock Alerts
+        // 2. Recent Quotations for Linear Activity Feed
+        $recentQuotations = Quotation::with('contact')
+            ->where('company_id', $tenantId)
+            ->latest('id')
+            ->limit(5)
+            ->get();
+
+        // 3. Low Stock Alerts
         $lowStockProducts = Product::where('company_id', $tenantId)
             ->where('type', 'product')
             ->whereColumn('stock_qty', '<=', 'alert_qty')
@@ -64,24 +74,14 @@ class SolarPipelineAndStockWidget extends Widget
             ->whereColumn('stock_qty', '<=', 'alert_qty')
             ->count();
 
-        // 3. Pending Agent Commissions
-        $pendingCommissionsCount = Invoice::where('company_id', $tenantId)
-            ->whereNotNull('sales_agent_id')
-            ->where('commission_status', 'pending')
-            ->where('commission_amount', '>', 0)
-            ->count();
-
-        $pendingCommissionsAmount = (float) Invoice::where('company_id', $tenantId)
-            ->whereNotNull('sales_agent_id')
-            ->where('commission_status', 'pending')
-            ->sum('commission_amount');
-
         return [
+            'totalQuotesCount' => $totalQuotesCount,
+            'invoicedCount' => $invoicedCount,
+            'conversionRate' => $conversionRate,
             'pipeline' => $pipeline,
+            'recentQuotations' => $recentQuotations,
             'lowStockProducts' => $lowStockProducts,
             'totalLowStockCount' => $totalLowStockCount,
-            'pendingCommissionsCount' => $pendingCommissionsCount,
-            'pendingCommissionsAmount' => $pendingCommissionsAmount,
             'quotationsUrl' => QuotationResource::getUrl('index'),
             'productsUrl' => ProductResource::getUrl('index'),
             'commissionsUrl' => CommissionPayoutResource::getUrl('index'),
