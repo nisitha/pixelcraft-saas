@@ -9,22 +9,22 @@ class ExpensePolicy
 {
     public function viewAny(User $user): bool
     {
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function view(User $user, Expense $expense): bool
     {
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function create(User $user): bool
     {
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function update(User $user, Expense $expense): bool
     {
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function delete(User $user, Expense $expense): bool

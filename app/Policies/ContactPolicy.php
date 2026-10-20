@@ -19,12 +19,12 @@ class ContactPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return ! $user->isTenantEngineer();
     }
 
     public function update(User $user, Contact $contact): bool
     {
-        return true;
+        return ! $user->isTenantEngineer();
     }
 
     public function delete(User $user, Contact $contact): bool

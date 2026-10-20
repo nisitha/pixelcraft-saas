@@ -343,40 +343,88 @@
         </table>
     @endif
 
+    @php
+        $mode = $mode ?? ($quotation->price_display_mode ?? 'itemized');
+        $isPackageMode = ($mode === 'package_total_only');
+        $visibleItems = collect($items)->filter(function ($item) use ($isPackageMode) {
+            if ($isPackageMode && (bool) ($item->hide_on_customer_pdf ?? false)) {
+                return false;
+            }
+            return true;
+        });
+    @endphp
+
     <!-- Quotation Line Items Table -->
-    <table class="items-table">
-        <thead>
-            <tr>
-                <th style="width: 5%;" class="text-center">#</th>
-                <th style="width: 50%;">Item & Technical Description</th>
-                <th style="width: 10%;" class="text-center">Qty</th>
-                <th style="width: 15%;" class="text-right">Unit Price (Rs.)</th>
-                <th style="width: 8%;" class="text-right">Tax (Rs.)</th>
-                <th style="width: 12%;" class="text-right">Total (Rs.)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($items as $index => $item)
+    @if ($isPackageMode)
+        <table class="items-table">
+            <thead>
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td>
-                        <strong>{{ $item->product->name ?? $item->description }}</strong>
-                        @if($item->product && $item->product->name !== $item->description)
-                            <div style="font-size: 9.5px; color: #64748b;">{{ $item->description }}</div>
-                        @endif
-                    </td>
-                    <td class="text-center">{{ number_format((float) $item->quantity, 0) }}</td>
-                    <td class="text-right">{{ number_format((float) $item->unit_price, 2) }}</td>
-                    <td class="text-right">{{ number_format((float) ($item->tax ?? 0), 2) }}</td>
-                    <td class="text-right"><strong>{{ number_format((float) $item->subtotal, 2) }}</strong></td>
+                    <th style="width: 6%;" class="text-center">#</th>
+                    <th style="width: 52%;">Description / Model</th>
+                    <th style="width: 14%;" class="text-center">Quantity</th>
+                    <th style="width: 28%;">Remarks / Warranty</th>
                 </tr>
-            @empty
+            </thead>
+            <tbody>
+                @forelse($visibleItems->values() as $index => $item)
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td>
+                            <strong>{{ $item->product->name ?? $item->description }}</strong>
+                            @if($item->product && $item->product->name !== $item->description)
+                                <div style="font-size: 9.5px; color: #64748b;">{{ $item->description }}</div>
+                            @endif
+                        </td>
+                        <td class="text-center">{{ number_format((float) $item->quantity, 0) }}</td>
+                        <td style="color: #047857; font-weight: bold;">
+                            {{ $item->warranty_text ?: ($item->product?->formatted_warranty ?: '-') }}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center" style="padding: 16px; color: #94a3b8;">No items listed in this quotation.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    @else
+        <table class="items-table">
+            <thead>
                 <tr>
-                    <td colspan="6" class="text-center" style="padding: 16px; color: #94a3b8;">No items listed in this quotation.</td>
+                    <th style="width: 5%;" class="text-center">#</th>
+                    <th style="width: 48%;">Item & Technical Description</th>
+                    <th style="width: 8%;" class="text-center">Qty</th>
+                    <th style="width: 15%;" class="text-right">Unit Price (Rs.)</th>
+                    <th style="width: 10%;" class="text-right">Tax (Rs.)</th>
+                    <th style="width: 14%;" class="text-right">Total (Rs.)</th>
                 </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse($items as $index => $item)
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td>
+                            <strong>{{ $item->product->name ?? $item->description }}</strong>
+                            @if($item->product && $item->product->name !== $item->description)
+                                <div style="font-size: 9.5px; color: #64748b;">{{ $item->description }}</div>
+                            @endif
+                            @if(!empty($item->warranty_text))
+                                <div style="font-size: 9px; color: #059669; font-weight: bold;">Warranty: {{ $item->warranty_text }}</div>
+                            @endif
+                        </td>
+                        <td class="text-center">{{ number_format((float) $item->quantity, 0) }}</td>
+                        <td class="text-right">{{ number_format((float) $item->unit_price, 2) }}</td>
+                        <td class="text-right">{{ number_format((float) ($item->tax ?? 0), 2) }}</td>
+                        <td class="text-right"><strong>{{ number_format((float) $item->subtotal, 2) }}</strong></td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 16px; color: #94a3b8;">No items listed in this quotation.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    @endif
 
     <!-- Milestones Breakdown & Totals Table -->
     <table class="totals-container">
@@ -416,7 +464,7 @@
             <td style="width: 48%;">
                 <table class="totals-table">
                     <tr>
-                        <td class="text-right" style="color: #64748b;">Subtotal:</td>
+                        <td class="text-right" style="color: #64748b;">{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
                         <td class="text-right" style="width: 45%;">Rs. {{ number_format((float) $quotation->subtotal, 2) }}</td>
                     </tr>
                     @if((float) $quotation->discount > 0)
@@ -432,7 +480,7 @@
                         </tr>
                     @endif
                     <tr class="grand-row">
-                        <td class="text-right">Grand Total:</td>
+                        <td class="text-right">{{ $isPackageMode ? 'Total Package Amount:' : 'Grand Total:' }}</td>
                         <td class="text-right">Rs. {{ number_format((float) $quotation->grand_total, 2) }}</td>
                     </tr>
                 </table>

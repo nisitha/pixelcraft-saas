@@ -19,12 +19,12 @@ class QuotationPolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isTenantOwnerOrAdmin() || $user->isTenantSalesExecutive();
     }
 
     public function update(User $user, Quotation $quotation): bool
     {
-        return true;
+        return $user->isTenantOwnerOrAdmin() || $user->isTenantSalesExecutive();
     }
 
     public function delete(User $user, Quotation $quotation): bool

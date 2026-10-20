@@ -41,7 +41,7 @@ class FinancialReports extends Page
             return false;
         }
 
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function mount(): void

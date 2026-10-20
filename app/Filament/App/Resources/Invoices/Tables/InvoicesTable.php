@@ -208,6 +208,36 @@ class InvoicesTable
                         );
                     }),
 
+                Action::make('downloadPdf')
+                    ->label('Download PDF')
+                    ->icon(Heroicon::ArrowDownTray)
+                    ->color('primary')
+                    ->action(function (Invoice $record) {
+                        $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+                        $filename = "Invoice-{$safeNumber}.pdf";
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generateInvoicePdf($record, 'itemized')->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
+
+                Action::make('downloadCustomerPdf')
+                    ->label('Customer Package PDF')
+                    ->icon(Heroicon::DocumentText)
+                    ->color('gray')
+                    ->action(function (Invoice $record) {
+                        $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+                        $filename = "Invoice-{$safeNumber}-Package.pdf";
+
+                        return response()->streamDownload(
+                            fn () => print (app(PdfService::class)->generateInvoicePdf($record, 'package_total_only')->output()),
+                            $filename,
+                            ['Content-Type' => 'application/pdf']
+                        );
+                    }),
+
                 Action::make('issueCertificate')
                     ->label('Issue Certificate')
                     ->icon(Heroicon::AcademicCap)

@@ -19,12 +19,12 @@ class ProductPolicy
 
     public function create(User $user): bool
     {
-        return ! $user->isTenantCashier();
+        return ! $user->isTenantCashier() && ! $user->isTenantEngineer();
     }
 
     public function update(User $user, Product $product): bool
     {
-        return ! $user->isTenantCashier();
+        return ! $user->isTenantCashier() && ! $user->isTenantEngineer();
     }
 
     public function delete(User $user, Product $product): bool

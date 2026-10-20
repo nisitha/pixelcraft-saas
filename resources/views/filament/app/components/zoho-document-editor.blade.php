@@ -760,6 +760,34 @@
                 </div>
             </div>
         </div>
+
+        {{-- Row 4: PDF & Print Mode Selector --}}
+        <div class="zoho-form-row" style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 14px;">
+            <label class="zoho-row-label" style="color: #0f172a; font-weight: 700; width: 170px;">
+                📄 PDF & Print Mode
+            </label>
+            <div class="zoho-row-controls" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1e293b;">
+                    <input
+                        type="radio"
+                        wire:model.live="data.price_display_mode"
+                        value="itemized"
+                        style="accent-color: #3b82f6; width: 16px; height: 16px;"
+                    />
+                    <span>Standard Itemized (Show Individual Unit Prices)</span>
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #047857;">
+                    <input
+                        type="radio"
+                        wire:model.live="data.price_display_mode"
+                        value="package_total_only"
+                        style="accent-color: #059669; width: 16px; height: 16px;"
+                    />
+                    <span>Customer Package View (Hide Unit Prices — Show Total & Discount Only)</span>
+                </label>
+            </div>
+        </div>
     </div>
 
     @php
@@ -907,6 +935,28 @@
                                 placeholder="Item name, specifications or custom ad-hoc description..."
                                 style="font-size: 12px;"
                             ></textarea>
+
+                            <div style="margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 10.5px; font-weight: 600; color: #64748b; white-space: nowrap;">Warranty:</span>
+                                    <input
+                                        type="text"
+                                        wire:model="data.items.{{ $index }}.warranty_text"
+                                        class="zoho-input"
+                                        style="font-size: 11px; padding: 3px 8px; height: 26px;"
+                                        placeholder="e.g. 10 Years Warranty / 30 Years Performance"
+                                    />
+                                </div>
+
+                                <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b; cursor: pointer;">
+                                    <input
+                                        type="checkbox"
+                                        wire:model="data.items.{{ $index }}.hide_on_customer_pdf"
+                                        style="accent-color: #f59e0b; width: 13px; height: 13px;"
+                                    />
+                                    <span>Hide row on Customer Package PDF (Internal cost row included in package total)</span>
+                                </label>
+                            </div>
 
                             @if ($isOwnerOrAdmin)
                                 <div style="font-size: 10.5px; color: #64748b; margin-top: 4px; display: flex; align-items: center; gap: 6px;">

@@ -19,12 +19,12 @@ class InvoicePolicy
 
     public function create(User $user): bool
     {
-        return true;
+        return ! $user->isTenantEngineer();
     }
 
     public function update(User $user, Invoice $invoice): bool
     {
-        return true;
+        return ! $user->isTenantEngineer();
     }
 
     public function delete(User $user, Invoice $invoice): bool

@@ -12,11 +12,13 @@ class MonthlyRevenueExpenseChartWidget extends ChartWidget
 {
     protected static ?int $sort = 2;
 
+    protected ?string $maxHeight = '260px';
+
     protected ?string $heading = 'Monthly Revenue & Expenses (Cash Flow)';
 
     protected ?string $description = 'Comparing received payments vs operational expenses over the last 6 months';
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 1;
 
     protected function getData(): array
     {

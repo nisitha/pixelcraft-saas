@@ -56,7 +56,8 @@ class ProductForm
                                 ->required()
                                 ->numeric()
                                 ->prefix('Rs.')
-                                ->default(0.00),
+                                ->default(0.00)
+                                ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                             TextInput::make('stock_qty')
                                 ->label('Current Stock Qty')
                                 ->required()

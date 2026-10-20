@@ -49,4 +49,19 @@ class Product extends Model
     {
         return $this->hasMany(ProductSerial::class);
     }
+
+    public function getFormattedWarrantyAttribute(): ?string
+    {
+        if (! $this->warranty_months || $this->warranty_months <= 0) {
+            return null;
+        }
+
+        if ($this->warranty_months % 12 === 0) {
+            $years = (int) ($this->warranty_months / 12);
+
+            return $years === 1 ? '1 Year Warranty' : "{$years} Years Warranty";
+        }
+
+        return "{$this->warranty_months} Months Warranty";
+    }
 }

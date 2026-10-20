@@ -30,6 +30,7 @@ class Invoice extends Model
         'commission_amount',
         'commission_status',
         'status',
+        'price_display_mode',
         'is_sent',
         'sent_at',
     ];

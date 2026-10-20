@@ -34,7 +34,8 @@ class ProductsTable
                     ->sortable(),
                 TextColumn::make('cost_price')
                     ->money('LKR')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                 TextColumn::make('stock_qty')
                     ->numeric()
                     ->sortable()

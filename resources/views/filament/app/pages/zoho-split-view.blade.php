@@ -439,8 +439,12 @@
                         <span x-show="copied" style="color: #059669;" x-cloak>✓ Copied!</span>
                     </button>
 
-                    <button type="button" wire:click="downloadPdf" class="action-btn action-btn-default">
-                        📄 PDF / Print
+                    <button type="button" wire:click="downloadCustomerPdf" class="action-btn action-btn-default" title="Download Customer Package PDF (No Unit Prices)">
+                        📦 Customer PDF
+                    </button>
+
+                    <button type="button" wire:click="downloadItemizedPdf" class="action-btn action-btn-default" title="Download Standard Itemized PDF (With Unit Prices)">
+                        📄 Itemized PDF
                     </button>
 
                     <button type="button" wire:click="downloadDeliveryNote" class="action-btn action-btn-default" title="Print Delivery Note / Gate Pass without prices">
@@ -498,6 +502,26 @@
                     </div>
                 </div>
             @endif
+
+            {{-- Instant Preview Mode Switcher Bar --}}
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #475569;">👁️ Live Preview Mode:</span>
+                    <span style="display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; {{ $this->effectivePriceDisplayMode === 'package_total_only' ? 'background: #fef3c7; color: #92400e; border: 1px solid #fde68a;' : 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' }}">
+                        {{ $this->effectivePriceDisplayMode === 'package_total_only' ? '📦 Customer Package View (No Unit Prices)' : '📋 Standard Itemized View (With Rates)' }}
+                    </span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button
+                        type="button"
+                        wire:click="togglePreviewPriceDisplayMode"
+                        class="action-btn action-btn-default"
+                        style="padding: 6px 14px; font-size: 12px; font-weight: 700; background: #f8fafc; border-color: #cbd5e1;"
+                    >
+                        🔄 Switch to {{ $this->effectivePriceDisplayMode === 'package_total_only' ? 'Itemized View' : 'Customer Package View' }}
+                    </button>
+                </div>
+            </div>
 
             {{-- Live A4 Paper Container --}}
             <div class="zoho-a4-container">
@@ -560,34 +584,81 @@
                         </div>
                     </div>
 
+                    @php
+                        $isPackageMode = ($this->effectivePriceDisplayMode === 'package_total_only');
+                        $visibleItems = $record->items->filter(function ($item) use ($isPackageMode) {
+                            if ($isPackageMode && (bool) ($item->hide_on_customer_pdf ?? false)) {
+                                return false;
+                            }
+                            return true;
+                        });
+                    @endphp
+
                     <!-- Items Grid -->
-                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px;">
-                        <thead>
-                            <tr style="background-color: {{ $tableHeaderColor }}; color: {{ $textColor }};">
-                                <th style="padding: 8px 10px; text-align: left; width: 5%;">#</th>
-                                <th style="padding: 8px 10px; text-align: left; width: 50%;">Item & Specifications</th>
-                                <th style="padding: 8px 10px; text-align: right; width: 12%;">Qty</th>
-                                <th style="padding: 8px 10px; text-align: right; width: 15%;">Rate (LKR)</th>
-                                <th style="padding: 8px 10px; text-align: right; width: 18%;">Amount (LKR)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($record->items as $idx => $item)
-                                <tr style="border-bottom: 1px solid #f1f5f9; background-color: {{ $idx % 2 === 1 ? '#f8fafc' : 'transparent' }};">
-                                    <td style="padding: 8px 10px;">{{ $idx + 1 }}</td>
-                                    <td style="padding: 8px 10px;">
-                                        <div style="font-weight: 600; color: #0f172a;">{{ $item->product?->name ?? $item->description }}</div>
-                                        @if (!empty($item->description) && $item->description !== ($item->product?->name ?? ''))
-                                            <div style="font-size: 10px; color: #64748b;">{{ $item->description }}</div>
-                                        @endif
-                                    </td>
-                                    <td style="padding: 8px 10px; text-align: right;">{{ number_format($item->quantity, 2) }}</td>
-                                    <td style="padding: 8px 10px; text-align: right;">{{ number_format($item->unit_price, 2) }}</td>
-                                    <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #0f172a;">{{ number_format($item->subtotal, 2) }}</td>
+                    @if ($isPackageMode)
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px;">
+                            <thead>
+                                <tr style="background-color: {{ $tableHeaderColor }}; color: {{ $textColor }};">
+                                    <th style="padding: 8px 10px; text-align: left; width: 6%;">#</th>
+                                    <th style="padding: 8px 10px; text-align: left; width: 50%;">Description / Model</th>
+                                    <th style="padding: 8px 10px; text-align: center; width: 14%;">Quantity</th>
+                                    <th style="padding: 8px 10px; text-align: left; width: 30%;">Remarks / Warranty</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse ($visibleItems->values() as $idx => $item)
+                                    <tr style="border-bottom: 1px solid #f1f5f9; background-color: {{ $idx % 2 === 1 ? '#f8fafc' : 'transparent' }};">
+                                        <td style="padding: 8px 10px;">{{ $idx + 1 }}</td>
+                                        <td style="padding: 8px 10px;">
+                                            <div style="font-weight: 600; color: #0f172a;">{{ $item->product?->name ?? $item->description }}</div>
+                                            @if (!empty($item->description) && $item->description !== ($item->product?->name ?? ''))
+                                                <div style="font-size: 10px; color: #64748b;">{{ $item->description }}</div>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 8px 10px; text-align: center; font-weight: 600;">{{ number_format($item->quantity, 2) }}</td>
+                                        <td style="padding: 8px 10px; color: #047857; font-weight: 600;">
+                                            {{ $item->warranty_text ?: ($item->product?->formatted_warranty ?: '-') }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" style="padding: 16px; text-align: center; color: #94a3b8;">No package items available.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    @else
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px;">
+                            <thead>
+                                <tr style="background-color: {{ $tableHeaderColor }}; color: {{ $textColor }};">
+                                    <th style="padding: 8px 10px; text-align: left; width: 5%;">#</th>
+                                    <th style="padding: 8px 10px; text-align: left; width: 48%;">Item & Specifications</th>
+                                    <th style="padding: 8px 10px; text-align: right; width: 12%;">Qty</th>
+                                    <th style="padding: 8px 10px; text-align: right; width: 17%;">Rate (LKR)</th>
+                                    <th style="padding: 8px 10px; text-align: right; width: 18%;">Amount (LKR)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($record->items as $idx => $item)
+                                    <tr style="border-bottom: 1px solid #f1f5f9; background-color: {{ $idx % 2 === 1 ? '#f8fafc' : 'transparent' }};">
+                                        <td style="padding: 8px 10px;">{{ $idx + 1 }}</td>
+                                        <td style="padding: 8px 10px;">
+                                            <div style="font-weight: 600; color: #0f172a;">{{ $item->product?->name ?? $item->description }}</div>
+                                            @if (!empty($item->description) && $item->description !== ($item->product?->name ?? ''))
+                                                <div style="font-size: 10px; color: #64748b;">{{ $item->description }}</div>
+                                            @endif
+                                            @if (!empty($item->warranty_text))
+                                                <div style="font-size: 10px; color: #059669; font-weight: 500;">🛡️ {{ $item->warranty_text }}</div>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 8px 10px; text-align: right;">{{ number_format($item->quantity, 2) }}</td>
+                                        <td style="padding: 8px 10px; text-align: right;">{{ number_format($item->unit_price, 2) }}</td>
+                                        <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #0f172a;">{{ number_format($item->subtotal, 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
 
                     <!-- Bottom Summary & Remittance -->
                     <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 20px;">
@@ -633,7 +704,7 @@
                         <div>
                             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                                 <tr>
-                                    <td style="padding: 4px 6px;">Subtotal:</td>
+                                    <td style="padding: 4px 6px;">{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
                                     <td style="padding: 4px 6px; text-align: right; font-weight: 600;">Rs. {{ number_format($record->subtotal, 2) }}</td>
                                 </tr>
                                 @if ((float) $record->discount > 0)
@@ -649,7 +720,7 @@
                                     </tr>
                                 @endif
                                 <tr style="background-color: {{ $primaryColor }}; color: #ffffff; font-weight: 800;">
-                                    <td style="padding: 8px 10px; border-radius: 4px 0 0 4px;">Total (LKR):</td>
+                                    <td style="padding: 8px 10px; border-radius: 4px 0 0 4px;">{{ $isPackageMode ? 'Total Package Amount:' : 'Total (LKR):' }}</td>
                                     <td style="padding: 8px 10px; text-align: right; border-radius: 0 4px 4px 0;">Rs. {{ number_format($record->grand_total, 2) }}</td>
                                 </tr>
                                 @if (! $isQuote)

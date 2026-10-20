@@ -42,8 +42,11 @@ trait HasZohoSplitView
 
     public string $paymentNotes = '';
 
+    public ?string $previewMode = null;
+
     public function initSplitView(): void
     {
+        $this->previewMode = $this->record?->price_display_mode ?? 'itemized';
         $this->refreshEmailDetails();
     }
 
@@ -82,6 +85,7 @@ trait HasZohoSplitView
 
         if ($record) {
             $this->record = $record;
+            $this->previewMode = $record->price_display_mode ?? 'itemized';
             $this->refreshEmailDetails();
         }
     }
@@ -206,7 +210,28 @@ trait HasZohoSplitView
         ]);
     }
 
-    public function downloadPdf(): StreamedResponse
+    public function getEffectivePriceDisplayModeProperty(): string
+    {
+        return $this->previewMode ?? ($this->record?->price_display_mode ?? 'itemized');
+    }
+
+    public function togglePreviewPriceDisplayMode(): void
+    {
+        $current = $this->getEffectivePriceDisplayModeProperty();
+        $newMode = $current === 'package_total_only' ? 'itemized' : 'package_total_only';
+        $this->previewMode = $newMode;
+
+        if ($this->record) {
+            $this->record->update(['price_display_mode' => $newMode]);
+        }
+
+        Notification::make()
+            ->title('Preview Mode: '.($newMode === 'package_total_only' ? 'Customer Package View (Hidden Unit Prices)' : 'Standard Itemized View (With Prices)'))
+            ->success()
+            ->send();
+    }
+
+    public function downloadCustomerPdf(): StreamedResponse
     {
         $pdfService = app(PdfService::class);
 
@@ -214,10 +239,10 @@ trait HasZohoSplitView
             /** @var Quotation $record */
             $record = $this->record;
             $safeNumber = str_replace(['/', '\\'], '-', $record->quote_number);
-            $filename = "Quotation-{$safeNumber}.pdf";
+            $filename = "Quotation-Customer-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateQuotationPdf($record)->output()),
+                fn () => print ($pdfService->generateQuotationPdf($record, 'package_total_only')->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );
@@ -226,13 +251,51 @@ trait HasZohoSplitView
         /** @var Invoice $record */
         $record = $this->record;
         $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
-        $filename = "Invoice-{$safeNumber}.pdf";
+        $filename = "Invoice-Customer-{$safeNumber}.pdf";
 
         return response()->streamDownload(
-            fn () => print ($pdfService->generateInvoicePdf($record)->output()),
+            fn () => print ($pdfService->generateInvoicePdf($record, 'package_total_only')->output()),
             $filename,
             ['Content-Type' => 'application/pdf']
         );
+    }
+
+    public function downloadItemizedPdf(): StreamedResponse
+    {
+        $pdfService = app(PdfService::class);
+
+        if ($this->documentType === 'quotation') {
+            /** @var Quotation $record */
+            $record = $this->record;
+            $safeNumber = str_replace(['/', '\\'], '-', $record->quote_number);
+            $filename = "Quotation-Itemized-{$safeNumber}.pdf";
+
+            return response()->streamDownload(
+                fn () => print ($pdfService->generateQuotationPdf($record, 'itemized')->output()),
+                $filename,
+                ['Content-Type' => 'application/pdf']
+            );
+        }
+
+        /** @var Invoice $record */
+        $record = $this->record;
+        $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+        $filename = "Invoice-Itemized-{$safeNumber}.pdf";
+
+        return response()->streamDownload(
+            fn () => print ($pdfService->generateInvoicePdf($record, 'itemized')->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
+    public function downloadPdf(): StreamedResponse
+    {
+        $mode = $this->getEffectivePriceDisplayModeProperty();
+
+        return $mode === 'package_total_only'
+            ? $this->downloadCustomerPdf()
+            : $this->downloadItemizedPdf();
     }
 
     public function downloadDeliveryNote(): StreamedResponse
@@ -407,6 +470,7 @@ trait HasZohoSplitView
                 'grand_total' => $record->grand_total,
                 'paid_amount' => 0.00,
                 'due_amount' => $record->grand_total,
+                'price_display_mode' => $record->price_display_mode ?? 'itemized',
                 'status' => 'unpaid',
             ]);
 
@@ -414,11 +478,13 @@ trait HasZohoSplitView
                 $invoice->items()->create([
                     'product_id' => $item->product_id,
                     'description' => $item->description,
+                    'warranty_text' => $item->warranty_text,
                     'quantity' => $item->quantity,
                     'cost_price' => $item->cost_price ?? ($item->product?->cost_price ?? 0.00),
                     'unit_price' => $item->unit_price,
                     'tax' => $item->tax ?? 0.00,
                     'subtotal' => $item->subtotal,
+                    'hide_on_customer_pdf' => (bool) $item->hide_on_customer_pdf,
                 ]);
             }
 

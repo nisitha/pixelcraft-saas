@@ -30,6 +30,7 @@ class PublicDocumentController extends Controller
             'company' => $document->company,
             'contact' => $document->contact,
             'items' => $document->items,
+            'mode' => $document->price_display_mode ?? 'itemized',
         ]);
     }
 
@@ -47,7 +48,7 @@ class PublicDocumentController extends Controller
             $filename = "Quotation-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateQuotationPdf($quotation)->output()),
+                fn () => print ($pdfService->generateQuotationPdf($quotation, $quotation->price_display_mode ?? 'itemized')->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );
@@ -59,7 +60,7 @@ class PublicDocumentController extends Controller
             $filename = "Invoice-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateInvoicePdf($invoice)->output()),
+                fn () => print ($pdfService->generateInvoicePdf($invoice, $invoice->price_display_mode ?? 'itemized')->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );

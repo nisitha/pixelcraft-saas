@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Storage;
 
 class PdfService
 {
-    public function generateQuotationPdf(Quotation $quotation): DomPdfWrapper
+    public function generateQuotationPdf(Quotation $quotation, ?string $mode = null): DomPdfWrapper
     {
         $this->configureEnvironment();
 
+        $mode ??= $quotation->price_display_mode ?? 'itemized';
         $quotation->loadMissing(['company', 'contact', 'items.product']);
 
         $pdf = Pdf::loadView('pdf.quotation', [
@@ -24,6 +25,7 @@ class PdfService
             'company' => $quotation->company,
             'contact' => $quotation->contact,
             'items' => $quotation->items,
+            'mode' => $mode,
         ])->setPaper('a4', 'portrait');
 
         $this->applyDompdfOptions($pdf);
@@ -31,10 +33,11 @@ class PdfService
         return $pdf;
     }
 
-    public function generateInvoicePdf(Invoice $invoice): DomPdfWrapper
+    public function generateInvoicePdf(Invoice $invoice, ?string $mode = null): DomPdfWrapper
     {
         $this->configureEnvironment();
 
+        $mode ??= $invoice->price_display_mode ?? 'itemized';
         $invoice->loadMissing(['company', 'contact', 'quotation', 'items.product', 'payments']);
 
         $pdf = Pdf::loadView('pdf.invoice', [
@@ -44,6 +47,7 @@ class PdfService
             'contact' => $invoice->contact,
             'items' => $invoice->items,
             'payments' => $invoice->payments,
+            'mode' => $mode,
         ])->setPaper('a4', 'portrait');
 
         $this->applyDompdfOptions($pdf);

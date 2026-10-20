@@ -33,6 +33,7 @@ class Quotation extends Model
         'commission_status',
         'terms',
         'status',
+        'price_display_mode',
         'is_sent',
         'sent_at',
     ];

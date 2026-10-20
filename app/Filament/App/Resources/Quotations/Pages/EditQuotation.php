@@ -102,7 +102,25 @@ class EditQuotation extends EditRecord
                     $filename = "Quotation-{$safeNumber}.pdf";
 
                     return response()->streamDownload(
-                        fn () => print (app(PdfService::class)->generateQuotationPdf($record)->output()),
+                        fn () => print (app(PdfService::class)->generateQuotationPdf($record, 'itemized')->output()),
+                        $filename,
+                        ['Content-Type' => 'application/pdf']
+                    );
+                }),
+
+            Action::make('downloadCustomerPdf')
+                ->label('Customer Package PDF')
+                ->icon(Heroicon::DocumentText)
+                ->color('gray')
+                ->action(function () {
+                    /** @var Quotation $record */
+                    $record = $this->record;
+
+                    $safeNumber = str_replace(['/', '\\'], '-', $record->quote_number);
+                    $filename = "Quotation-{$safeNumber}-Package.pdf";
+
+                    return response()->streamDownload(
+                        fn () => print (app(PdfService::class)->generateQuotationPdf($record, 'package_total_only')->output()),
                         $filename,
                         ['Content-Type' => 'application/pdf']
                     );

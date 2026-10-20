@@ -265,7 +265,7 @@
             <button type="button" onclick="window.print()" class="btn btn-secondary">
                 🖨️ Print
             </button>
-            <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('public.document.download', ['type' => $type, 'id' => $document->id]) }}" class="btn btn-primary">
+            <a href="{{ \Illuminate\Support\Facades\URL::signedRoute('public.document.download', ['type' => $type, 'id' => $document->id, 'mode' => $mode ?? ($document->price_display_mode ?? 'itemized')]) }}" class="btn btn-primary">
                 ⬇️ Download Official PDF
             </a>
         </div>
@@ -324,34 +324,81 @@
             </div>
         </div>
 
+        @php
+            $isPackageMode = (($mode ?? ($document->price_display_mode ?? 'itemized')) === 'package_total_only');
+            $visibleItems = collect($items)->filter(function ($item) use ($isPackageMode) {
+                if ($isPackageMode && (bool) ($item->hide_on_customer_pdf ?? false)) {
+                    return false;
+                }
+                return true;
+            });
+        @endphp
+
         <!-- Line Items Table -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th style="width: 5%;">#</th>
-                    <th style="width: 50%;">Item & Specifications</th>
-                    <th style="width: 12%;" class="right">Qty</th>
-                    <th style="width: 15%;" class="right">Rate (LKR)</th>
-                    <th style="width: 18%;" class="right">Amount (LKR)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($items as $idx => $item)
+        @if ($isPackageMode)
+            <table class="items-table">
+                <thead>
                     <tr>
-                        <td>{{ $idx + 1 }}</td>
-                        <td>
-                            <div style="font-weight: 600; color: #0f172a;">{{ $item->product?->name ?? $item->description }}</div>
-                            @if (!empty($item->description) && $item->description !== ($item->product?->name ?? ''))
-                                <div style="font-size: 11px; color: #64748b;">{{ $item->description }}</div>
-                            @endif
-                        </td>
-                        <td class="right">{{ number_format($item->quantity, 2) }}</td>
-                        <td class="right">{{ number_format($item->unit_price, 2) }}</td>
-                        <td class="right" style="font-weight: 700; color: #0f172a;">{{ number_format($item->subtotal, 2) }}</td>
+                        <th style="width: 6%;">#</th>
+                        <th style="width: 52%;">Description / Model</th>
+                        <th style="width: 14%;" class="right">Quantity</th>
+                        <th style="width: 28%;">Remarks / Warranty</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($visibleItems->values() as $idx => $item)
+                        <tr>
+                            <td>{{ $idx + 1 }}</td>
+                            <td>
+                                <div style="font-weight: 600; color: #0f172a;">{{ $item->product?->name ?? $item->description }}</div>
+                                @if (!empty($item->description) && $item->description !== ($item->product?->name ?? ''))
+                                    <div style="font-size: 11px; color: #64748b;">{{ $item->description }}</div>
+                                @endif
+                            </td>
+                            <td class="right" style="font-weight: 600;">{{ number_format($item->quantity, 2) }}</td>
+                            <td style="color: #047857; font-weight: 600;">
+                                {{ $item->warranty_text ?: ($item->product?->formatted_warranty ?: '-') }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="padding: 16px; text-align: center; color: #94a3b8;">No package items available.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        @else
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 48%;">Item & Specifications</th>
+                        <th style="width: 12%;" class="right">Qty</th>
+                        <th style="width: 17%;" class="right">Rate (LKR)</th>
+                        <th style="width: 18%;" class="right">Amount (LKR)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($items as $idx => $item)
+                        <tr>
+                            <td>{{ $idx + 1 }}</td>
+                            <td>
+                                <div style="font-weight: 600; color: #0f172a;">{{ $item->product?->name ?? $item->description }}</div>
+                                @if (!empty($item->description) && $item->description !== ($item->product?->name ?? ''))
+                                    <div style="font-size: 11px; color: #64748b;">{{ $item->description }}</div>
+                                @endif
+                                @if (!empty($item->warranty_text))
+                                    <div style="font-size: 11px; color: #059669; font-weight: 500;">🛡️ {{ $item->warranty_text }}</div>
+                                @endif
+                            </td>
+                            <td class="right">{{ number_format($item->quantity, 2) }}</td>
+                            <td class="right">{{ number_format($item->unit_price, 2) }}</td>
+                            <td class="right" style="font-weight: 700; color: #0f172a;">{{ number_format($item->subtotal, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
 
         <!-- Bottom Summary & Bank Details -->
         <div class="summary-split">
@@ -401,7 +448,7 @@
             <div>
                 <table class="totals-table">
                     <tr>
-                        <td>Subtotal:</td>
+                        <td>{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
                         <td style="text-align: right; font-weight: 600;">Rs. {{ number_format($document->subtotal, 2) }}</td>
                     </tr>
                     @if ((float) $document->discount > 0)
@@ -417,7 +464,7 @@
                         </tr>
                     @endif
                     <tr class="grand-total-row">
-                        <td>Total (LKR):</td>
+                        <td>{{ $isPackageMode ? 'Total Package Amount:' : 'Total (LKR):' }}</td>
                         <td style="text-align: right;">Rs. {{ number_format($document->grand_total, 2) }}</td>
                     </tr>
                     @if ($type === 'invoice')

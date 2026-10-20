@@ -47,7 +47,25 @@ class EditInvoice extends EditRecord
                     $filename = "Invoice-{$safeNumber}.pdf";
 
                     return response()->streamDownload(
-                        fn () => print (app(PdfService::class)->generateInvoicePdf($record)->output()),
+                        fn () => print (app(PdfService::class)->generateInvoicePdf($record, 'itemized')->output()),
+                        $filename,
+                        ['Content-Type' => 'application/pdf']
+                    );
+                }),
+
+            Action::make('downloadCustomerPdf')
+                ->label('Customer Package PDF')
+                ->icon(Heroicon::DocumentText)
+                ->color('gray')
+                ->action(function () {
+                    /** @var Invoice $record */
+                    $record = $this->record;
+
+                    $safeNumber = str_replace(['/', '\\'], '-', $record->invoice_number);
+                    $filename = "Invoice-{$safeNumber}-Package.pdf";
+
+                    return response()->streamDownload(
+                        fn () => print (app(PdfService::class)->generateInvoicePdf($record, 'package_total_only')->output()),
                         $filename,
                         ['Content-Type' => 'application/pdf']
                     );

@@ -111,6 +111,7 @@ trait HasZohoDocumentEditor
                 'panel_brand' => $this->record->panel_brand ?? '',
                 'terms' => $this->record->terms ?? $this->getDefaultQuotationTerms(),
                 'customer_notes' => 'Thank you for considering Vertex Home Solutions. We look forward to powering your solar journey.',
+                'price_display_mode' => $this->record->price_display_mode ?? 'itemized',
                 'subtotal' => (float) ($this->record->subtotal ?? 0),
                 'discount' => (float) ($this->record->discount ?? 0),
                 'tax' => (float) ($this->record->tax ?? 0),
@@ -124,12 +125,14 @@ trait HasZohoDocumentEditor
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'description' => $item->description,
+                    'warranty_text' => $item->warranty_text ?? ($item->product?->formatted_warranty ?? ''),
                     'quantity' => (float) $item->quantity,
                     'cost_price' => (float) ($item->cost_price ?? ($item->product?->cost_price ?? 0)),
                     'unit_price' => (float) $item->unit_price,
                     'discount_rate' => 0.00,
                     'tax' => (float) ($item->tax ?? 0),
                     'subtotal' => (float) $item->subtotal,
+                    'hide_on_customer_pdf' => (bool) ($item->hide_on_customer_pdf ?? false),
                 ];
             })->toArray();
         } else {
@@ -141,6 +144,7 @@ trait HasZohoDocumentEditor
                 'quote_date' => now()->toDateString(),
                 'valid_until' => now()->addDays(30)->toDateString(),
                 'status' => 'draft',
+                'price_display_mode' => 'itemized',
                 'system_kw' => 5.00,
                 'phase_type' => 'single',
                 'roof_type' => 'Tile Roof',
@@ -173,6 +177,7 @@ trait HasZohoDocumentEditor
                 'type' => $this->record->type ?? 'standard',
                 'terms' => 'Due on Receipt',
                 'customer_notes' => 'Thanks for your business. Please remit payments using the verified bank accounts below.',
+                'price_display_mode' => $this->record->price_display_mode ?? 'itemized',
                 'subtotal' => (float) ($this->record->subtotal ?? 0),
                 'discount' => (float) ($this->record->discount ?? 0),
                 'tax' => (float) ($this->record->tax ?? 0),
@@ -188,12 +193,14 @@ trait HasZohoDocumentEditor
                     'id' => $item->id,
                     'product_id' => $item->product_id,
                     'description' => $item->description,
+                    'warranty_text' => $item->warranty_text ?? ($item->product?->formatted_warranty ?? ''),
                     'quantity' => (float) $item->quantity,
                     'cost_price' => (float) ($item->cost_price ?? ($item->product?->cost_price ?? 0)),
                     'unit_price' => (float) $item->unit_price,
                     'discount_rate' => 0.00,
                     'tax' => (float) ($item->tax ?? 0),
                     'subtotal' => (float) $item->subtotal,
+                    'hide_on_customer_pdf' => (bool) ($item->hide_on_customer_pdf ?? false),
                 ];
             })->toArray();
         } else {
@@ -206,6 +213,7 @@ trait HasZohoDocumentEditor
                 'invoice_date' => now()->toDateString(),
                 'due_date' => now()->addDays(14)->toDateString(),
                 'status' => 'unpaid',
+                'price_display_mode' => 'itemized',
                 'type' => 'standard',
                 'terms' => 'Due on Receipt',
                 'customer_notes' => 'Thanks for your business. Please remit payments using the verified bank accounts below.',
@@ -247,12 +255,14 @@ trait HasZohoDocumentEditor
             'id' => null,
             'product_id' => null,
             'description' => '',
+            'warranty_text' => '',
             'quantity' => 1,
             'cost_price' => 0.00,
             'unit_price' => 0.00,
             'discount_rate' => 0.00,
             'tax' => 0.00,
             'subtotal' => 0.00,
+            'hide_on_customer_pdf' => false,
         ];
 
         $this->recalculateZohoTotals();
@@ -287,6 +297,7 @@ trait HasZohoDocumentEditor
                 $this->data['items'][$index]['description'] = $product->name;
                 $this->data['items'][$index]['cost_price'] = (float) ($product->cost_price ?? 0);
                 $this->data['items'][$index]['unit_price'] = (float) $product->unit_price;
+                $this->data['items'][$index]['warranty_text'] = $product->formatted_warranty ?? '';
                 $qty = (float) ($this->data['items'][$index]['quantity'] ?: 1);
                 $this->data['items'][$index]['subtotal'] = round($qty * (float) $product->unit_price, 2);
             }
@@ -608,12 +619,14 @@ trait HasZohoDocumentEditor
                 'id' => null,
                 'product_id' => $prod->id,
                 'description' => $prod->name,
+                'warranty_text' => $prod->formatted_warranty ?? '',
                 'quantity' => 1,
                 'cost_price' => (float) ($prod->cost_price ?? 0),
                 'unit_price' => (float) $prod->unit_price,
                 'discount_rate' => 0.00,
                 'tax' => 0.00,
                 'subtotal' => (float) $prod->unit_price,
+                'hide_on_customer_pdf' => false,
             ];
         }
 
@@ -687,12 +700,14 @@ trait HasZohoDocumentEditor
                 'id' => null,
                 'product_id' => $product?->id,
                 'description' => $product?->name ?? $itemSpec['name'],
+                'warranty_text' => $product ? ($product->formatted_warranty ?? '') : '10 Years Warranty',
                 'quantity' => $itemSpec['qty'],
                 'cost_price' => $product ? (float) ($product->cost_price ?? 0) : round($itemSpec['price'] * 0.75, 2),
                 'unit_price' => $product ? (float) $product->unit_price : $itemSpec['price'],
                 'discount_rate' => 0.00,
                 'tax' => 0.00,
                 'subtotal' => ($itemSpec['qty'] * ($product ? (float) $product->unit_price : $itemSpec['price'])),
+                'hide_on_customer_pdf' => false,
             ];
         }
 
@@ -746,11 +761,13 @@ trait HasZohoDocumentEditor
                     $record->items()->create([
                         'product_id' => $item['product_id'] ?? null,
                         'description' => $item['description'] ?? 'Item',
+                        'warranty_text' => $item['warranty_text'] ?? null,
                         'quantity' => (float) ($item['quantity'] ?? 1),
                         'cost_price' => (float) ($item['cost_price'] ?? 0),
                         'unit_price' => (float) ($item['unit_price'] ?? 0),
                         'tax' => (float) ($item['tax'] ?? 0),
                         'subtotal' => (float) ($item['subtotal'] ?? 0),
+                        'hide_on_customer_pdf' => (bool) ($item['hide_on_customer_pdf'] ?? false),
                     ]);
                 }
             }
@@ -810,11 +827,13 @@ trait HasZohoDocumentEditor
                     $this->record->items()->create([
                         'product_id' => $item['product_id'] ?? null,
                         'description' => $item['description'] ?? 'Item',
+                        'warranty_text' => $item['warranty_text'] ?? null,
                         'quantity' => (float) ($item['quantity'] ?? 1),
                         'cost_price' => (float) ($item['cost_price'] ?? 0),
                         'unit_price' => (float) ($item['unit_price'] ?? 0),
                         'tax' => (float) ($item['tax'] ?? 0),
                         'subtotal' => (float) ($item['subtotal'] ?? 0),
+                        'hide_on_customer_pdf' => (bool) ($item['hide_on_customer_pdf'] ?? false),
                     ]);
                 }
             }

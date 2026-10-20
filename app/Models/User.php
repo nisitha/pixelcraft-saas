@@ -77,6 +77,24 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         return $membership?->pivot?->role;
     }
 
+    public function isTenantOwner(?Company $tenant = null): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        return $this->roleInTenant($tenant) === 'owner';
+    }
+
+    public function isTenantAdmin(?Company $tenant = null): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        return $this->roleInTenant($tenant) === 'admin';
+    }
+
     public function isTenantOwnerOrAdmin(?Company $tenant = null): bool
     {
         if ($this->is_super_admin) {
@@ -88,6 +106,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         return in_array($role, ['owner', 'admin']);
     }
 
+    public function isTenantSalesExecutive(?Company $tenant = null): bool
+    {
+        if ($this->is_super_admin) {
+            return false;
+        }
+
+        return $this->roleInTenant($tenant) === 'sales_executive';
+    }
+
     public function isTenantCashier(?Company $tenant = null): bool
     {
         if ($this->is_super_admin) {
@@ -95,6 +122,25 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
         }
 
         return $this->roleInTenant($tenant) === 'cashier';
+    }
+
+    public function isTenantEngineer(?Company $tenant = null): bool
+    {
+        if ($this->is_super_admin) {
+            return false;
+        }
+
+        return $this->roleInTenant($tenant) === 'engineer';
+    }
+
+    public function canViewFinancialProfitAndCost(?Company $tenant = null): bool
+    {
+        return $this->isTenantOwnerOrAdmin($tenant);
+    }
+
+    public function canDeleteTenantRecords(?Company $tenant = null): bool
+    {
+        return $this->isTenantOwnerOrAdmin($tenant);
     }
 
     public function canAccessPanel(Panel $panel): bool

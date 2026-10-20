@@ -19,12 +19,12 @@ class ProductSerialPolicy
 
     public function create(User $user): bool
     {
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin() || $user->isTenantEngineer();
     }
 
     public function update(User $user, ProductSerial $productSerial): bool
     {
-        return ! $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin() || $user->isTenantEngineer();
     }
 
     public function delete(User $user, ProductSerial $productSerial): bool

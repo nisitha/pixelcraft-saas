@@ -159,6 +159,20 @@ class Company extends Model implements HasAvatar, HasName
             ->withTimestamps();
     }
 
+    public function canAddMoreUsers(): bool
+    {
+        if (! $this->plan || ! $this->plan->max_users) {
+            return true;
+        }
+
+        return $this->users()->count() < $this->plan->max_users;
+    }
+
+    public function getMaxUsersLimit(): int
+    {
+        return $this->plan?->max_users ?? 5;
+    }
+
     public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class);

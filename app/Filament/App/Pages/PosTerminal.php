@@ -32,12 +32,27 @@ class PosTerminal extends Page
 
     protected string $view = 'filament.app.pages.pos-terminal';
 
+    public static function canAccess(): bool
+    {
+        $user = Filament::auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return ! $user->isTenantEngineer();
+    }
+
     public static function shouldRegisterNavigation(): bool
     {
         $tenant = Filament::getTenant();
 
         if (! $tenant) {
             return true;
+        }
+
+        if (Filament::auth()->user()?->isTenantEngineer()) {
+            return false;
         }
 
         return (bool) ($tenant->settings['enable_pos_module'] ?? true);

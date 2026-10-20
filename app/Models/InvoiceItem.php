@@ -15,10 +15,12 @@ class InvoiceItem extends Model
         'product_id',
         'cost_price',
         'description',
+        'warranty_text',
         'quantity',
         'unit_price',
         'tax',
         'subtotal',
+        'hide_on_customer_pdf',
     ];
 
     protected function casts(): array
@@ -29,6 +31,7 @@ class InvoiceItem extends Model
             'unit_price' => 'decimal:2',
             'tax' => 'decimal:2',
             'subtotal' => 'decimal:2',
+            'hide_on_customer_pdf' => 'boolean',
         ];
     }
 

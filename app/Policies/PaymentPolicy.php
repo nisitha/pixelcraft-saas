@@ -9,22 +9,22 @@ class PaymentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return ! $user->isTenantEngineer();
     }
 
     public function view(User $user, Payment $payment): bool
     {
-        return true;
+        return ! $user->isTenantEngineer();
     }
 
     public function create(User $user): bool
     {
-        return true;
+        return $user->isTenantOwnerOrAdmin() || $user->isTenantCashier();
     }
 
     public function update(User $user, Payment $payment): bool
     {
-        return true;
+        return $user->isTenantOwnerOrAdmin() || $user->isTenantCashier();
     }
 
     public function delete(User $user, Payment $payment): bool
