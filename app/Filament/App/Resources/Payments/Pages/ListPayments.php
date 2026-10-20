@@ -5,8 +5,8 @@ namespace App\Filament\App\Resources\Payments\Pages;
 use App\Filament\App\Resources\Payments\PaymentResource;
 use App\Filament\App\Widgets\PaymentsOverviewWidget;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 
 class ListPayments extends ListRecords

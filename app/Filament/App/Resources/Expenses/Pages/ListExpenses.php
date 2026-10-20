@@ -5,8 +5,8 @@ namespace App\Filament\App\Resources\Expenses\Pages;
 use App\Filament\App\Resources\Expenses\ExpenseResource;
 use App\Filament\App\Widgets\ExpensesOverviewWidget;
 use Filament\Actions\CreateAction;
-use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 
 class ListExpenses extends ListRecords
