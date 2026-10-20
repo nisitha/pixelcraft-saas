@@ -50,13 +50,7 @@ class TeamMemberForm
                                     'cashier' => 'Cashier / Billing Assistant (POS Terminal, Invoices, Payments, Receipts — No Cost/Profit, No Expenses)',
                                     'engineer' => 'Technical / Site Engineer (Technical specs, Certificates, Serial Numbers, Delivery Notes — No Payments/Expenses/POS)',
                                 ])
-                                ->descriptions([
-                                    'owner' => 'Unrestricted access to all modules, financial P&L reports, and company management.',
-                                    'admin' => 'Full operational access including Team & Staff management, Reports, and deleting records.',
-                                    'sales_executive' => 'Can create and manage Quotations, Invoices, and Contacts. Cost prices and profit margins are hidden.',
-                                    'cashier' => 'Can use POS Terminal, create Invoices, and record customer Payments. Cannot view cost or expenses.',
-                                    'engineer' => 'Can view technical specs, issue Completion Certificates, track serials, and generate Delivery Notes.',
-                                ])
+                                ->helperText('Select the permission tier for this staff member in your workspace.')
                                 ->default('sales_executive'),
 
                             Toggle::make('is_active')

@@ -43,11 +43,8 @@ class TeamMemberResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $tenantId = Filament::getTenant()?->id;
-
         return parent::getEloquentQuery()
-            ->whereHas('companies', fn ($q) => $q->where('companies.id', $tenantId))
-            ->with(['companies' => fn ($q) => $q->where('companies.id', $tenantId)]);
+            ->whereHas('companies', fn ($q) => $q->where('companies.id', Filament::getTenant()->id));
     }
 
     public static function form(Schema $schema): Schema

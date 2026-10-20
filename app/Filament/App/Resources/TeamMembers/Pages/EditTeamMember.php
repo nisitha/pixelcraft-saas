@@ -8,7 +8,6 @@ use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 
 class EditTeamMember extends EditRecord
 {
@@ -25,6 +24,8 @@ class EditTeamMember extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $tenant = Filament::getTenant();
+        $role = $data['role'] ?? 'sales_executive';
+        unset($data['role']);
 
         $updateData = [
             'name' => trim($data['name']),
@@ -33,14 +34,14 @@ class EditTeamMember extends EditRecord
         ];
 
         if (! empty($data['password'])) {
-            $updateData['password'] = Hash::make($data['password']);
+            $updateData['password'] = bcrypt($data['password']);
         }
 
         $record->update($updateData);
 
-        if (! empty($data['role'])) {
-            $tenant->users()->updateExistingPivot($record->id, [
-                'role' => $data['role'],
+        if ($tenant) {
+            $tenant->users()->syncWithoutDetaching([
+                $record->id => ['role' => $role],
             ]);
         }
 

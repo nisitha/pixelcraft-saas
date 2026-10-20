@@ -30,9 +30,10 @@ class TeamMembersTable
                     ->copyable()
                     ->icon(Heroicon::Envelope),
 
-                TextColumn::make('pivot.role')
+                TextColumn::make('role')
                     ->label('Tenant Role')
                     ->badge()
+                    ->getStateUsing(fn (User $record): ?string => $record->roleInTenant())
                     ->color(fn (?string $state): string => match ($state) {
                         'owner' => 'success',
                         'admin' => 'warning',
@@ -58,7 +59,7 @@ class TeamMembersTable
                     ->trueColor('success')
                     ->falseColor('danger'),
 
-                TextColumn::make('pivot.created_at')
+                TextColumn::make('created_at')
                     ->label('Joined Date')
                     ->dateTime('d M Y')
                     ->sortable(),

@@ -1,4 +1,37 @@
 <x-filament-panels::page>
+    <style>
+        /* Strict sizing safeguards for Subscription & Billing */
+        .subscription-billing-container svg,
+        .fi-page svg {
+            max-width: 26px !important;
+            max-height: 26px !important;
+            flex-shrink: 0 !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+        .subscription-billing-container svg.icon-xs {
+            width: 14px !important; height: 14px !important; max-width: 14px !important; max-height: 14px !important;
+        }
+        .subscription-billing-container svg.icon-sm {
+            width: 16px !important; height: 16px !important; max-width: 16px !important; max-height: 16px !important;
+        }
+        .subscription-billing-container svg.icon-md {
+            width: 20px !important; height: 20px !important; max-width: 22px !important; max-height: 22px !important;
+        }
+        .subscription-billing-container svg.icon-lg {
+            width: 22px !important; height: 22px !important; max-width: 26px !important; max-height: 26px !important;
+        }
+        .payment-badge-logo {
+            height: 24px !important;
+            width: auto !important;
+            max-height: 28px !important;
+            object-fit: contain !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+    </style>
+
+    <div class="subscription-billing-container">
     @php
         $tenant = $this->getTenant();
         $isSubActive = $tenant ? $tenant->isSubscriptionActive() : false;
@@ -16,7 +49,7 @@
         @if(!$isSubActive)
             <div class="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-4 sm:p-5 flex items-start gap-4 shadow-sm">
                 <div class="p-2 rounded-lg bg-red-100 dark:bg-red-900/60 text-red-600 dark:text-red-400 shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 26px; max-height: 26px; display: inline-block; vertical-align: middle;" class="w-6 h-6 icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
                 </div>
@@ -36,7 +69,7 @@
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 dark:border-emerald-900/50 dark:bg-emerald-950/30 p-4 sm:p-5 flex items-center justify-between gap-4 flex-wrap shadow-sm">
                 <div class="flex items-center gap-3.5">
                     <div class="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 26px; max-height: 26px; display: inline-block; vertical-align: middle;" class="w-6 h-6 icon-lg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
@@ -130,19 +163,19 @@
                     </h4>
                     <ul class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                         <li class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-4 h-4 text-emerald-500 shrink-0 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             <span>Unlimited Invoices, Quotations & Receipts</span>
                         </li>
                         <li class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-4 h-4 text-emerald-500 shrink-0 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             <span>Solar System Sizing & Certificate Builder</span>
                         </li>
                         <li class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-4 h-4 text-emerald-500 shrink-0 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             <span>Multi-user Access, Role Control & Audit Logs</span>
                         </li>
                         <li class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-4 h-4 text-emerald-500 shrink-0 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                             <span>POS Terminal & Sales Commission Management</span>
                         </li>
                     </ul>
@@ -160,7 +193,7 @@
                             <h4 class="text-sm font-bold text-slate-900 dark:text-white">
                                 Pixel Craft Studios
                             </h4>
-                            <svg class="w-4 h-4 text-sky-500" fill="currentColor" viewBox="0 0 20 20">
+                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-4 h-4 text-sky-500 icon-sm" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                             </svg>
                         </div>
@@ -258,8 +291,8 @@
                                 wire:click="setPaymentMethod('card')"
                                 class="p-3 rounded-xl border text-left transition flex items-center gap-3 {{ $payment_method === 'card' ? 'border-sky-500 bg-sky-50 dark:bg-sky-950/40 ring-2 ring-sky-500/30' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60' }}"
                             >
-                                <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
+                                    <svg style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 26px; max-height: 26px; display: inline-block; vertical-align: middle;" class="w-5 h-5 icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                                     </svg>
                                 </div>
@@ -279,8 +312,8 @@
                                 wire:click="setPaymentMethod('bank_transfer')"
                                 class="p-3 rounded-xl border text-left transition flex items-center gap-3 {{ $payment_method === 'bank_transfer' ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 ring-2 ring-emerald-500/30' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60' }}"
                             >
-                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
+                                    <svg style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 26px; max-height: 26px; display: inline-block; vertical-align: middle;" class="w-5 h-5 icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                     </svg>
                                 </div>
@@ -300,8 +333,8 @@
                                 wire:click="setPaymentMethod('paypal')"
                                 class="p-3 rounded-xl border text-left transition flex items-center gap-3 {{ $payment_method === 'paypal' ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 ring-2 ring-indigo-500/30' : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/60' }}"
                             >
-                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0" style="width: 32px; height: 32px; min-width: 32px; min-height: 32px;">
+                                    <svg style="width: 22px; height: 22px; min-width: 22px; min-height: 22px; max-width: 26px; max-height: 26px; display: inline-block; vertical-align: middle;" class="w-5 h-5 icon-md" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.282-.533 3.411-2.67 5.753-5.908 5.753H9.986L8.47 19.349a.641.641 0 0 1-.63.535l-.764 1.453z"/>
                                     </svg>
                                 </div>
@@ -329,15 +362,27 @@
                                         Card Payment Gateway:
                                     </span>
                                     <div class="flex items-center gap-1.5">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-blue-600 text-white tracking-wider">VISA</span>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-red-600 text-white tracking-wider">MC</span>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-black bg-indigo-600 text-white tracking-wider">AMEX</span>
+                                        {{-- Visa Badge --}}
+                                        <svg style="height: 24px; width: auto; max-height: 28px; object-fit: contain; display: inline-block; vertical-align: middle;" class="payment-badge-logo" viewBox="0 0 40 24" fill="none">
+                                            <rect width="40" height="24" rx="4" fill="#0D2B6B"/>
+                                            <text x="7" y="16.5" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" font-style="italic" font-weight="900" fill="#FFFFFF" letter-spacing="1">VISA</text>
+                                        </svg>
+                                        {{-- MasterCard Badge --}}
+                                        <svg style="height: 24px; width: auto; max-height: 28px; object-fit: contain; display: inline-block; vertical-align: middle;" class="payment-badge-logo" viewBox="0 0 38 24" fill="none">
+                                            <rect width="38" height="24" rx="4" fill="#1E293B"/>
+                                            <circle cx="15" cy="12" r="7" fill="#EB001B"/>
+                                            <circle cx="23" cy="12" r="7" fill="#F79E1B" fill-opacity="0.85"/>
+                                        </svg>
+                                        {{-- Amex Badge --}}
+                                        <svg style="height: 24px; width: auto; max-height: 28px; object-fit: contain; display: inline-block; vertical-align: middle;" class="payment-badge-logo" viewBox="0 0 40 24" fill="none">
+                                            <rect width="40" height="24" rx="4" fill="#006FCF"/>
+                                            <text x="6" y="15.5" font-family="'Helvetica Neue', Arial, sans-serif" font-size="9" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">AMEX</text>
+                                        </svg>
                                     </div>
                                 </div>
                                 <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                    <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-3.5 h-3.5 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                     Instant Automated Activation
-                                </span>
                             </div>
 
                             <div class="space-y-3">
@@ -367,8 +412,8 @@
                                 wire:loading.attr="disabled"
                                 class="w-full py-2.5 px-4 rounded-xl text-sm font-bold bg-sky-600 hover:bg-sky-500 active:bg-sky-700 text-white shadow-md transition flex items-center justify-center gap-2"
                             >
-                                <svg wire:loading.remove wire:target="processCardPayment" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <svg wire:loading wire:target="processCardPayment" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-width: 20px; max-height: 20px; display: inline-block; vertical-align: middle;" wire:loading.remove wire:target="processCardPayment" class="w-4 h-4 icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-width: 20px; max-height: 20px; display: inline-block; vertical-align: middle;" wire:loading wire:target="processCardPayment" class="w-4 h-4 animate-spin icon-md" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                 <span>Pay Rs. {{ number_format($amountLkr, 2) }} & Renew Instantly</span>
                             </button>
                         </div>
@@ -381,7 +426,7 @@
                             <div class="rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30 p-4 sm:p-5 space-y-3">
                                 <div class="flex items-center justify-between flex-wrap gap-2">
                                     <div class="flex items-center gap-2">
-                                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">
+                                        <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs" style="width: 28px; height: 28px; min-width: 28px; min-height: 28px;">
                                             HNB
                                         </div>
                                         <div>
@@ -414,7 +459,7 @@
                                         @click="navigator.clipboard.writeText('227020114025'); copied = true; setTimeout(() => copied = false, 2500)"
                                         class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white transition flex items-center gap-1.5 shadow-sm"
                                     >
-                                        <svg x-show="!copied" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                        <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" x-show="!copied" class="w-3.5 h-3.5 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                                         <span x-show="!copied">Copy Account No</span>
                                         <span x-show="copied">✓ Copied!</span>
                                     </button>
@@ -489,8 +534,8 @@
                                     wire:loading.attr="disabled"
                                     class="w-full py-2.5 px-4 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white shadow-md transition flex items-center justify-center gap-2"
                                 >
-                                    <svg wire:loading.remove wire:target="submitRenewalRequest" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <svg wire:loading wire:target="submitRenewalRequest" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                    <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-width: 20px; max-height: 20px; display: inline-block; vertical-align: middle;" wire:loading.remove wire:target="submitRenewalRequest" class="w-4 h-4 icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-width: 20px; max-height: 20px; display: inline-block; vertical-align: middle;" wire:loading wire:target="submitRenewalRequest" class="w-4 h-4 animate-spin icon-md" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                     <span>Submit Bank Transfer for Verification</span>
                                 </button>
                             </form>
@@ -548,7 +593,7 @@
                                             class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center gap-1 shadow-sm"
                                         >
                                             <span>Pay via PayPal</span>
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            <svg style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 18px; max-height: 18px; display: inline-block; vertical-align: middle;" class="w-3.5 h-3.5 icon-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                         </a>
                                     </div>
                                 </div>
@@ -591,8 +636,8 @@
                                     wire:loading.attr="disabled"
                                     class="w-full py-2.5 px-4 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white shadow-md transition flex items-center justify-center gap-2"
                                 >
-                                    <svg wire:loading.remove wire:target="submitRenewalRequest" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <svg wire:loading wire:target="submitRenewalRequest" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                    <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-width: 20px; max-height: 20px; display: inline-block; vertical-align: middle;" wire:loading.remove wire:target="submitRenewalRequest" class="w-4 h-4 icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <svg style="width: 18px; height: 18px; min-width: 18px; min-height: 18px; max-width: 20px; max-height: 20px; display: inline-block; vertical-align: middle;" wire:loading wire:target="submitRenewalRequest" class="w-4 h-4 animate-spin icon-md" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                                     <span>Submit PayPal Proof for Verification</span>
                                 </button>
                             </form>
@@ -662,7 +707,7 @@
                                     @if($req->receipt_path)
                                         <a href="{{ asset('storage/'.$req->receipt_path) }}" target="_blank" class="text-[11px] text-teal-600 dark:text-teal-400 font-semibold hover:underline inline-flex items-center gap-1 mt-0.5">
                                             <span>View Slip</span>
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            <svg style="width: 14px; height: 14px; min-width: 14px; min-height: 14px; max-width: 16px; max-height: 16px; display: inline-block; vertical-align: middle;" class="w-3 h-3 icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                         </a>
                                     @endif
                                 </td>
@@ -681,7 +726,7 @@
                                 <td class="p-3 text-[11px]">
                                     @if($req->status === 'approved')
                                         <span class="font-medium text-emerald-700 dark:text-emerald-400">
-                                            {{ $req->approver?->name ?? 'Pixel Craft Studios' }}
+                                             {{ $req->approver?->name ?? 'Pixel Craft Studios' }}
                                         </span>
                                         <div class="text-[10px] text-slate-400">{{ $req->approved_at?->format('d/m/Y') }}</div>
                                     @elseif($req->status === 'rejected')
@@ -702,5 +747,6 @@
                 </table>
             </div>
         </x-filament::section>
+    </div>
     </div>
 </x-filament-panels::page>

@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Filament\App\Pages\FinancialReports;
 use App\Filament\App\Resources\Quotations\Pages\ViewQuotation;
+use App\Filament\App\Resources\TeamMembers\Pages\CreateTeamMember;
+use App\Filament\App\Resources\TeamMembers\Pages\EditTeamMember;
 use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Expense;
@@ -391,5 +393,55 @@ class TenantStaffRolesAndPackagePdfTest extends TestCase
             ->call('togglePreviewPriceDisplayMode')
             ->assertSet('previewMode', 'package_total_only')
             ->assertSee('Customer Package View');
+    }
+
+    public function test_team_member_creation_saves_user_and_attaches_to_tenant_with_role(): void
+    {
+        $this->actingAs($this->owner);
+        Filament::setCurrentPanel(Filament::getPanel('app'));
+        Filament::setTenant($this->company);
+
+        Livewire::test(CreateTeamMember::class)
+            ->fillForm([
+                'name' => 'Nimal Perera',
+                'email' => 'nimal@example.com',
+                'password' => 'secret12345',
+                'role' => 'engineer',
+                'is_active' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $user = User::where('email', 'nimal@example.com')->first();
+        $this->assertNotNull($user);
+        $this->assertSame('Nimal Perera', $user->name);
+        $this->assertTrue(Hash::check('secret12345', $user->password));
+
+        // Check pivot
+        $this->assertTrue($this->company->users()->where('users.id', $user->id)->exists());
+        $this->assertSame('engineer', $user->roleInTenant($this->company));
+    }
+
+    public function test_team_member_editing_updates_role_on_tenant_pivot(): void
+    {
+        $this->actingAs($this->owner);
+        Filament::setCurrentPanel(Filament::getPanel('app'));
+        Filament::setTenant($this->company);
+
+        Livewire::test(EditTeamMember::class, ['record' => $this->salesExec->id])
+            ->assertFormSet([
+                'role' => 'sales_executive',
+                'name' => 'Sales Executive',
+            ])
+            ->fillForm([
+                'role' => 'cashier',
+                'name' => 'Senior Cashier',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $this->salesExec->refresh();
+        $this->assertSame('Senior Cashier', $this->salesExec->name);
+        $this->assertSame('cashier', $this->salesExec->roleInTenant($this->company));
     }
 }

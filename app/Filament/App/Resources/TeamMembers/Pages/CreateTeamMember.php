@@ -3,12 +3,10 @@
 namespace App\Filament\App\Resources\TeamMembers\Pages;
 
 use App\Filament\App\Resources\TeamMembers\TeamMemberResource;
-use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class CreateTeamMember extends CreateRecord
@@ -35,41 +33,51 @@ class CreateTeamMember extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         $tenant = Filament::getTenant();
-        $email = strtolower(trim($data['email']));
+        $email = strtolower(trim($data['email'] ?? ''));
         $role = $data['role'] ?? 'sales_executive';
+        unset($data['role']);
 
-        $existingUser = User::where('email', $email)->first();
+        if (! empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
+        }
+        $data['is_active'] = $data['is_active'] ?? true;
+
+        $existingUser = static::getModel()::where('email', $email)->first();
 
         if ($existingUser) {
-            if ($existingUser->companies()->where('companies.id', $tenant->id)->exists()) {
+            if ($tenant && $existingUser->companies()->where('companies.id', $tenant->id)->exists()) {
                 throw ValidationException::withMessages([
                     'email' => 'This user is already a team member of your company.',
                 ]);
             }
 
-            $existingUser->update([
+            $updatePayload = [
                 'name' => $data['name'] ?? $existingUser->name,
                 'is_active' => $data['is_active'] ?? $existingUser->is_active,
-            ]);
+            ];
 
             if (! empty($data['password'])) {
-                $existingUser->update(['password' => Hash::make($data['password'])]);
+                $updatePayload['password'] = $data['password'];
             }
 
-            $tenant->users()->attach($existingUser->id, ['role' => $role]);
+            $existingUser->update($updatePayload);
+
+            if ($tenant) {
+                $tenant->users()->syncWithoutDetaching([
+                    $existingUser->id => ['role' => $role],
+                ]);
+            }
 
             return $existingUser;
         }
 
-        $user = User::create([
-            'name' => trim($data['name']),
-            'email' => $email,
-            'password' => Hash::make($data['password']),
-            'is_active' => (bool) ($data['is_active'] ?? true),
-            'is_super_admin' => false,
-        ]);
+        $user = static::getModel()::create($data);
 
-        $tenant->users()->attach($user->id, ['role' => $role]);
+        if ($tenant) {
+            $tenant->users()->syncWithoutDetaching([
+                $user->id => ['role' => $role],
+            ]);
+        }
 
         return $user;
     }

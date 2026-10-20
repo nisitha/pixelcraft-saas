@@ -236,15 +236,12 @@ class PdfService
 
         $payout->loadMissing(['company', 'salesAgent', 'invoice.contact']);
 
-        $paperSize = strtolower($payout->paper_size ?? 'a4');
-        $orientation = strtolower($payout->orientation ?? 'portrait');
-
         $pdf = Pdf::loadView('pdf.commission-voucher', [
             'payout' => $payout,
             'company' => $payout->company,
             'agent' => $payout->salesAgent,
             'invoice' => $payout->invoice,
-        ])->setPaper($paperSize, $orientation);
+        ])->setPaper('a5', 'landscape');
 
         $this->applyDompdfOptions($pdf);
 

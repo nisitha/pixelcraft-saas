@@ -7,11 +7,6 @@
         $company = $company ?? $payout->company;
         $agent = $agent ?? $payout->salesAgent;
         $invoice = $invoice ?? $payout->invoice;
-        $paperSize = strtolower($payout->paper_size ?? 'a4');
-        $orientation = strtolower($payout->orientation ?? 'portrait');
-
-        $isA5 = $paperSize === 'a5';
-        $margin = $isA5 ? '8mm' : '12mm';
 
         $resolveImagePath = function (?string $path): ?string {
             if (empty($path)) {
@@ -43,56 +38,65 @@
 
     <style>
         @page {
-            size: {{ $paperSize }} {{ $orientation }};
-            margin: {{ $margin }};
+            size: a5 landscape;
+            margin: 6mm 8mm;
         }
 
         * {
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #1e293b;
+        html, body {
             margin: 0;
             padding: 0;
-            line-height: 1.4;
-            font-size: {{ $isA5 ? '9px' : '11px' }};
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            font-size: 10px;
+            line-height: 1.25;
             background-color: #ffffff;
+        }
+
+        .voucher-sheet {
+            width: 100%;
+            height: 100%;
+            page-break-inside: avoid;
+            page-break-after: avoid;
+            overflow: hidden;
         }
 
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             border-bottom: 2px solid #0f766e;
-            padding-bottom: 8px;
+            padding-bottom: 5px;
         }
 
         .header-table td {
             vertical-align: middle;
+            padding: 0;
         }
 
         .company-name {
-            font-size: {{ $isA5 ? '13px' : '16px' }};
+            font-size: 12px;
             font-weight: 800;
             color: #0f766e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin: 0 0 2px 0;
-        }
-
-        .voucher-title {
-            font-size: {{ $isA5 ? '14px' : '18px' }};
-            font-weight: 800;
-            color: #0f172a;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
             margin: 0;
         }
 
+        .voucher-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 1px 0;
+        }
+
         .voucher-subtitle {
-            font-size: {{ $isA5 ? '8px' : '9.5px' }};
+            font-size: 8px;
             font-weight: 600;
             color: #64748b;
             text-transform: uppercase;
@@ -104,69 +108,78 @@
             background: #f0fdfa;
             border: 1px solid #99f6e4;
             color: #0f766e;
-            padding: 3px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-weight: 700;
-            font-size: {{ $isA5 ? '8.5px' : '10px' }};
-            margin-top: 4px;
+            font-weight: 800;
+            font-size: 9px;
+            letter-spacing: 0.5px;
         }
 
         /* 2-Column Info Grid */
         .info-grid {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 14px;
+            margin-bottom: 8px;
         }
 
         .info-grid td {
             width: 50%;
             vertical-align: top;
-            padding: 4px 6px;
+            padding: 0 4px;
+        }
+
+        .info-grid td:first-child {
+            padding-left: 0;
+        }
+
+        .info-grid td:last-child {
+            padding-right: 0;
         }
 
         .card-box {
             border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: {{ $isA5 ? '6px 8px' : '10px 12px' }};
+            border-radius: 4px;
+            padding: 5px 8px;
             background-color: #f8fafc;
-            height: 100%;
         }
 
         .card-title {
-            font-size: {{ $isA5 ? '9px' : '11px' }};
+            font-size: 9px;
             font-weight: 800;
             color: #0f766e;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
+            padding-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .card-row {
-            margin-bottom: 3px;
+            margin-bottom: 2px;
+            font-size: 8.5px;
+            line-height: 1.2;
         }
 
         .card-row .label {
             font-weight: 600;
             color: #64748b;
             display: inline-block;
-            width: 38%;
+            width: 36%;
         }
 
         .card-row .val {
             font-weight: 700;
             color: #1e293b;
             display: inline-block;
-            width: 60%;
+            width: 62%;
         }
 
-        /* Settlement Table */
+        /* Settlement Breakdown Table */
         .settlement-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
-            margin-bottom: 14px;
+            margin-top: 4px;
+            margin-bottom: 8px;
         }
 
         .settlement-table th {
@@ -175,64 +188,66 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            font-size: {{ $isA5 ? '8.5px' : '10px' }};
-            padding: {{ $isA5 ? '4px 6px' : '6px 8px' }};
+            font-size: 8.5px;
+            padding: 4px 6px;
             border: 1px solid #0f766e;
         }
 
         .settlement-table td {
             border: 1px solid #cbd5e1;
-            padding: {{ $isA5 ? '5px 6px' : '8px 10px' }};
+            padding: 4px 6px;
             vertical-align: middle;
+            font-size: 9px;
         }
 
         .amount-highlight {
             background-color: #ecfdf5;
             color: #047857;
             font-weight: 800;
-            font-size: {{ $isA5 ? '12px' : '15px' }};
+            font-size: 11px;
             text-align: right;
         }
 
-        /* Signatures */
+        /* Signatures Grid */
         .sig-grid {
             width: 100%;
             border-collapse: collapse;
-            margin-top: {{ $isA5 ? '16px' : '26px' }};
+            margin-top: 10px;
         }
 
         .sig-grid td {
             width: 33.33%;
             text-align: center;
             vertical-align: bottom;
-            padding: 0 10px;
+            padding: 0 8px;
         }
 
         .sig-line {
-            border-top: 1.5px dashed #64748b;
-            margin-bottom: 4px;
+            border-top: 1.2px solid #0f766e;
+            margin-bottom: 3px;
             width: 85%;
             margin-left: auto;
             margin-right: auto;
         }
 
         .sig-title {
-            font-weight: 700;
-            color: #1e293b;
-            font-size: {{ $isA5 ? '8px' : '9.5px' }};
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 8.5px;
             text-transform: uppercase;
         }
 
         .sig-sub {
-            font-size: {{ $isA5 ? '7px' : '8px' }};
+            font-size: 7.5px;
             color: #64748b;
+            margin-top: 1px;
         }
 
         .footer-note {
-            margin-top: 14px;
+            margin-top: 8px;
             border-top: 1px solid #e2e8f0;
-            padding-top: 6px;
-            font-size: {{ $isA5 ? '7px' : '8.5px' }};
+            padding-top: 4px;
+            font-size: 7.5px;
             color: #94a3b8;
             text-align: center;
         }
@@ -240,34 +255,35 @@
 </head>
 <body>
 
-    {{-- Header --}}
+<div class="voucher-sheet">
+    {{-- Top Header Table --}}
     <table class="header-table">
         <tr>
             @if ($logoPath)
-                <td style="width: 20%;">
-                    <img src="{{ $logoPath }}" style="max-height: {{ $isA5 ? '36px' : '50px' }}; max-width: 130px;" alt="Logo">
+                <td style="width: 18%;">
+                    <img src="{{ $logoPath }}" style="max-height: 38px; max-width: 110px; object-fit: contain;" alt="Company Logo">
                 </td>
-                <td style="width: 50%;">
+                <td style="width: 54%;">
             @else
-                <td style="width: 70%;">
+                <td style="width: 72%;">
             @endif
                 <div class="company-name">{{ $company->name ?? 'VERTEX HOME SOLUTIONS (PVT) LTD' }}</div>
                 <div class="voucher-title">COMMISSION PAYMENT VOUCHER</div>
-                <div class="voucher-subtitle">Sales Agent / Referrer Commission Settlement Record</div>
+                <div class="voucher-subtitle">Sales Agent & Referrer Settlement Documentation</div>
             </td>
-            <td style="width: 30%; text-align: right;">
+            <td style="width: 28%; text-align: right;">
                 <div class="meta-pill">VOUCHER: {{ $payout->voucher_number }}</div>
-                <div style="font-weight: 700; color: #475569; margin-top: 3px;">
+                <div style="font-weight: 700; color: #334155; margin-top: 2px; font-size: 8.5px;">
                     Date: {{ $payout->payout_date?->format('d M Y') ?? now()->format('d M Y') }}
                 </div>
-                <div style="font-size: {{ $isA5 ? '7.5px' : '9px' }}; color: #64748b;">
-                    Status: <strong style="color: #059669; text-transform: uppercase;">{{ $payout->status }}</strong>
+                <div style="font-size: 8px; color: #64748b; margin-top: 1px;">
+                    Status: <strong style="color: #047857; text-transform: uppercase;">{{ $payout->status }}</strong>
                 </div>
             </td>
         </tr>
     </table>
 
-    {{-- Agent & Project 2-Column Info --}}
+    {{-- Agent & Project 2-Column Info Grid --}}
     <table class="info-grid">
         <tr>
             <td>
@@ -327,27 +343,27 @@
     <table class="settlement-table">
         <thead>
             <tr>
-                <th style="width: 50%;">Description / Settlement Item</th>
-                <th style="width: 25%; text-align: center;">Reference</th>
+                <th style="width: 55%;">Settlement Description</th>
+                <th style="width: 20%; text-align: center;">Reference / Invoice</th>
                 <th style="width: 25%; text-align: right;">Amount (LKR)</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    <strong>Solar Project Commission Payout</strong>
+                    <strong>Solar PV Referral Commission Disbursement</strong>
                     @if ($invoice)
-                        <div style="font-size: {{ $isA5 ? '7.5px' : '9.5px' }}; color: #64748b;">
+                        <div style="font-size: 8px; color: #64748b; margin-top: 1px;">
                             Settlement for Invoice #{{ $invoice->invoice_number }} (Customer: {{ $invoice->contact?->name }})
                         </div>
                     @endif
                     @if ($payout->notes)
-                        <div style="font-size: {{ $isA5 ? '7.5px' : '9.5px' }}; color: #475569; margin-top: 2px;">
+                        <div style="font-size: 8px; color: #475569; margin-top: 1px;">
                             Notes: {{ $payout->notes }}
                         </div>
                     @endif
                 </td>
-                <td style="text-align: center; font-family: monospace;">
+                <td style="text-align: center; font-family: monospace; font-size: 8.5px;">
                     {{ $payout->reference_no ?: $payout->voucher_number }}
                 </td>
                 <td class="amount-highlight">
@@ -355,50 +371,51 @@
                 </td>
             </tr>
             <tr>
-                <td colspan="2" style="text-align: right; font-weight: 800; text-transform: uppercase;">
+                <td colspan="2" style="text-align: right; font-weight: 800; text-transform: uppercase; font-size: 9px; background-color: #f8fafc;">
                     Total Net Commission Disbursed:
                 </td>
-                <td class="amount-highlight" style="font-size: {{ $isA5 ? '13px' : '16px' }}; color: #047857;">
+                <td class="amount-highlight" style="font-size: 12px; color: #047857;">
                     Rs. {{ number_format($payout->amount, 2) }}
                 </td>
             </tr>
         </tbody>
     </table>
 
-    {{-- Signatures --}}
+    {{-- Signatures Block (Prepared By, Approved By, Agent Receiver) --}}
     <table class="sig-grid">
         <tr>
             <td>
-                <div style="height: 35px;"></div>
+                <div style="height: 20px;"></div>
                 <div class="sig-line"></div>
                 <div class="sig-title">Prepared By</div>
-                <div class="sig-sub">Finance & Accounts Department</div>
+                <div class="sig-sub">Finance & Accounts</div>
             </td>
             <td>
                 @if ($signaturePath)
-                    <div style="height: 35px; text-align: center;">
-                        <img src="{{ $signaturePath }}" style="max-height: 35px; max-width: 120px;" alt="Signature">
+                    <div style="height: 20px; text-align: center;">
+                        <img src="{{ $signaturePath }}" style="max-height: 20px; max-width: 90px; object-fit: contain;" alt="Signature">
                     </div>
                 @else
-                    <div style="height: 35px;"></div>
+                    <div style="height: 20px;"></div>
                 @endif
                 <div class="sig-line"></div>
                 <div class="sig-title">Approved By</div>
-                <div class="sig-sub">Managing Director / Authorized Officer</div>
+                <div class="sig-sub">Managing Director</div>
             </td>
             <td>
-                <div style="height: 35px;"></div>
+                <div style="height: 20px;"></div>
                 <div class="sig-line"></div>
                 <div class="sig-title">Agent Receiver Signature</div>
-                <div class="sig-sub">Acknowledgement of Payout Receipt</div>
+                <div class="sig-sub">Payout Acknowledgement</div>
             </td>
         </tr>
     </table>
 
-    {{-- Footer --}}
+    {{-- Compact Footer Note --}}
     <div class="footer-note">
         Official Commission Settlement Document issued by {{ $company->name ?? 'Vertex Home Solutions (Pvt) Ltd' }}. Generated electronically.
     </div>
+</div>
 
 </body>
 </html>
