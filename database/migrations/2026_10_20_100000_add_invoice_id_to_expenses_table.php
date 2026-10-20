@@ -9,16 +9,24 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('expenses', function (Blueprint $table) {
-            $table->foreignId('invoice_id')->nullable()->after('company_id')->constrained('invoices')->nullOnDelete();
-            $table->index(['company_id', 'invoice_id']);
+            if (! Schema::hasColumn('expenses', 'invoice_id')) {
+                $table->foreignId('invoice_id')->nullable()->after('company_id')->constrained('invoices')->nullOnDelete();
+            }
+            if (! Schema::hasColumn('expenses', 'supplier_id')) {
+                $table->foreignId('supplier_id')->nullable()->after('invoice_id')->constrained('contacts')->nullOnDelete();
+            }
         });
     }
 
     public function down(): void
     {
         Schema::table('expenses', function (Blueprint $table) {
-            $table->dropForeign(['invoice_id']);
-            $table->dropColumn('invoice_id');
+            if (Schema::hasColumn('expenses', 'supplier_id')) {
+                $table->dropConstrainedForeignId('supplier_id');
+            }
+            if (Schema::hasColumn('expenses', 'invoice_id')) {
+                $table->dropConstrainedForeignId('invoice_id');
+            }
         });
     }
 };

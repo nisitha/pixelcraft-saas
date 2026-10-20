@@ -14,6 +14,7 @@ class Expense extends Model
     protected $fillable = [
         'company_id',
         'invoice_id',
+        'supplier_id',
         'category',
         'title',
         'amount',
@@ -33,5 +34,10 @@ class Expense extends Model
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class, 'supplier_id');
     }
 }
