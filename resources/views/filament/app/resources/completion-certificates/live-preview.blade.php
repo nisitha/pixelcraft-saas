@@ -133,9 +133,20 @@
         }
     }"
     wire:key="cert-preview-wrapper-{{ $paperSize }}-{{ $orientation }}"
-    class="w-full"
+    class="w-full cert-preview-card"
     style="position: -webkit-sticky; position: sticky; top: 1.5rem; align-self: flex-start; z-index: 20;"
 >
+    <style>
+        .cert-preview-card svg {
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            max-width: 20px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+    </style>
+
     {{-- Executive SaaS Live Preview Container Card --}}
     <div class="rounded-2xl border border-slate-700/80 bg-slate-900 text-slate-100 shadow-2xl shadow-slate-950/40 overflow-hidden">
         
@@ -188,7 +199,7 @@
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700 transition shadow-sm hover:text-white"
                     title="Inspect high-resolution full screen certificate"
                 >
-                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
                     </svg>
                     <span>Fullscreen Preview</span>
@@ -202,10 +213,10 @@
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white transition shadow-sm disabled:opacity-50"
                     title="Download generated vector PDF"
                 >
-                    <svg wire:loading.remove wire:target="downloadPdf" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg wire:loading.remove wire:target="downloadPdf" style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                     </svg>
-                    <svg wire:loading wire:target="downloadPdf" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                    <svg wire:loading wire:target="downloadPdf" style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="animate-spin text-white" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                     </svg>
@@ -234,7 +245,7 @@
         {{-- Footer Status Bar --}}
         <div class="px-3.5 py-2 bg-slate-950/90 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
             <div class="flex items-center gap-1.5 text-slate-300">
-                <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                 </svg>
                 <span>Vector accurate preview</span>
@@ -278,7 +289,7 @@
                         class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition"
                         title="Zoom Out"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                         </svg>
                     </button>
@@ -291,7 +302,7 @@
                         class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition"
                         title="Zoom In"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
                     </button>
@@ -311,7 +322,7 @@
                         onclick="window.print()"
                         class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
                     >
-                        <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" class="text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                         </svg>
                         <span>Print</span>
@@ -323,7 +334,7 @@
                         wire:loading.attr="disabled"
                         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-500 text-white transition shadow-sm"
                     >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
                         <span>Download PDF</span>
@@ -335,7 +346,7 @@
                         class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
                         title="Close Fullscreen (Esc)"
                     >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg style="width: 18px; height: 18px; min-width: 18px; max-width: 20px; display: inline-block; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>

@@ -878,9 +878,103 @@
             color: #cbd5e1;
             border-color: #374151;
         }
+
+        /* 3D Realistic Metallic Visa Membership Card */
+        .metallic-card-container {
+            max-width: 380px;
+            width: 100%;
+            height: 215px;
+            border-radius: 16px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-sizing: border-box;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            margin: 0 auto;
+        }
+        .metallic-card-sheen {
+            position: absolute;
+            top: -60%;
+            left: -60%;
+            width: 220%;
+            height: 220%;
+            background: linear-gradient(115deg, transparent 32%, rgba(255, 255, 255, 0.24) 48%, transparent 58%);
+            pointer-events: none;
+        }
+        .metallic-emv-chip {
+            width: 44px;
+            height: 34px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #d4af37 0%, #f6e27a 50%, #cb9b51 100%);
+            border: 1px solid rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .metallic-chip-line-h {
+            position: absolute;
+            top: 16px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .metallic-chip-line-v {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 22px;
+            width: 1px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+        .metallic-chip-core {
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            left: 10px;
+            right: 10px;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+        .metallic-embossed-text {
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4), 0 -1px 1px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
-    <div class="sub-root" x-data="{ showDrawer: {{ $isSubActive ? 'false' : 'true' }}, copiedAcc: false, copiedEmail: false }">
+    <div class="sub-root" x-data="{
+        showDrawer: {{ $isSubActive ? 'false' : 'true' }},
+        copiedAcc: false,
+        copiedEmail: false,
+        selectedPlanId: {{ (int) ($this->plan_id ?? ($plans->first()?->id ?? 1)) }},
+        billingCycle: '{{ $this->billing_cycle ?? 'monthly' }}',
+        plans: @js(\App\Models\Plan::where('is_active', true)->get()->keyBy('id')),
+        get currentPlan() {
+            return this.plans[this.selectedPlanId] || Object.values(this.plans)[0] || {};
+        },
+        get currentTier() {
+            const name = ((this.currentPlan.slug || this.currentPlan.name || '') + '').toLowerCase();
+            if (name.includes('gold')) return 'gold';
+            if (name.includes('silver')) return 'silver';
+            if (name.includes('bronze')) return 'bronze';
+            return 'gold';
+        },
+        get totalPayableLkr() {
+            const p = this.currentPlan;
+            if (!p) return 0;
+            return this.billingCycle === 'yearly' ? parseFloat(p.price_yearly || 0) : parseFloat(p.price_monthly || 0);
+        },
+        get totalPayableUsd() {
+            return (this.totalPayableLkr / 300).toFixed(2);
+        },
+        formatMoney(val) {
+            return Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+    }">
 
         {{-- 1. Clean Header with Action Button --}}
         <div class="sub-header">
@@ -1103,7 +1197,7 @@
                 <div>
                     <h3 class="drawer-title">Official Provider & Settlement — Pixel Craft Studios</h3>
                     <div class="drawer-sub">
-                        Direct official billing desk: <a href="mailto:pixelcraftstudioslk@gmail.com" style="color: #0284c7; font-weight: 600; text-decoration: none;">pixelcraftstudioslk@gmail.com</a>
+                        Direct official billing desk: <a href="mailto:contact@vertexinnovationlk.com" style="color: #0284c7; font-weight: 600; text-decoration: none;">contact@vertexinnovationlk.com</a>
                     </div>
                 </div>
 
@@ -1112,40 +1206,118 @@
                 </button>
             </div>
 
-            {{-- Plan Tier & Billing Cycle Selector --}}
-            <div class="plan-selector-grid">
-                <div>
-                    <label class="form-label-xs">Select Plan Tier</label>
-                    <select wire:model.live="plan_id" class="form-select-clean">
-                        @foreach($plans as $plan)
-                            <option value="{{ $plan->id }}">
-                                {{ $plan->name }} — Rs. {{ number_format($plan->price_monthly, 0) }}/mo
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
+            {{-- Realistic 3D Metallic Visa Card & Zero-Lag Instant Pricing Grid --}}
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: center; margin: 18px 0 20px;">
+                {{-- Left: Realistic 3D / Metallic Visa Card Preview --}}
+                <div style="display: flex; justify-content: center;">
+                    <div
+                        class="metallic-card-container"
+                        :style="currentTier === 'gold' 
+                            ? 'background: linear-gradient(135deg, #b48811 0%, #ebd197 45%, #a2790d 100%); color: #1c1917;' 
+                            : (currentTier === 'silver' 
+                                ? 'background: linear-gradient(135deg, #475569 0%, #cbd5e1 50%, #334155 100%); color: #0f172a;' 
+                                : 'background: linear-gradient(135deg, #78350f 0%, #d97706 50%, #451a03 100%); color: #ffffff;')"
+                    >
+                        {{-- Specular sheen overlay --}}
+                        <div class="metallic-card-sheen"></div>
 
-                <div>
-                    <label class="form-label-xs">Billing Duration</label>
-                    <select wire:model.live="billing_cycle" class="form-select-clean">
-                        <option value="monthly">Monthly Cycle (1 Month)</option>
-                        <option value="yearly">Yearly Cycle (12 Months — Save 16%)</option>
-                    </select>
-                </div>
-            </div>
+                        {{-- Top Row: Chip, Contactless Wave, and Issuer --}}
+                        <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                {{-- EMV Chip --}}
+                                <div class="metallic-emv-chip">
+                                    <div class="metallic-chip-line-h"></div>
+                                    <div class="metallic-chip-line-v"></div>
+                                    <div class="metallic-chip-core"></div>
+                                </div>
 
-            {{-- Live Total Payable Banner --}}
-            <div class="live-total-box">
-                <div>
-                    <span class="total-label">Total Payable ({{ ucfirst($billing_cycle) }} Cycle):</span>
-                    <div class="total-amount-lkr">
-                        Rs. {{ number_format($amountLkr, 2) }} <span style="font-size: 13px; font-weight: 600; color: #94a3b8;">LKR</span>
+                                {{-- Contactless Wave Icon --}}
+                                <svg style="width: 22px; height: 22px; min-width: 22px; max-width: 22px; opacity: 0.85;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.5 16.5a6 6 0 010-9M12 19a10 10 0 000-14M15.5 21.5a14 14 0 000-19"/>
+                                </svg>
+                            </div>
+
+                            {{-- Vertex Brand on Card --}}
+                            <div style="text-align: right;">
+                                <div style="font-size: 11px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;" class="metallic-embossed-text">VERTEX BOOKS</div>
+                                <div style="font-size: 8px; font-weight: 700; opacity: 0.8; letter-spacing: 0.5px; text-transform: uppercase;" x-text="currentTier.toUpperCase() + ' MEMBERSHIP'"></div>
+                            </div>
+                        </div>
+
+                        {{-- Middle Row: Embossed Card Number --}}
+                        <div style="position: relative; z-index: 2; margin-top: 18px;">
+                            <div style="font-family: 'Courier New', Courier, monospace; font-size: 17px; font-weight: 800; letter-spacing: 3px;" class="metallic-embossed-text">
+                                <span x-text="'**** **** **** ' + currentTier.toUpperCase()"></span>
+                            </div>
+                        </div>
+
+                        {{-- Bottom Row: Cardholder Name, Expiry & Visa Logo --}}
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end; position: relative; z-index: 2; margin-top: 14px;">
+                            <div>
+                                <div style="font-size: 7.5px; text-transform: uppercase; font-weight: 700; opacity: 0.75; letter-spacing: 1px;">Cardholder / Tenant</div>
+                                <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; max-width: 170px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="metallic-embossed-text">
+                                    {{ $tenant?->name ?? 'VERTEX BOOKS' }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <div style="font-size: 7.5px; text-transform: uppercase; font-weight: 700; opacity: 0.75; letter-spacing: 1px;">Valid Thru</div>
+                                <div style="font-size: 11px; font-weight: 800; letter-spacing: 1px;" class="metallic-embossed-text">
+                                    {{ $expiryDate ? $expiryDate->format('m/y') : '12/28' }}
+                                </div>
+                            </div>
+
+                            {{-- Visa Embossed Badge --}}
+                            <div style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 24px; font-style: italic; font-weight: 900; letter-spacing: 1px;" class="metallic-embossed-text">
+                                VISA
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div>
-                    <div class="total-amount-usd">≈ ${{ number_format($amountUsd, 2) }} USD</div>
-                    <div style="font-size: 11px; color: #94a3b8; text-align: right; margin-top: 2px;">Automated Tax Included</div>
+                {{-- Right: Plan Selection & Zero-Lag Instant Pricing Calculation --}}
+                <div style="display: flex; flex-direction: column; gap: 14px;">
+                    <div>
+                        <label class="form-label-xs">Select Plan Tier</label>
+                        <select
+                            x-model="selectedPlanId"
+                            @change="$wire.set('plan_id', selectedPlanId)"
+                            class="form-select-clean"
+                        >
+                            @foreach($plans as $plan)
+                                <option value="{{ $plan->id }}">
+                                    {{ $plan->name }} Tier — Rs. {{ number_format($plan->price_monthly, 0) }}/mo
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label-xs">Billing Duration</label>
+                        <select
+                            x-model="billingCycle"
+                            @change="$wire.set('billing_cycle', billingCycle)"
+                            class="form-select-clean"
+                        >
+                            <option value="monthly">Monthly Cycle (1 Month)</option>
+                            <option value="yearly">Yearly Cycle (12 Months — Save 16%)</option>
+                        </select>
+                    </div>
+
+                    {{-- Live Zero-Lag Total Payable Box (Alpine.js Client-Side 0ms) --}}
+                    <div class="live-total-box" style="margin-top: 4px;">
+                        <div>
+                            <span class="total-label" x-text="'Total Payable (' + (billingCycle === 'yearly' ? 'Yearly' : 'Monthly') + ' Cycle):'"></span>
+                            <div class="total-amount-lkr">
+                                <span x-text="'Rs. ' + formatMoney(totalPayableLkr)"></span> <span style="font-size: 13px; font-weight: 600; color: #94a3b8;">LKR</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="total-amount-usd" x-text="'≈ $' + totalPayableUsd + ' USD'"></div>
+                            <div style="font-size: 11px; color: #94a3b8; text-align: right; margin-top: 2px;">Zero-Lag Client Calculation</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1374,7 +1546,7 @@
                 </button>
             @endif
 
-            {{-- TAB C: PAYPAL CHECKOUT --}}
+            {{-- TAB C: PAYPAL CHECKOUT (NO PERSONAL EMAIL DISPLAYED) --}}
             @if($payment_method === 'paypal')
                 <div class="bank-account-box">
                     <div class="bank-header-row">
@@ -1382,40 +1554,30 @@
                             <span style="background: #003087; color: #ffffff; font-weight: 800; font-size: 11px; padding: 2px 6px; border-radius: 4px;">PayPal</span>
                             <span class="bank-brand-title">PayPal Direct Merchant Account</span>
                         </div>
-                        <span class="bank-branch-tag">USD Equivalent: ${{ number_format($amountUsd, 2) }}</span>
+                        <span class="bank-branch-tag" x-text="'USD Equivalent: $' + totalPayableUsd"></span>
                     </div>
 
-                    <div class="bank-acc-row">
+                    <div style="padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background: #ffffff; border-radius: 6px; border: 1px solid #e2e8f0; margin-top: 10px;">
                         <div>
-                            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b;">Recipient Email</div>
-                            <div class="acc-num-display" style="font-size: 14px; letter-spacing: normal;">pixelcraftstudioslk@gmail.com</div>
+                            <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px;">Verified Merchant Gateway</div>
+                            <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-top: 2px;">
+                                Total Due: <strong style="color: #0284c7;" x-text="'$' + totalPayableUsd + ' USD'"></strong>
+                            </div>
                         </div>
 
-                        <div style="display: flex; gap: 6px;">
-                            <button
-                                type="button"
-                                class="btn-copy-acc"
-                                style="background: #334155;"
-                                @click="navigator.clipboard.writeText('pixelcraftstudioslk@gmail.com'); copiedEmail = true; setTimeout(() => copiedEmail = false, 2500)"
-                            >
-                                <span x-show="!copiedEmail">Copy Email</span>
-                                <span x-show="copiedEmail">✓ Copied!</span>
-                            </button>
-
-                            <a
-                                href="https://www.paypal.com/signin"
-                                target="_blank"
-                                rel="noopener"
-                                class="btn-copy-acc"
-                                style="text-decoration: none; background: #4f46e5;"
-                            >
-                                <span>PayPal ↗</span>
-                            </a>
-                        </div>
+                        <a
+                            href="https://www.paypal.com/signin"
+                            target="_blank"
+                            rel="noopener"
+                            class="btn-copy-acc"
+                            style="text-decoration: none; background: #0070ba; color: #ffffff; font-weight: 700; padding: 8px 18px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;"
+                        >
+                            <span>Pay with PayPal ↗</span>
+                        </a>
                     </div>
                 </div>
 
-                <form wire:submit.prevent="submitRenewalRequest" style="display: flex; flex-direction: column; gap: 14px;">
+                <form wire:submit.prevent="submitRenewalRequest" style="display: flex; flex-direction: column; gap: 14px; margin-top: 14px;">
                     <div>
                         <label class="form-label-xs">
                             PayPal Transaction ID / Invoice Ref <span style="color: #dc2626;">*</span>

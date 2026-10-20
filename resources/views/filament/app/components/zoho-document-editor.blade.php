@@ -1250,26 +1250,170 @@
                     </span>
                 </div>
 
-                {{-- If Invoice, show Paid Amount and Balance Due --}}
+                {{-- If Invoice: Inline Payment Settlement Status Section --}}
                 @if (! $isQuote)
+                    @php
+                        $settlement = $this->data['settlement_status'] ?? 'unpaid';
+                        $grandTotal = (float) ($this->data['grand_total'] ?? 0);
+                        $paidAmount = (float) ($this->data['paid_amount'] ?? 0);
+                        $dueAmount = (float) ($this->data['due_amount'] ?? max(0, $grandTotal - $paidAmount));
+                    @endphp
+
                     <div style="margin-top: 14px; padding-top: 14px; border-top: 1px dashed #cbd5e1;">
-                        <div class="zoho-summary-row">
-                            <span style="font-weight: 600; color: #047857;">Amount Paid (Rs.)</span>
-                            <div style="max-width: 140px;">
-                                <input
-                                    type="number"
-                                    step="any"
-                                    wire:model.live.debounce.300ms="data.paid_amount"
-                                    class="zoho-input right"
-                                    style="padding: 4px 8px; font-size: 12px; font-weight: 700; color: #047857; text-align: right;"
-                                />
-                            </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="font-size: 11.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
+                                <svg style="width: 16px; height: 16px; color: #0284c7; display: inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                Payment Settlement Status
+                            </span>
+                            <span style="font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; {{ $settlement === 'fully_paid' ? 'background: #dcfce7; color: #15803d;' : ($settlement === 'partial' ? 'background: #fef3c7; color: #b45309;' : 'background: #f1f5f9; color: #64748b;') }}">
+                                {{ $settlement === 'fully_paid' ? '✓ Fully Paid' : ($settlement === 'partial' ? '⏳ Partial Paid' : '⏳ Credit / Unpaid') }}
+                            </span>
                         </div>
 
-                        <div class="zoho-summary-row" style="margin-top: 6px;">
-                            <span style="font-weight: 700; color: #dc2626; font-size: 14px;">Balance Due (Rs.)</span>
-                            <span style="font-size: 16px; font-weight: 800; color: #dc2626;">
-                                Rs. {{ number_format($this->data['due_amount'] ?? 0, 2) }}
+                        {{-- 3 Status Options Buttons / Pills --}}
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
+                            <button
+                                type="button"
+                                wire:click="setSettlementStatus('unpaid')"
+                                style="border-radius: 6px; padding: 7px 4px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; border: 1.5px solid {{ $settlement === 'unpaid' ? '#64748b' : '#e2e8f0' }}; background: {{ $settlement === 'unpaid' ? '#f8fafc' : '#ffffff' }}; color: {{ $settlement === 'unpaid' ? '#0f172a' : '#64748b' }};"
+                            >
+                                Unpaid / Credit
+                            </button>
+                            <button
+                                type="button"
+                                wire:click="setSettlementStatus('partial')"
+                                style="border-radius: 6px; padding: 7px 4px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; border: 1.5px solid {{ $settlement === 'partial' ? '#d97706' : '#e2e8f0' }}; background: {{ $settlement === 'partial' ? '#fffbeb' : '#ffffff' }}; color: {{ $settlement === 'partial' ? '#b45309' : '#64748b' }};"
+                            >
+                                Partial / Advance
+                            </button>
+                            <button
+                                type="button"
+                                wire:click="setSettlementStatus('fully_paid')"
+                                style="border-radius: 6px; padding: 7px 4px; font-size: 11px; font-weight: 700; text-align: center; cursor: pointer; transition: all 0.15s; border: 1.5px solid {{ $settlement === 'fully_paid' ? '#16a34a' : '#e2e8f0' }}; background: {{ $settlement === 'fully_paid' ? '#f0fdf4' : '#ffffff' }}; color: {{ $settlement === 'fully_paid' ? '#15803d' : '#64748b' }};"
+                            >
+                                Fully Paid (100%)
+                            </button>
+                        </div>
+
+                        {{-- When Fully Paid or Partial: show payment details --}}
+                        @if ($settlement !== 'unpaid')
+                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                {{-- Amount Paid input row --}}
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                        <label style="font-size: 11px; font-weight: 700; color: #334155;">
+                                            Amount Paid (LKR) <span style="color: #dc2626;">*</span>
+                                        </label>
+                                        @if ($settlement === 'partial')
+                                            {{-- Quick Shortcut Chips --}}
+                                            <div style="display: flex; gap: 4px;">
+                                                <button
+                                                    type="button"
+                                                    wire:click="$set('data.paid_amount', {{ round($grandTotal * 0.25, 2) }})"
+                                                    style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; color: #475569; cursor: pointer;"
+                                                >
+                                                    25%
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    wire:click="$set('data.paid_amount', {{ round($grandTotal * 0.50, 2) }})"
+                                                    style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; color: #475569; cursor: pointer;"
+                                                >
+                                                    50%
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    wire:click="$set('data.paid_amount', {{ round($grandTotal * 0.60, 2) }})"
+                                                    style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; color: #1d4ed8; cursor: pointer;"
+                                                >
+                                                    60% Advance
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    wire:click="$set('data.paid_amount', {{ round($grandTotal * 0.75, 2) }})"
+                                                    style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; color: #475569; cursor: pointer;"
+                                                >
+                                                    75%
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if ($settlement === 'fully_paid')
+                                        <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 6px 10px; font-size: 13px; font-weight: 800; color: #047857; text-align: right;">
+                                            Rs. {{ number_format($grandTotal, 2) }} (100% Received)
+                                        </div>
+                                    @else
+                                        <input
+                                            type="number"
+                                            step="any"
+                                            min="0"
+                                            max="{{ $grandTotal }}"
+                                            wire:model.live.debounce.300ms="data.paid_amount"
+                                            class="zoho-input right"
+                                            style="padding: 6px 10px; font-size: 13px; font-weight: 700; color: #047857; text-align: right;"
+                                            placeholder="Enter amount paid"
+                                        />
+                                    @endif
+                                </div>
+
+                                {{-- Payment Method & Reference Grid --}}
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                    <div>
+                                        <label style="font-size: 10.5px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">
+                                            Payment Method
+                                        </label>
+                                        <select
+                                            wire:model.live="data.payment_method"
+                                            class="zoho-select"
+                                            style="padding: 5px 8px; font-size: 11.5px; font-weight: 600;"
+                                        >
+                                            <option value="bank_transfer">Bank Transfer</option>
+                                            <option value="cash">Cash</option>
+                                            <option value="card">Credit / Debit Card</option>
+                                            <option value="cheque">Cheque</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label style="font-size: 10.5px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">
+                                            Payment Reference
+                                        </label>
+                                        <input
+                                            type="text"
+                                            wire:model.live="data.payment_reference"
+                                            class="zoho-input"
+                                            style="padding: 5px 8px; font-size: 11.5px;"
+                                            placeholder="e.g. SLIP-89214 / Cash"
+                                        />
+                                    </div>
+                                </div>
+
+                                {{-- Milestone Label --}}
+                                <div>
+                                    <label style="font-size: 10.5px; font-weight: 700; color: #475569; display: block; margin-bottom: 3px;">
+                                        Milestone Label
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model.live="data.payment_milestone_label"
+                                        class="zoho-input"
+                                        style="padding: 5px 8px; font-size: 11.5px;"
+                                        placeholder="{{ $settlement === 'fully_paid' ? 'Full Settlement' : 'e.g. 60% Advance upon Confirmation' }}"
+                                    />
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- Balance Due Display --}}
+                        <div class="zoho-summary-row" style="margin-top: 6px; padding: 6px 10px; background: {{ $dueAmount > 0 ? '#fef2f2' : '#f0fdf4' }}; border-radius: 6px;">
+                            <span style="font-weight: 700; color: {{ $dueAmount > 0 ? '#dc2626' : '#16a34a' }}; font-size: 13px;">
+                                Balance Due (Rs.){{ $dueAmount <= 0 ? ' (Settled)' : '' }}
+                            </span>
+                            <span style="font-size: 16px; font-weight: 800; color: {{ $dueAmount > 0 ? '#dc2626' : '#16a34a' }};">
+                                Rs. {{ number_format($dueAmount, 2) }}
                             </span>
                         </div>
                     </div>

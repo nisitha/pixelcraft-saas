@@ -72,6 +72,10 @@ class SolarCertificatesAndSalesAgentsTest extends TestCase
 
                 $this->assertNotEmpty($output, "PDF for {$size} {$orientation} should not be empty");
                 $this->assertStringStartsWith('%PDF-', $output, "Output for {$size} {$orientation} should be a valid PDF");
+
+                $dompdf = $pdf->getDomPDF();
+                $pageCount = $dompdf->getCanvas()->get_page_count();
+                $this->assertSame(1, $pageCount, "PDF for {$size} {$orientation} must strictly fit on 1 single page (got {$pageCount})");
             }
         }
     }

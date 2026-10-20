@@ -3,6 +3,7 @@
 namespace App\Filament\App\Concerns;
 
 use App\Models\Contact;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\SalesAgent;
 use Filament\Facades\Filament;
@@ -166,6 +167,15 @@ trait HasZohoDocumentEditor
     protected function initInvoiceData(?int $companyId): void
     {
         if ($this->record instanceof Model && $this->record->exists) {
+            $paid = (float) ($this->record->paid_amount ?? 0);
+            $grandTotal = (float) ($this->record->grand_total ?? 0);
+            $settlement = 'unpaid';
+            if ($paid >= $grandTotal && $grandTotal > 0) {
+                $settlement = 'fully_paid';
+            } elseif ($paid > 0) {
+                $settlement = 'partial';
+            }
+
             $this->data = array_merge([
                 'contact_id' => $this->record->contact_id,
                 'quotation_id' => $this->record->quotation_id,
@@ -181,9 +191,15 @@ trait HasZohoDocumentEditor
                 'subtotal' => (float) ($this->record->subtotal ?? 0),
                 'discount' => (float) ($this->record->discount ?? 0),
                 'tax' => (float) ($this->record->tax ?? 0),
-                'grand_total' => (float) ($this->record->grand_total ?? 0),
-                'paid_amount' => (float) ($this->record->paid_amount ?? 0),
-                'due_amount' => (float) ($this->record->due_amount ?? 0),
+                'grand_total' => $grandTotal,
+                'settlement_status' => $settlement,
+                'initial_payment_amount' => $paid,
+                'paid_amount' => $paid,
+                'due_amount' => (float) ($this->record->due_amount ?? max(0, round($grandTotal - $paid, 2))),
+                'payment_method' => 'bank_transfer',
+                'payment_reference' => '',
+                'payment_milestone_label' => $settlement === 'fully_paid' ? 'Full Settlement' : ($settlement === 'partial' ? 'Advance Payment' : '60% Advance'),
+                'payment_date' => now()->toDateString(),
                 'commission_amount' => (float) ($this->record->commission_amount ?? 0),
                 'commission_status' => $this->record->commission_status ?? 'pending',
             ], $this->data ?? []);
@@ -221,8 +237,14 @@ trait HasZohoDocumentEditor
                 'discount' => 0.00,
                 'tax' => 0.00,
                 'grand_total' => 0.00,
+                'settlement_status' => 'unpaid',
+                'initial_payment_amount' => 0.00,
                 'paid_amount' => 0.00,
                 'due_amount' => 0.00,
+                'payment_method' => 'bank_transfer',
+                'payment_reference' => '',
+                'payment_milestone_label' => '60% Advance',
+                'payment_date' => now()->toDateString(),
                 'commission_amount' => 0.00,
                 'commission_status' => 'pending',
                 'items' => [],
@@ -343,16 +365,40 @@ trait HasZohoDocumentEditor
         $this->data['grand_total'] = $grandTotal;
 
         if ($this->documentType === 'invoice') {
-            $paid = (float) ($this->data['paid_amount'] ?? 0);
-            $due = max(0, round($grandTotal - $paid, 2));
-            $this->data['due_amount'] = $due;
+            $paid = (float) ($this->data['paid_amount'] ?? ($this->data['initial_payment_amount'] ?? 0));
+            $settlement = $this->data['settlement_status'] ?? 'unpaid';
 
-            if ($paid >= $grandTotal && $grandTotal > 0) {
-                $this->data['status'] = 'paid';
-            } elseif ($paid > 0 && $due > 0) {
-                $this->data['status'] = 'partial';
-            } elseif ($paid == 0) {
+            if ($settlement === 'unpaid' && $paid > 0) {
+                $settlement = ($paid >= $grandTotal && $grandTotal > 0) ? 'fully_paid' : 'partial';
+                $this->data['settlement_status'] = $settlement;
+            }
+
+            if ($settlement === 'fully_paid') {
+                $this->data['paid_amount'] = $grandTotal;
+                $this->data['initial_payment_amount'] = $grandTotal;
+                $this->data['due_amount'] = 0.00;
+                $this->data['status'] = $grandTotal > 0 ? 'paid' : 'unpaid';
+            } elseif ($settlement === 'unpaid') {
+                $this->data['paid_amount'] = 0.00;
+                $this->data['initial_payment_amount'] = 0.00;
+                $this->data['due_amount'] = $grandTotal;
                 $this->data['status'] = 'unpaid';
+            } else {
+                if ($grandTotal > 0 && $paid > $grandTotal) {
+                    $paid = $grandTotal;
+                }
+                $this->data['paid_amount'] = $paid;
+                $this->data['initial_payment_amount'] = $paid;
+                $due = max(0, round($grandTotal - $paid, 2));
+                $this->data['due_amount'] = $due;
+
+                if ($paid >= $grandTotal && $grandTotal > 0) {
+                    $this->data['status'] = 'paid';
+                } elseif ($paid > 0) {
+                    $this->data['status'] = 'partial';
+                } else {
+                    $this->data['status'] = 'unpaid';
+                }
             }
         }
     }
@@ -557,8 +603,49 @@ trait HasZohoDocumentEditor
         $this->data['commission_amount'] = $agent->calculateCommission($base);
     }
 
+    public function setSettlementStatus(string $status): void
+    {
+        $this->data['settlement_status'] = $status;
+        $grandTotal = (float) ($this->data['grand_total'] ?? 0);
+
+        if ($status === 'fully_paid') {
+            $this->data['paid_amount'] = $grandTotal;
+            $this->data['initial_payment_amount'] = $grandTotal;
+            $this->data['due_amount'] = 0.00;
+            $this->data['status'] = $grandTotal > 0 ? 'paid' : 'unpaid';
+            $this->data['payment_milestone_label'] = 'Full Settlement';
+        } elseif ($status === 'unpaid') {
+            $this->data['paid_amount'] = 0.00;
+            $this->data['initial_payment_amount'] = 0.00;
+            $this->data['due_amount'] = $grandTotal;
+            $this->data['status'] = 'unpaid';
+        } elseif ($status === 'partial') {
+            $currentPaid = (float) ($this->data['paid_amount'] ?? 0);
+            if ($currentPaid <= 0 || $currentPaid >= $grandTotal) {
+                $advance = round($grandTotal * 0.60, 2);
+                $this->data['paid_amount'] = $advance;
+                $this->data['initial_payment_amount'] = $advance;
+                $this->data['payment_milestone_label'] = '60% Advance';
+            }
+            $due = max(0, round($grandTotal - (float) $this->data['paid_amount'], 2));
+            $this->data['due_amount'] = $due;
+            $this->data['status'] = $due == 0 ? 'paid' : 'partial';
+        }
+
+        $this->recalculateZohoTotals();
+    }
+
     public function updatedData($value, $key): void
     {
+        if (str_contains($key, 'settlement_status')) {
+            $this->setSettlementStatus((string) $value);
+        }
+
+        if (str_contains($key, 'initial_payment_amount')) {
+            $this->data['paid_amount'] = (float) $value;
+            $this->recalculateZohoTotals();
+        }
+
         if (str_contains($key, 'sales_agent_id')) {
             $this->updateSalesAgentCommission();
         }
@@ -745,7 +832,16 @@ trait HasZohoDocumentEditor
 
         $record = DB::transaction(function () use ($companyId, $items) {
             $recordData = $this->data;
-            unset($recordData['items'], $recordData['customer_notes']);
+            unset(
+                $recordData['items'],
+                $recordData['customer_notes'],
+                $recordData['settlement_status'],
+                $recordData['initial_payment_amount'],
+                $recordData['payment_method'],
+                $recordData['payment_reference'],
+                $recordData['payment_milestone_label'],
+                $recordData['payment_date']
+            );
 
             if ($this->documentType === 'quotation') {
                 unset($recordData['paid_amount'], $recordData['due_amount']);
@@ -770,6 +866,21 @@ trait HasZohoDocumentEditor
                         'hide_on_customer_pdf' => (bool) ($item['hide_on_customer_pdf'] ?? false),
                     ]);
                 }
+            }
+
+            // If Invoice has an immediate/advance payment, record it in payments table!
+            $paidAmount = (float) ($this->data['paid_amount'] ?? 0);
+            if ($this->documentType === 'invoice' && $paidAmount > 0) {
+                Payment::create([
+                    'company_id' => $companyId,
+                    'invoice_id' => $record->id,
+                    'amount' => $paidAmount,
+                    'payment_date' => $this->data['payment_date'] ?? ($record->invoice_date ?? now()->toDateString()),
+                    'method' => $this->data['payment_method'] ?? 'cash',
+                    'reference_no' => ! empty($this->data['payment_reference']) ? $this->data['payment_reference'] : ('ADV-'.str_replace(['/', '\\'], '-', $record->invoice_number)),
+                    'milestone_label' => ! empty($this->data['payment_milestone_label']) ? $this->data['payment_milestone_label'] : ($record->status === 'paid' ? 'Full Settlement' : 'Advance Payment'),
+                    'notes' => 'Recorded directly on invoice creation',
+                ]);
             }
 
             return $record;
@@ -812,7 +923,16 @@ trait HasZohoDocumentEditor
 
         DB::transaction(function () use ($items) {
             $recordData = $this->data;
-            unset($recordData['items'], $recordData['customer_notes']);
+            unset(
+                $recordData['items'],
+                $recordData['customer_notes'],
+                $recordData['settlement_status'],
+                $recordData['initial_payment_amount'],
+                $recordData['payment_method'],
+                $recordData['payment_reference'],
+                $recordData['payment_milestone_label'],
+                $recordData['payment_date']
+            );
 
             if ($this->documentType === 'quotation') {
                 unset($recordData['paid_amount'], $recordData['due_amount']);
@@ -836,6 +956,21 @@ trait HasZohoDocumentEditor
                         'hide_on_customer_pdf' => (bool) ($item['hide_on_customer_pdf'] ?? false),
                     ]);
                 }
+            }
+
+            // If Invoice has newly recorded payment and no payment logged yet, record it!
+            $paidAmount = (float) ($this->data['paid_amount'] ?? 0);
+            if ($this->documentType === 'invoice' && $paidAmount > 0 && $this->record->payments()->count() === 0) {
+                Payment::create([
+                    'company_id' => $this->record->company_id,
+                    'invoice_id' => $this->record->id,
+                    'amount' => $paidAmount,
+                    'payment_date' => $this->data['payment_date'] ?? ($this->record->invoice_date ?? now()->toDateString()),
+                    'method' => $this->data['payment_method'] ?? 'cash',
+                    'reference_no' => ! empty($this->data['payment_reference']) ? $this->data['payment_reference'] : ('ADV-'.str_replace(['/', '\\'], '-', $this->record->invoice_number)),
+                    'milestone_label' => ! empty($this->data['payment_milestone_label']) ? $this->data['payment_milestone_label'] : ($this->record->status === 'paid' ? 'Full Settlement' : 'Advance Payment'),
+                    'notes' => 'Recorded directly on invoice update',
+                ]);
             }
         });
 

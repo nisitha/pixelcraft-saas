@@ -12,59 +12,56 @@
         $isB5 = $paperSize === 'b5';
         $isPortrait = $orientation === 'portrait';
 
-        // Scale factors for tight single-page layouts
+        // Scale factors for tight single-page layouts (strictly 1 page)
         if ($isA5) {
-            $margin = '8mm';
-            $borderWidth = '2.5px';
-            $innerPadding = $isPortrait ? '8px 10px' : '6px 12px';
-            $titleSize = $isPortrait ? '14px' : '13px';
-            $subTitleSize = '7px';
-            $companyNameSize = '10px';
-            $logoHeight = '30px';
-            $customerNameSize = '13px';
-            $proclamationSize = '7.5px';
-            $tableHeaderSize = '7.5px';
-            $tableFontSize = '7px';
-            $tableCellPadding = '2.5px 5px';
-            $sigTitleSize = '7.5px';
-            $sigMetaSize = '6.5px';
-            $sigSpacing = $isPortrait ? '14px' : '8px';
-            $footerFontSize = '6.5px';
+            $borderWidth = '2px';
+            $innerPadding = $isPortrait ? '6px 8px' : '4px 8px';
+            $titleSize = $isPortrait ? '13px' : '12px';
+            $subTitleSize = '6.5px';
+            $companyNameSize = '9px';
+            $logoHeight = '26px';
+            $customerNameSize = '12px';
+            $proclamationSize = '7px';
+            $tableHeaderSize = '7px';
+            $tableFontSize = '6.5px';
+            $tableCellPadding = '2px 4px';
+            $sigTitleSize = '7px';
+            $sigMetaSize = '6px';
+            $sigSpacing = $isPortrait ? '8px' : '4px';
+            $footerFontSize = '6px';
         } elseif ($isB5) {
-            $margin = '10mm';
-            $borderWidth = '3px';
-            $innerPadding = $isPortrait ? '14px 16px' : '10px 18px';
-            $titleSize = $isPortrait ? '18px' : '17px';
-            $subTitleSize = '8.5px';
-            $companyNameSize = '13px';
-            $logoHeight = '42px';
-            $customerNameSize = '16px';
-            $proclamationSize = '9px';
-            $tableHeaderSize = '9px';
-            $tableFontSize = '8.5px';
-            $tableCellPadding = '4px 7px';
-            $sigTitleSize = '9px';
-            $sigMetaSize = '8px';
-            $sigSpacing = $isPortrait ? '18px' : '12px';
-            $footerFontSize = '7.5px';
+            $borderWidth = '2.5px';
+            $innerPadding = $isPortrait ? '10px 12px' : '6px 12px';
+            $titleSize = $isPortrait ? '16px' : '15px';
+            $subTitleSize = '7.5px';
+            $companyNameSize = '11px';
+            $logoHeight = '30px';
+            $customerNameSize = '14px';
+            $proclamationSize = '8px';
+            $tableHeaderSize = '8px';
+            $tableFontSize = '7.5px';
+            $tableCellPadding = '3px 5px';
+            $sigTitleSize = '8px';
+            $sigMetaSize = '7px';
+            $sigSpacing = $isPortrait ? '10px' : '5px';
+            $footerFontSize = '6.5px';
         } else {
             // A4 or Letter
-            $margin = '10mm';
-            $borderWidth = '4px';
-            $innerPadding = $isPortrait ? '20px 22px' : '14px 24px';
-            $titleSize = $isPortrait ? '21px' : '20px';
-            $subTitleSize = '9.5px';
-            $companyNameSize = '15px';
-            $logoHeight = $isPortrait ? '50px' : '44px';
-            $customerNameSize = $isPortrait ? '19px' : '18px';
-            $proclamationSize = '10px';
-            $tableHeaderSize = '10px';
-            $tableFontSize = '9.5px';
-            $tableCellPadding = $isPortrait ? '5px 8px' : '4px 8px';
-            $sigTitleSize = '10px';
-            $sigMetaSize = '8.5px';
-            $sigSpacing = $isPortrait ? '24px' : '14px';
-            $footerFontSize = '8px';
+            $borderWidth = '3px';
+            $innerPadding = $isPortrait ? '12px 16px' : '8px 14px';
+            $titleSize = $isPortrait ? '19px' : '18px';
+            $subTitleSize = '8.5px';
+            $companyNameSize = '12.5px';
+            $logoHeight = $isPortrait ? '38px' : '32px';
+            $customerNameSize = $isPortrait ? '17px' : '16px';
+            $proclamationSize = '8.5px';
+            $tableHeaderSize = '8.5px';
+            $tableFontSize = '8px';
+            $tableCellPadding = $isPortrait ? '4px 6px' : '3px 6px';
+            $sigTitleSize = '9px';
+            $sigMetaSize = '7.5px';
+            $sigSpacing = $isPortrait ? '10px' : '6px';
+            $footerFontSize = '7px';
         }
 
         $resolveImagePath = function (?string $path): ?string {
@@ -98,19 +95,22 @@
     <style>
         @page {
             size: {{ $paperSize }} {{ $orientation }};
-            margin: {{ $margin }};
+            margin: 6mm 8mm;
         }
 
         * {
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: #1e293b;
+        html, body {
             margin: 0;
             padding: 0;
-            line-height: 1.3;
+            width: 100%;
+            height: 96%;
+            overflow: hidden;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            line-height: 1.25;
             background-color: #ffffff;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
@@ -118,9 +118,13 @@
 
         .cert-outer-frame {
             border: {{ $borderWidth }} solid #0d5c75;
-            padding: 4px;
+            padding: 3px;
             height: 100%;
-            page-break-inside: avoid;
+            max-height: 100%;
+            box-sizing: border-box;
+            page-break-inside: avoid !important;
+            page-break-after: avoid !important;
+            overflow: hidden;
             background-color: #ffffff;
         }
 
@@ -128,6 +132,11 @@
             border: 1px solid #c59b27;
             padding: {{ $innerPadding }};
             height: 100%;
+            max-height: 100%;
+            box-sizing: border-box;
+            page-break-inside: avoid !important;
+            page-break-after: avoid !important;
+            overflow: hidden;
             position: relative;
         }
 
@@ -400,7 +409,7 @@
         <table class="sig-table">
             <tr>
                 <td>
-                    <div style="height: 32px;"></div>
+                    <div style="height: 20px;"></div>
                     <div class="sig-line"></div>
                     <div class="sig-name">{{ $certificate->lead_engineer_name }}</div>
                     <div class="sig-role">{{ $certificate->lead_engineer_title }}</div>
@@ -408,11 +417,11 @@
                 </td>
                 <td>
                     @if ($signaturePath)
-                        <div style="height: 32px; text-align: center;">
-                            <img src="{{ $signaturePath }}" style="max-height: 32px; max-width: 120px;" alt="Signature">
+                        <div style="height: 20px; text-align: center;">
+                            <img src="{{ $signaturePath }}" style="max-height: 20px; max-width: 100px;" alt="Signature">
                         </div>
                     @else
-                        <div style="height: 32px;"></div>
+                        <div style="height: 20px;"></div>
                     @endif
                     <div class="sig-line"></div>
                     <div class="sig-name">{{ $certificate->director_name }}</div>

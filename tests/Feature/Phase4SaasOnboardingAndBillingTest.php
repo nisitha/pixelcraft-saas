@@ -373,4 +373,23 @@ class Phase4SaasOnboardingAndBillingTest extends TestCase
             'status' => 'approved',
         ]);
     }
+
+    public function test_subscription_page_renders_metallic_card_zero_lag_pricing_and_no_personal_email(): void
+    {
+        $company = Company::where('slug', 'lanka-solar-solutions')->first();
+        $owner = User::where('email', 'owner@lankasolar.lk')->first();
+
+        $this->actingAs($owner);
+        Filament::setCurrentPanel(Filament::getPanel('app'));
+        Filament::setTenant($company);
+
+        Livewire::test(SubscriptionBilling::class)
+            ->assertSuccessful()
+            ->assertDontSee('pixelcraftstudioslk@gmail.com')
+            ->assertSee('metallic-card-container')
+            ->assertSee('metallic-emv-chip')
+            ->assertSee('selectedPlanId')
+            ->assertSee('billingCycle')
+            ->assertSee('totalPayableLkr');
+    }
 }
