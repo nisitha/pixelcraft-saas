@@ -52,10 +52,10 @@ class AppStatsOverviewWidget extends BaseWidget
 
         return [
             Stat::make('Total Revenue', 'Rs. '.number_format((float) $totalRevenue, 2))
-                ->description('+12.4% vs last mo · Collected')
+                ->description('+30.6% vs last mo · Collected')
                 ->descriptionIcon(Heroicon::ArrowTrendingUp)
-                ->color('success')
-                ->chart([28, 38, 45, 52, 68, 85, 95]),
+                ->color('primary')
+                ->chart([30, 42, 50, 65, 58, 85, 95]),
 
             Stat::make('Total Quotations', (string) $totalQuotations)
                 ->description("{$draftQuotes} Draft · {$sentQuotes} Sent · {$acceptedQuotes} Accepted")

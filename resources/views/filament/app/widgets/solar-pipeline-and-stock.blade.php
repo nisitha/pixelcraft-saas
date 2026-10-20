@@ -1,335 +1,345 @@
-<div class="linear-pipeline-card">
+<div class="able-pipeline-card">
     <style>
-        .linear-pipeline-card {
+        .able-pipeline-card {
             background: #ffffff;
-            border: 1px solid #e4e4e7;
-            border-radius: 10px;
-            padding: 18px 20px;
-            box-shadow: none;
+            border: 1px solid #e8ebee;
+            border-radius: 12px;
+            padding: 20px 22px;
+            box-shadow: 0 2px 12px rgba(33, 40, 50, 0.05);
             display: flex;
             flex-direction: column;
             gap: 16px;
             height: 100%;
         }
 
-        html.dark .linear-pipeline-card {
-            background: #121316;
+        html.dark .able-pipeline-card {
+            background: #1e293b;
             border-color: rgba(255, 255, 255, 0.08);
-            box-shadow: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
         }
 
-        .linear-card-header {
+        .able-card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        .linear-card-title {
-            font-size: 11px;
-            font-weight: 500;
-            color: #a1a1aa;
+        .able-card-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #5b6b79;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .linear-conversion-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #f4f4f5;
+        html.dark .able-card-title {
+            color: #94a3b8;
         }
 
-        html.dark .linear-conversion-wrap {
+        .able-conversion-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+
+        html.dark .able-conversion-wrap {
             border-bottom-color: rgba(255, 255, 255, 0.06);
         }
 
-        .linear-conversion-metric-row {
+        .able-conversion-metric-row {
             display: flex;
             align-items: baseline;
             justify-content: space-between;
         }
 
-        .linear-conversion-val {
-            font-size: 22px;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            color: #09090b;
+        .able-conversion-val {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #1d2630;
         }
 
-        html.dark .linear-conversion-val {
-            color: #f4f4f5;
+        html.dark .able-conversion-val {
+            color: #f8fafc;
         }
 
-        .linear-conversion-sub {
-            font-size: 11.5px;
-            color: #71717a;
-            font-weight: 450;
+        .able-conversion-sub {
+            font-size: 12px;
+            color: #5b6b79;
+            font-weight: 500;
         }
 
-        .linear-progress-track {
+        html.dark .able-conversion-sub {
+            color: #94a3b8;
+        }
+
+        .able-progress-track {
             width: 100%;
-            height: 6px;
-            background: #f4f4f5;
+            height: 7px;
+            background: #eef2f6;
             border-radius: 9999px;
             overflow: hidden;
         }
 
-        html.dark .linear-progress-track {
-            background: rgba(255, 255, 255, 0.06);
+        html.dark .able-progress-track {
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .linear-progress-fill {
+        .able-progress-fill {
             height: 100%;
             border-radius: 9999px;
-            background: #10b981;
+            background: #4680ff;
             transition: width 0.4s ease;
         }
 
-        /* 4-Item Pipeline Micro Counters */
-        .linear-stage-row {
+        /* Able Pro 4-Stage Micro Cards */
+        .able-stage-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
         }
 
-        .linear-stage-box {
-            padding: 6px 8px;
-            border-radius: 6px;
-            background: #fafafa;
-            border: 1px solid #e4e4e7;
+        .able-stage-box {
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e8ebee;
             text-align: center;
         }
 
-        html.dark .linear-stage-box {
-            background: rgba(255, 255, 255, 0.02);
+        html.dark .able-stage-box {
+            background: rgba(255, 255, 255, 0.03);
             border-color: rgba(255, 255, 255, 0.06);
         }
 
-        .linear-stage-count {
-            font-size: 13px;
-            font-weight: 600;
-            color: #18181b;
+        .able-stage-count {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1d2630;
         }
 
-        html.dark .linear-stage-count {
-            color: #f4f4f5;
+        html.dark .able-stage-count {
+            color: #f8fafc;
         }
 
-        .linear-stage-lbl {
+        .able-stage-lbl {
             font-size: 10px;
-            font-weight: 500;
-            color: #a1a1aa;
+            font-weight: 600;
+            color: #899bb5;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             margin-top: 2px;
         }
 
         /* Recent Activity Status List */
-        .linear-list-header {
+        .able-list-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 11px;
-            font-weight: 500;
-            color: #a1a1aa;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #5b6b79;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
-        .linear-list-link {
-            font-size: 11px;
-            font-weight: 500;
-            color: #71717a;
+        html.dark .able-list-header {
+            color: #94a3b8;
+        }
+
+        .able-list-link {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #4680ff;
             text-decoration: none;
             transition: color 0.15s ease;
         }
 
-        .linear-list-link:hover {
-            color: #09090b;
+        .able-list-link:hover {
+            color: #3b6fd8;
+            text-decoration: underline;
         }
 
-        html.dark .linear-list-link:hover {
-            color: #f4f4f5;
-        }
-
-        .linear-quote-list {
+        .able-quote-list {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 7px;
         }
 
-        .linear-quote-row {
+        .able-quote-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 7px 10px;
-            border-radius: 6px;
-            background: #fafafa;
-            border: 1px solid #f4f4f5;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e8ebee;
             text-decoration: none;
-            transition: all 0.15s ease;
+            transition: all 0.15s ease-in-out;
         }
 
-        html.dark .linear-quote-row {
-            background: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.04);
+        html.dark .able-quote-row {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.06);
         }
 
-        .linear-quote-row:hover {
-            border-color: #d4d4d8;
-            background: #ffffff;
+        .able-quote-row:hover {
+            border-color: #4680ff;
+            background: #f8faff;
+            transform: translateX(2px);
         }
 
-        html.dark .linear-quote-row:hover {
-            border-color: rgba(255, 255, 255, 0.12);
-            background: rgba(255, 255, 255, 0.04);
+        html.dark .able-quote-row:hover {
+            border-color: #4680ff;
+            background: rgba(70, 128, 255, 0.08);
         }
 
-        .linear-quote-left {
+        .able-quote-left {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 9px;
             min-width: 0;
         }
 
-        .linear-status-dot {
-            width: 7px;
-            height: 7px;
-            min-width: 7px;
+        .able-status-dot {
+            width: 8px;
+            height: 8px;
+            min-width: 8px;
             border-radius: 50%;
         }
 
-        .linear-dot-draft { background-color: #71717a; }
-        .linear-dot-sent { background-color: #3b82f6; }
-        .linear-dot-accepted { background-color: #10b981; }
-        .linear-dot-invoiced { background-color: #8b5cf6; }
+        .able-dot-draft { background-color: #899bb5; }
+        .able-dot-sent { background-color: #4680ff; }
+        .able-dot-accepted { background-color: #2ca87f; }
+        .able-dot-invoiced { background-color: #6366f1; }
 
-        .linear-quote-customer {
-            font-size: 12px;
-            font-weight: 500;
-            color: #18181b;
+        .able-quote-customer {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #1d2630;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 150px;
+            max-width: 155px;
         }
 
-        html.dark .linear-quote-customer {
-            color: #f4f4f5;
+        html.dark .able-quote-customer {
+            color: #f8fafc;
         }
 
-        .linear-quote-kw {
+        .able-quote-kw {
             font-size: 11px;
-            font-weight: 450;
-            color: #71717a;
-            background: rgba(0, 0, 0, 0.04);
-            padding: 1px 6px;
+            font-weight: 500;
+            color: #5b6b79;
+            background: #eef2f6;
+            padding: 2px 7px;
             border-radius: 4px;
         }
 
-        html.dark .linear-quote-kw {
-            background: rgba(255, 255, 255, 0.05);
-            color: #a1a1aa;
+        html.dark .able-quote-kw {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
         }
 
-        .linear-quote-right {
+        .able-quote-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             flex-shrink: 0;
         }
 
-        .linear-quote-number {
-            font-size: 11px;
-            color: #71717a;
+        .able-quote-number {
+            font-size: 11.5px;
+            color: #899bb5;
             font-family: ui-monospace, monospace;
         }
 
-        .linear-quote-amount {
-            font-size: 11.5px;
-            font-weight: 600;
-            color: #09090b;
+        .able-quote-amount {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1d2630;
         }
 
-        html.dark .linear-quote-amount {
-            color: #f4f4f5;
+        html.dark .able-quote-amount {
+            color: #f8fafc;
         }
     </style>
 
     <!-- Header & Conversion Progress Bar -->
-    <div class="linear-conversion-wrap">
-        <div class="linear-card-header">
-            <span class="linear-card-title">Quotation Pipeline & Conversion</span>
-            <span class="linear-conversion-sub">{{ $invoicedCount }} / {{ $totalQuotesCount }} Invoiced</span>
+    <div class="able-conversion-wrap">
+        <div class="able-card-header">
+            <span class="able-card-title">Quotation Pipeline & Conversion</span>
+            <span class="able-conversion-sub">{{ $invoicedCount }} / {{ $totalQuotesCount }} Invoiced</span>
         </div>
 
-        <div class="linear-conversion-metric-row">
-            <span class="linear-conversion-val">{{ $conversionRate }}%</span>
-            <span class="linear-conversion-sub">Conversion Rate</span>
+        <div class="able-conversion-metric-row">
+            <span class="able-conversion-val">{{ $conversionRate }}%</span>
+            <span class="able-conversion-sub">Conversion Rate</span>
         </div>
 
-        <div class="linear-progress-track">
-            <div class="linear-progress-fill" style="width: {{ min(100, max(0, $conversionRate)) }}%;"></div>
+        <div class="able-progress-track">
+            <div class="able-progress-fill" style="width: {{ min(100, max(0, $conversionRate)) }}%;"></div>
         </div>
     </div>
 
     <!-- Pipeline Stages Row -->
-    <div class="linear-stage-row">
-        <div class="linear-stage-box">
-            <div class="linear-stage-count">{{ $pipeline['draft']['count'] }}</div>
-            <div class="linear-stage-lbl">Draft</div>
+    <div class="able-stage-row">
+        <div class="able-stage-box">
+            <div class="able-stage-count">{{ $pipeline['draft']['count'] }}</div>
+            <div class="able-stage-lbl">Draft</div>
         </div>
-        <div class="linear-stage-box">
-            <div class="linear-stage-count">{{ $pipeline['sent']['count'] }}</div>
-            <div class="linear-stage-lbl">Sent</div>
+        <div class="able-stage-box">
+            <div class="able-stage-count">{{ $pipeline['sent']['count'] }}</div>
+            <div class="able-stage-lbl">Sent</div>
         </div>
-        <div class="linear-stage-box">
-            <div class="linear-stage-count">{{ $pipeline['accepted']['count'] }}</div>
-            <div class="linear-stage-lbl">Accepted</div>
+        <div class="able-stage-box">
+            <div class="able-stage-count">{{ $pipeline['accepted']['count'] }}</div>
+            <div class="able-stage-lbl">Accepted</div>
         </div>
-        <div class="linear-stage-box">
-            <div class="linear-stage-count">{{ $pipeline['invoiced']['count'] }}</div>
-            <div class="linear-stage-lbl">Invoiced</div>
+        <div class="able-stage-box">
+            <div class="able-stage-count">{{ $pipeline['invoiced']['count'] }}</div>
+            <div class="able-stage-lbl">Invoiced</div>
         </div>
     </div>
 
     <!-- Recent Status List -->
     <div>
-        <div class="linear-list-header" style="margin-bottom: 8px;">
+        <div class="able-list-header" style="margin-bottom: 9px;">
             <span>Recent Pipeline Activity</span>
-            <a href="{{ $quotationsUrl }}" class="linear-list-link">View All &rarr;</a>
+            <a href="{{ $quotationsUrl }}" class="able-list-link">View All &rarr;</a>
         </div>
 
         @if($recentQuotations->isNotEmpty())
-            <div class="linear-quote-list">
+            <div class="able-quote-list">
                 @foreach($recentQuotations as $quote)
                     @php
                         $status = strtolower($quote->status ?? 'draft');
                         $dotClass = match($status) {
-                            'sent' => 'linear-dot-sent',
-                            'accepted' => 'linear-dot-accepted',
-                            'invoiced' => 'linear-dot-invoiced',
-                            default => 'linear-dot-draft',
+                            'sent' => 'able-dot-sent',
+                            'accepted' => 'able-dot-accepted',
+                            'invoiced' => 'able-dot-invoiced',
+                            default => 'able-dot-draft',
                         };
                         $customerName = $quote->contact?->name ?? 'Direct Customer';
                         $kwText = $quote->system_kw ? number_format($quote->system_kw, 1) . ' kWp' : 'PV';
                     @endphp
-                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('edit', ['record' => $quote->id]) }}" class="linear-quote-row" title="{{ $customerName }} - {{ $quote->quote_number }}">
-                        <div class="linear-quote-left">
-                            <span class="linear-status-dot {{ $dotClass }}" title="{{ ucfirst($status) }}"></span>
-                            <span class="linear-quote-customer">{{ $customerName }}</span>
-                            <span class="linear-quote-kw">{{ $kwText }}</span>
+                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('edit', ['record' => $quote->id]) }}" class="able-quote-row" title="{{ $customerName }} - {{ $quote->quote_number }}">
+                        <div class="able-quote-left">
+                            <span class="able-status-dot {{ $dotClass }}" title="{{ ucfirst($status) }}"></span>
+                            <span class="able-quote-customer">{{ $customerName }}</span>
+                            <span class="able-quote-kw">{{ $kwText }}</span>
                         </div>
-                        <div class="linear-quote-right">
-                            <span class="linear-quote-number">{{ $quote->quote_number }}</span>
-                            <span class="linear-quote-amount">Rs. {{ number_format($quote->grand_total, 0) }}</span>
+                        <div class="able-quote-right">
+                            <span class="able-quote-number">{{ $quote->quote_number }}</span>
+                            <span class="able-quote-amount">Rs. {{ number_format($quote->grand_total, 0) }}</span>
                         </div>
                     </a>
                 @endforeach
             </div>
         @else
-            <div style="font-size: 12px; color: #71717a; padding: 12px 0; text-align: center;">
+            <div style="font-size: 12px; color: #899bb5; padding: 14px 0; text-align: center;">
                 No quotations recorded yet.
             </div>
         @endif

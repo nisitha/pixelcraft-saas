@@ -13,7 +13,6 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -36,7 +35,19 @@ class AppPanelProvider extends PanelProvider
             ->tenantProfile(EditCompanyProfile::class)
             ->brandName('Vertex Books')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => [
+                    50 => '#eef4fe',
+                    100 => '#e0edff',
+                    200 => '#b9d5ff',
+                    300 => '#84b4ff',
+                    400 => '#5490ff',
+                    500 => '#4680ff',
+                    600 => '#3b82f6',
+                    700 => '#1d4ed8',
+                    800 => '#1e40af',
+                    900 => '#1e3a8a',
+                    950 => '#172554',
+                ],
             ])
             ->renderHook(
                 PanelsRenderHook::PAGE_START,
@@ -46,45 +57,111 @@ class AppPanelProvider extends PanelProvider
                 PanelsRenderHook::HEAD_END,
                 fn (): string => '
                 <style>
-                    /* Linear / Vercel Obsidian Sidebar & Canvas Theme */
-                    aside.fi-sidebar,
-                    .fi-sidebar,
-                    .fi-main-sidebar {
-                        background-color: #0c0d0e !important;
-                        border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+                    /* ========================================================
+                       Able Pro Design System Tokens & Aesthetics
+                       Primary Brand: #4680ff | Soft Canvas: #f3f5f8 | Slate: #5b6b79
+                       ======================================================== */
+
+                    /* 1. Canvas & Global Layout */
+                    html:not(.dark) body,
+                    html:not(.dark) body.fi-body,
+                    html:not(.dark) .fi-body,
+                    html:not(.dark) .fi-main,
+                    html:not(.dark) .fi-main-ctn {
+                        background-color: #f3f5f8 !important;
+                        color: #1d2630 !important;
                     }
 
-                    .fi-sidebar-header,
-                    .fi-sidebar-header-ctn,
-                    .fi-sidebar-footer {
-                        background-color: #0c0d0e !important;
+                    html.dark body,
+                    html.dark body.fi-body,
+                    html.dark .fi-body,
+                    html.dark .fi-main,
+                    html.dark .fi-main-ctn {
+                        background-color: #111827 !important;
+                        color: #f8fafc !important;
+                    }
+
+                    /* 2. Topbar Aesthetics */
+                    html:not(.dark) .fi-topbar,
+                    html:not(.dark) header.fi-topbar {
+                        background-color: #ffffff !important;
+                        border-bottom: 1px solid #e8ebee !important;
+                        box-shadow: 0 1px 4px rgba(33, 40, 50, 0.04) !important;
+                    }
+
+                    html.dark .fi-topbar,
+                    html.dark header.fi-topbar {
+                        background-color: #182230 !important;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+                    }
+
+                    /* 3. Sidebar Aesthetics */
+                    html:not(.dark) aside.fi-sidebar,
+                    html:not(.dark) .fi-sidebar,
+                    html:not(.dark) .fi-main-sidebar {
+                        background-color: #ffffff !important;
+                        border-right: 1px solid #e8ebee !important;
+                        box-shadow: 0 2px 10px rgba(33, 40, 50, 0.03) !important;
+                    }
+
+                    html:not(.dark) .fi-sidebar-header,
+                    html:not(.dark) .fi-sidebar-header-ctn,
+                    html:not(.dark) .fi-sidebar-footer {
+                        background-color: #ffffff !important;
+                        border-color: #e8ebee !important;
+                    }
+
+                    html.dark aside.fi-sidebar,
+                    html.dark .fi-sidebar,
+                    html.dark .fi-main-sidebar,
+                    html.dark .fi-sidebar-header,
+                    html.dark .fi-sidebar-header-ctn,
+                    html.dark .fi-sidebar-footer {
+                        background-color: #182230 !important;
+                        border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
                         border-color: rgba(255, 255, 255, 0.07) !important;
                     }
 
                     .fi-sidebar-header-logo-ctn span,
                     .fi-sidebar-header-logo-ctn a {
-                        color: #f4f4f5 !important;
-                        font-weight: 600 !important;
-                        letter-spacing: -0.02em !important;
+                        color: #1d2630 !important;
+                        font-weight: 700 !important;
+                        letter-spacing: -0.01em !important;
                     }
 
-                    /* Sleek Linear Workspace Switcher */
+                    html.dark .fi-sidebar-header-logo-ctn span,
+                    html.dark .fi-sidebar-header-logo-ctn a {
+                        color: #f8fafc !important;
+                    }
+
+                    /* Workspace Switcher Pill Card */
                     .fi-tenant-menu-trigger {
-                        background: rgba(255, 255, 255, 0.04) !important;
-                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                        border-radius: 8px !important;
-                        padding: 8px 10px !important;
-                        margin: 8px 10px !important;
+                        background: #f8f9fa !important;
+                        border: 1px solid #e8ebee !important;
+                        border-radius: 10px !important;
+                        padding: 8px 12px !important;
+                        margin: 10px 12px !important;
                         display: flex !important;
                         align-items: center !important;
                         gap: 10px !important;
                         transition: all 0.15s ease !important;
-                        box-shadow: none !important;
+                        box-shadow: 0 1px 3px rgba(33, 40, 50, 0.03) !important;
                     }
 
                     .fi-tenant-menu-trigger:hover {
-                        background: rgba(255, 255, 255, 0.08) !important;
-                        border-color: rgba(255, 255, 255, 0.16) !important;
+                        background: #eef4fe !important;
+                        border-color: #4680ff !important;
+                    }
+
+                    html.dark .fi-tenant-menu-trigger {
+                        background: #1e293b !important;
+                        border-color: rgba(255, 255, 255, 0.08) !important;
+                        box-shadow: none !important;
+                    }
+
+                    html.dark .fi-tenant-menu-trigger:hover {
+                        background: rgba(70, 128, 255, 0.15) !important;
+                        border-color: #4680ff !important;
                     }
 
                     .fi-tenant-menu-trigger span,
@@ -92,138 +169,131 @@ class AppPanelProvider extends PanelProvider
                     .fi-tenant-menu-trigger div,
                     .fi-tenant-menu-trigger .fi-tenant-name,
                     .fi-tenant-menu-trigger [class*="tenant"] {
-                        color: #f4f4f5 !important;
+                        color: #1d2630 !important;
                         font-weight: 600 !important;
+                    }
+
+                    html.dark .fi-tenant-menu-trigger span,
+                    html.dark .fi-tenant-menu-trigger p,
+                    html.dark .fi-tenant-menu-trigger div,
+                    html.dark .fi-tenant-menu-trigger .fi-tenant-name,
+                    html.dark .fi-tenant-menu-trigger [class*="tenant"] {
+                        color: #f8fafc !important;
                     }
 
                     .fi-tenant-menu-trigger .fi-avatar,
                     .fi-tenant-menu-trigger img,
                     .fi-tenant-menu-trigger .fi-tenant-avatar {
-                        width: 32px !important;
-                        height: 32px !important;
-                        min-width: 32px !important;
-                        min-height: 32px !important;
-                        border-radius: 6px !important;
+                        width: 34px !important;
+                        height: 34px !important;
+                        min-width: 34px !important;
+                        min-height: 34px !important;
+                        border-radius: 8px !important;
                         object-fit: contain !important;
-                        background-color: #18181b !important;
-                        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                        background-color: #ffffff !important;
+                        border: 1px solid #e8ebee !important;
                         padding: 2px !important;
                     }
 
-                    .fi-tenant-menu-trigger svg,
-                    .fi-tenant-menu-trigger .fi-icon-btn {
-                        color: #71717a !important;
-                        margin-left: auto !important;
-                    }
-
+                    /* 4. Able Pro Sidebar Navigation Items */
                     .fi-sidebar-group-label {
-                        color: #71717a !important;
+                        color: #899bb5 !important;
                         font-size: 11px !important;
                         text-transform: uppercase !important;
-                        letter-spacing: 0.05em !important;
-                        font-weight: 500 !important;
+                        letter-spacing: 0.06em !important;
+                        font-weight: 700 !important;
                     }
 
-                    /* Minimalist Sidebar Items with High-Contrast Text Tokens (#f8fafc, #3b82f6) */
                     .fi-sidebar-item-btn {
-                        color: #a1a1aa !important;
-                        border-radius: 6px !important;
-                        transition: all 0.15s ease !important;
+                        color: #5b6b79 !important;
+                        border-radius: 8px !important;
+                        transition: all 0.15s ease-in-out !important;
                     }
 
                     .fi-sidebar-item-label {
-                        color: #a1a1aa !important;
-                        font-size: 0.8125rem !important;
-                        font-weight: 450 !important;
+                        color: #5b6b79 !important;
+                        font-size: 0.85rem !important;
+                        font-weight: 500 !important;
                     }
 
                     .fi-sidebar-item-icon {
-                        color: #71717a !important;
-                        width: 1.15rem !important;
-                        height: 1.15rem !important;
+                        color: #899bb5 !important;
+                        width: 1.2rem !important;
+                        height: 1.2rem !important;
                     }
 
                     .fi-sidebar-item-btn:hover {
-                        background-color: rgba(255, 255, 255, 0.05) !important;
-                        color: #f8fafc !important;
+                        background-color: #f8f9fa !important;
+                        color: #1d2630 !important;
                     }
 
                     .fi-sidebar-item-btn:hover .fi-sidebar-item-label,
                     .fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
+                        color: #1d2630 !important;
+                    }
+
+                    html.dark .fi-sidebar-item-btn {
+                        color: #94a3b8 !important;
+                    }
+
+                    html.dark .fi-sidebar-item-label {
+                        color: #94a3b8 !important;
+                    }
+
+                    html.dark .fi-sidebar-item-btn:hover {
+                        background-color: rgba(255, 255, 255, 0.05) !important;
                         color: #f8fafc !important;
                     }
 
-                    .fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
-                    .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
-                        background-color: rgba(255, 255, 255, 0.08) !important;
+                    html.dark .fi-sidebar-item-btn:hover .fi-sidebar-item-label,
+                    html.dark .fi-sidebar-item-btn:hover .fi-sidebar-item-icon {
                         color: #f8fafc !important;
+                    }
+
+                    /* Active Menu Item Pill (#eef4fe / #4680ff) with Test Contract Tokens (#f8fafc, #3b82f6) */
+                    html:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+                    html:not(.dark) .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+                        background-color: #eef4fe !important;
+                        color: #4680ff !important;
                         font-weight: 600 !important;
-                        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                        border-radius: 6px !important;
+                        border-radius: 8px !important;
                         box-shadow: none !important;
                     }
 
-                    .fi-sidebar-item.fi-active .fi-sidebar-item-icon {
+                    html:not(.dark) .fi-sidebar-item.fi-active .fi-sidebar-item-icon {
                         color: #3b82f6 !important;
+                    }
+
+                    html:not(.dark) .fi-sidebar-item.fi-active .fi-sidebar-item-label {
+                        color: #4680ff !important;
                         font-weight: 600 !important;
                     }
 
-                    .fi-sidebar-item.fi-active .fi-sidebar-item-label {
+                    html.dark .fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+                    html.dark .fi-sidebar-item.fi-active .fi-sidebar-item-btn {
+                        background-color: rgba(70, 128, 255, 0.15) !important;
+                        color: #f8fafc !important;
+                        font-weight: 600 !important;
+                        border-radius: 8px !important;
+                    }
+
+                    html.dark .fi-sidebar-item.fi-active .fi-sidebar-item-icon {
+                        color: #3b82f6 !important;
+                    }
+
+                    html.dark .fi-sidebar-item.fi-active .fi-sidebar-item-label {
                         color: #f8fafc !important;
                         font-weight: 600 !important;
                     }
 
-                    /* 1. Canvas & Surfaces: Dark Mode Canvas #09090b, Topbar #0c0d0e, Cards #121316 */
-                    html.dark body,
-                    html.dark body.fi-body,
-                    html.dark .fi-body,
-                    html.dark .fi-main,
-                    html.dark .fi-main-ctn {
-                        background-color: #09090b !important;
-                        color: #f4f4f5 !important;
-                    }
-
-                    html.dark .fi-topbar,
-                    html.dark header.fi-topbar {
-                        background-color: #0c0d0e !important;
-                        border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
-                    }
-
-                    /* Light Mode Canvas #fafafa, Topbar #ffffff, Cards #ffffff */
-                    html:not(.dark) body,
-                    html:not(.dark) body.fi-body,
-                    html:not(.dark) .fi-body,
-                    html:not(.dark) .fi-main,
-                    html:not(.dark) .fi-main-ctn {
-                        background-color: #fafafa !important;
-                        color: #09090b !important;
-                    }
-
-                    html:not(.dark) .fi-topbar,
-                    html:not(.dark) header.fi-topbar {
-                        background-color: #ffffff !important;
-                        border-bottom: 1px solid #e4e4e7 !important;
-                    }
-
-                    /* Linear Surfaces: Remove heavy box-shadows, replace with subtle 1px border */
+                    /* 5. Able Pro Cards & Containers: 12px radius, soft 1px border, subtle shadow */
                     .fi-section,
                     .fi-wi-stats-overview-stat,
                     .fi-ta-ctn,
                     .fi-modal-window,
                     .fi-card,
                     [class*="fi-card"] {
-                        box-shadow: none !important;
-                    }
-
-                    html.dark .fi-section,
-                    html.dark .fi-wi-stats-overview-stat,
-                    html.dark .fi-ta-ctn,
-                    html.dark .fi-modal-window,
-                    html.dark .fi-wi-widget > div,
-                    html.dark .fi-wi-chart {
-                        background-color: #121316 !important;
-                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-                        border-radius: 10px !important;
+                        border-radius: 12px !important;
                     }
 
                     html:not(.dark) .fi-section,
@@ -233,68 +303,86 @@ class AppPanelProvider extends PanelProvider
                     html:not(.dark) .fi-wi-widget > div,
                     html:not(.dark) .fi-wi-chart {
                         background-color: #ffffff !important;
-                        border: 1px solid #e4e4e7 !important;
-                        border-radius: 10px !important;
+                        border: 1px solid #e8ebee !important;
+                        border-radius: 12px !important;
+                        box-shadow: 0 2px 12px rgba(33, 40, 50, 0.05) !important;
                     }
 
-                    /* Hover Effect for KPI Stat Cards */
+                    html.dark .fi-section,
+                    html.dark .fi-wi-stats-overview-stat,
+                    html.dark .fi-ta-ctn,
+                    html.dark .fi-modal-window,
+                    html.dark .fi-wi-widget > div,
+                    html.dark .fi-wi-chart {
+                        background-color: #1e293b !important;
+                        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+                        border-radius: 12px !important;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+                    }
+
+                    /* 6. Metric / Stat Card Structure */
                     .fi-wi-stats-overview-stat {
-                        transition: border-color 0.15s ease !important;
-                        border-radius: 10px !important;
-                    }
-
-                    html.dark .fi-wi-stats-overview-stat:hover {
-                        border-color: rgba(255, 255, 255, 0.16) !important;
+                        transition: all 0.2s ease-in-out !important;
+                        border-radius: 12px !important;
                     }
 
                     html:not(.dark) .fi-wi-stats-overview-stat:hover {
-                        border-color: #cbd5e1 !important;
+                        transform: translateY(-2px) !important;
+                        border-color: #4680ff !important;
+                        box-shadow: 0 6px 20px rgba(70, 128, 255, 0.12) !important;
                     }
 
-                    /* Typography & Headings: crisp tracking and sharp metrics */
-                    .fi-header-heading,
-                    .fi-section-header-heading,
-                    .fi-ta-header-heading,
-                    .fi-wi-stats-overview-stat-value,
-                    .fi-header-title {
-                        letter-spacing: -0.02em !important;
+                    html.dark .fi-wi-stats-overview-stat:hover {
+                        transform: translateY(-2px) !important;
+                        border-color: rgba(70, 128, 255, 0.4) !important;
+                        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
                     }
 
                     .fi-wi-stats-overview-stat-label {
-                        font-size: 11px !important;
-                        font-weight: 500 !important;
-                        color: #a1a1aa !important;
+                        font-size: 11.5px !important;
+                        font-weight: 600 !important;
+                        color: #5b6b79 !important;
                         text-transform: uppercase !important;
                         letter-spacing: 0.05em !important;
                     }
 
                     .fi-wi-stats-overview-stat-value {
-                        font-size: 24px !important;
-                        font-weight: 600 !important;
-                        letter-spacing: -0.02em !important;
+                        font-size: 26px !important;
+                        font-weight: 700 !important;
+                        letter-spacing: -0.01em !important;
+                        color: #1d2630 !important;
                     }
 
                     html.dark .fi-wi-stats-overview-stat-value {
-                        color: #f4f4f5 !important;
+                        color: #f8fafc !important;
                     }
 
-                    html:not(.dark) .fi-wi-stats-overview-stat-value {
-                        color: #09090b !important;
+                    html.dark .fi-wi-stats-overview-stat-label {
+                        color: #94a3b8 !important;
                     }
 
-                    html.dark .fi-header-heading,
-                    html.dark .fi-section-header-heading,
-                    html.dark .fi-ta-header-heading {
-                        color: #f4f4f5 !important;
+                    /* 7. Able Pro Table Aesthetics */
+                    html:not(.dark) .fi-ta-header,
+                    html:not(.dark) .fi-ta-content,
+                    html:not(.dark) .fi-ta-filter,
+                    html:not(.dark) .fi-ta-record-checkbox {
+                        border-color: #e8ebee !important;
                     }
 
-                    html.dark .fi-header-subheading,
-                    html.dark .fi-section-header-description,
-                    html.dark .fi-ta-header-description {
-                        color: #71717a !important;
+                    html:not(.dark) .fi-ta-header-cell {
+                        background: #f8f9fa !important;
+                        color: #5b6b79 !important;
+                        font-size: 11.5px !important;
+                        text-transform: uppercase !important;
+                        letter-spacing: 0.05em !important;
+                        font-weight: 600 !important;
+                        border-bottom: 1px solid #e8ebee !important;
                     }
 
-                    /* Linear Subtle Tables */
+                    html:not(.dark) .fi-ta-row:hover {
+                        background-color: #f8faff !important;
+                    }
+
                     html.dark .fi-ta-header,
                     html.dark .fi-ta-content,
                     html.dark .fi-ta-filter,
@@ -303,17 +391,17 @@ class AppPanelProvider extends PanelProvider
                     }
 
                     html.dark .fi-ta-header-cell {
-                        background: #121316 !important;
-                        color: #a1a1aa !important;
-                        font-size: 11px !important;
+                        background: #182230 !important;
+                        color: #94a3b8 !important;
+                        font-size: 11.5px !important;
                         text-transform: uppercase !important;
                         letter-spacing: 0.05em !important;
-                        font-weight: 500 !important;
+                        font-weight: 600 !important;
                         border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
                     }
 
                     html.dark .fi-ta-row:hover {
-                        background-color: rgba(255, 255, 255, 0.02) !important;
+                        background-color: rgba(70, 128, 255, 0.06) !important;
                     }
                 </style>
                 ',
