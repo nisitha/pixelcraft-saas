@@ -404,6 +404,75 @@ class AppPanelProvider extends PanelProvider
                     html.dark .fi-ta-row:hover {
                         background-color: rgba(70, 128, 255, 0.06) !important;
                     }
+
+                    /* ========================================================
+                       8. Responsive Breakpoints (1280px, 1024px, 768px, 640px)
+                       ======================================================== */
+                    @media (max-width: 1280px) {
+                        .fi-main-ctn {
+                            max-width: 100% !important;
+                            padding-left: 16px !important;
+                            padding-right: 16px !important;
+                        }
+                    }
+
+                    @media (max-width: 1024px) {
+                        .zoho-split-screen-wrapper {
+                            flex-direction: column !important;
+                        }
+                        .zoho-left-pane {
+                            width: 100% !important;
+                            max-height: 380px !important;
+                        }
+                        .zoho-right-pane {
+                            width: 100% !important;
+                        }
+                        .zoho-a4-container {
+                            max-height: none !important;
+                            padding: 16px 8px !important;
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .fi-topbar-item {
+                            padding-left: 8px !important;
+                            padding-right: 8px !important;
+                        }
+                        .able-hero-banner {
+                            flex-direction: column !important;
+                            text-align: center !important;
+                            padding: 24px 20px !important;
+                        }
+                        .able-hero-content {
+                            max-width: 100% !important;
+                            margin-bottom: 20px !important;
+                        }
+                        .able-hero-waves {
+                            display: none !important;
+                        }
+                        .fi-ta-ctn {
+                            border-radius: 8px !important;
+                            overflow-x: auto !important;
+                        }
+                    }
+
+                    @media (max-width: 640px) {
+                        .fi-header-heading {
+                            font-size: 1.35rem !important;
+                        }
+                        .fi-page-header-actions {
+                            width: 100% !important;
+                            flex-direction: column !important;
+                        }
+                        .fi-page-header-actions > * {
+                            width: 100% !important;
+                        }
+                        .a4-paper {
+                            transform: scale(0.68) !important;
+                            transform-origin: top center !important;
+                            margin-bottom: -150px !important;
+                        }
+                    }
                 </style>
                 ',
             )

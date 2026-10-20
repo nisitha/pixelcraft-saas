@@ -24,7 +24,7 @@ class PaymentPolicy
 
     public function update(User $user, Payment $payment): bool
     {
-        return $user->isTenantOwnerOrAdmin() || $user->isTenantCashier();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function delete(User $user, Payment $payment): bool

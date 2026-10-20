@@ -24,7 +24,7 @@ class QuotationPolicy
 
     public function update(User $user, Quotation $quotation): bool
     {
-        return $user->isTenantOwnerOrAdmin() || $user->isTenantSalesExecutive();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function delete(User $user, Quotation $quotation): bool

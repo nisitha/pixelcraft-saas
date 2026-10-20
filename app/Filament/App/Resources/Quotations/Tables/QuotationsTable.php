@@ -212,7 +212,7 @@ class QuotationsTable
                     ->label('Unlock & Edit')
                     ->icon(Heroicon::LockOpen)
                     ->color('warning')
-                    ->visible(fn (Quotation $record): bool => (bool) ($record->is_sent ?? false))
+                    ->visible(fn (Quotation $record): bool => (bool) ($record->is_sent ?? false) && (auth()->user()?->isTenantOwnerOrAdmin() ?? false))
                     ->action(function (Quotation $record, Action $action) {
                         $record->update(['is_sent' => false]);
 
@@ -333,11 +333,12 @@ class QuotationsTable
                     }),
 
                 EditAction::make()
-                    ->visible(fn (Quotation $record): bool => ! ($record->is_sent ?? false)),
+                    ->visible(fn (Quotation $record): bool => ! ($record->is_sent ?? false) && (auth()->user()?->isTenantOwnerOrAdmin() ?? false)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                 ]),
             ]);
     }

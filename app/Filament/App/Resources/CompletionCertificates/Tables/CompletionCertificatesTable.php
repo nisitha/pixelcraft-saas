@@ -95,12 +95,15 @@ class CompletionCertificatesTable
                 ViewAction::make()
                     ->url(fn (CompletionCertificate $record): string => CompletionCertificateResource::getUrl('view', ['record' => $record])),
 
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
+                DeleteAction::make()
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                 ]),
             ]);
     }

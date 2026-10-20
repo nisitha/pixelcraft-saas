@@ -132,7 +132,7 @@ class InvoicesTable
                     ->label('Unlock & Edit')
                     ->icon(Heroicon::LockOpen)
                     ->color('warning')
-                    ->visible(fn (Invoice $record): bool => (bool) ($record->is_sent ?? false))
+                    ->visible(fn (Invoice $record): bool => (bool) ($record->is_sent ?? false) && (auth()->user()?->isTenantOwnerOrAdmin() ?? false))
                     ->action(function (Invoice $record, Action $action) {
                         $record->update(['is_sent' => false]);
 
@@ -401,11 +401,12 @@ class InvoicesTable
                     }),
 
                 EditAction::make()
-                    ->visible(fn (Invoice $record): bool => ! ($record->is_sent ?? false)),
+                    ->visible(fn (Invoice $record): bool => ! ($record->is_sent ?? false) && (auth()->user()?->isTenantOwnerOrAdmin() ?? false)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                 ]),
             ]);
     }

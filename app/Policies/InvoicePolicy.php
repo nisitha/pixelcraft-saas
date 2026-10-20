@@ -24,7 +24,7 @@ class InvoicePolicy
 
     public function update(User $user, Invoice $invoice): bool
     {
-        return ! $user->isTenantEngineer();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function delete(User $user, Invoice $invoice): bool

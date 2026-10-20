@@ -5,29 +5,44 @@ namespace App\Filament\App\Resources\Expenses\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ExpensesTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('expense_date', 'desc')
             ->columns([
-                TextColumn::make('company.name')
-                    ->searchable(),
-                TextColumn::make('category')
-                    ->searchable(),
                 TextColumn::make('title')
-                    ->searchable(),
+                    ->label('Expense / Payee')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('category')
+                    ->label('Category')
+                    ->badge()
+                    ->searchable()
+                    ->sortable()
+                    ->color('primary'),
                 TextColumn::make('amount')
+                    ->label('Amount')
                     ->money('LKR')
+                    ->weight('bold')
                     ->sortable(),
                 TextColumn::make('expense_date')
-                    ->date()
+                    ->label('Expense Date')
+                    ->date('d M Y')
                     ->sortable(),
                 TextColumn::make('reference_no')
-                    ->searchable(),
+                    ->label('Reference / Bill #')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -38,14 +53,44 @@ class ExpensesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Filter::make('expense_date')
+                    ->form([
+                        DatePicker::make('from')->label('Expense Date From'),
+                        DatePicker::make('until')->label('Expense Date Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('expense_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('expense_date', '<=', $date),
+                            );
+                    }),
+
+                SelectFilter::make('category')
+                    ->label('Category')
+                    ->options([
+                        'Equipment & Hardware' => 'Equipment & Hardware',
+                        'Material & Cables' => 'Material & Cables',
+                        'Installation Labour' => 'Installation Labour',
+                        'Site Food & Travel' => 'Site Food & Travel',
+                        'Office & Utilities' => 'Office & Utilities',
+                        'Salaries & Allowances' => 'Salaries & Allowances',
+                        'Marketing & Sales' => 'Marketing & Sales',
+                        'General Overhead' => 'General Overhead',
+                    ]),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => auth()->user()?->isTenantOwnerOrAdmin() ?? false),
                 ]),
             ]);
     }

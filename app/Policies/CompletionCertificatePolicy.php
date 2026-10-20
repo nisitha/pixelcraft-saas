@@ -24,7 +24,7 @@ class CompletionCertificatePolicy
 
     public function update(User $user, CompletionCertificate $certificate): bool
     {
-        return $user->isTenantOwnerOrAdmin() || $user->isTenantEngineer();
+        return $user->isTenantOwnerOrAdmin();
     }
 
     public function delete(User $user, CompletionCertificate $certificate): bool

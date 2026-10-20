@@ -410,15 +410,17 @@
             {{-- Top Action Bar --}}
             <div class="zoho-detail-action-bar">
                 <div class="zoho-action-btn-group">
-                    {{-- Edit Locking Logic: If sent, show Unlock; else Edit --}}
-                    @if ($isSent)
-                        <button type="button" wire:click="unlockForEditing" class="action-btn action-btn-locked" title="Document is locked because it was marked as sent to customer. Click to unlock and edit.">
-                            🔒 Unlock & Edit
-                        </button>
-                    @else
-                        <a href="{{ $this->getResource()::getUrl('edit', ['record' => $record->id]) }}" class="action-btn action-btn-default">
-                            ✏️ Edit
-                        </a>
+                    {{-- Edit Locking Logic: If sent, show Unlock; else Edit (Only for Owners/Admins) --}}
+                    @if (auth()->user()?->isTenantOwnerOrAdmin())
+                        @if ($isSent)
+                            <button type="button" wire:click="unlockForEditing" class="action-btn action-btn-locked" title="Document is locked because it was marked as sent to customer. Click to unlock and edit.">
+                                🔒 Unlock & Edit
+                            </button>
+                        @else
+                            <a href="{{ $this->getResource()::getUrl('edit', ['record' => $record->id]) }}" class="action-btn action-btn-default">
+                                ✏️ Edit
+                            </a>
+                        @endif
                     @endif
 
                     <button type="button" wire:click="openEmailModal" class="action-btn action-btn-primary">
