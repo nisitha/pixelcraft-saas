@@ -33,6 +33,8 @@ class FinancialReports extends Page
 
     public ?string $endDate = null;
 
+    public ?int $selectedInvoiceId = null;
+
     public static function canAccess(): bool
     {
         $user = Filament::auth()->user();
@@ -47,6 +49,17 @@ class FinancialReports extends Page
     public function mount(): void
     {
         $this->setPeriod('all');
+
+        $tenantId = Filament::getTenant()?->id;
+        $this->selectedInvoiceId = Invoice::where('company_id', $tenantId)
+            ->where('status', '!=', 'cancelled')
+            ->latest('id')
+            ->value('id');
+    }
+
+    public function selectInvoice(int $invoiceId): void
+    {
+        $this->selectedInvoiceId = $invoiceId;
     }
 
     public function setPeriod(string $period): void
@@ -236,5 +249,145 @@ class FinancialReports extends Page
 
             return $item;
         });
+    }
+
+    public function getRealizedCashCollected(): float
+    {
+        $tenantId = Filament::getTenant()?->id;
+
+        return (float) Payment::where('company_id', $tenantId)
+            ->whereBetween('payment_date', [$this->startDate, $this->endDate])
+            ->sum('amount');
+    }
+
+    public function getPendingCashToCollect(): float
+    {
+        $tenantId = Filament::getTenant()?->id;
+
+        return (float) Invoice::where('company_id', $tenantId)
+            ->where('status', '!=', 'cancelled')
+            ->where('due_amount', '>', 0)
+            ->sum('due_amount');
+    }
+
+    public function getCollectionRatePercentage(): float
+    {
+        $realized = $this->getRealizedCashCollected();
+        $pending = $this->getPendingCashToCollect();
+        $total = $realized + $pending;
+
+        return $total > 0 ? round(($realized / $total) * 100, 1) : 100.0;
+    }
+
+    public function getInvoicesList(): Collection
+    {
+        $tenantId = Filament::getTenant()?->id;
+
+        return Invoice::with(['contact', 'salesAgent'])
+            ->where('company_id', $tenantId)
+            ->where('status', '!=', 'cancelled')
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get();
+    }
+
+    public function getSelectedInvoice(): ?Invoice
+    {
+        $tenantId = Filament::getTenant()?->id;
+
+        if (! $this->selectedInvoiceId) {
+            $this->selectedInvoiceId = Invoice::where('company_id', $tenantId)
+                ->where('status', '!=', 'cancelled')
+                ->latest('id')
+                ->value('id');
+        }
+
+        if (! $this->selectedInvoiceId) {
+            return null;
+        }
+
+        return Invoice::with(['contact', 'items.product', 'payments', 'expenses', 'salesAgent'])
+            ->where('company_id', $tenantId)
+            ->find($this->selectedInvoiceId);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getInvoiceProfitabilityMetrics(): array
+    {
+        $invoice = $this->getSelectedInvoice();
+
+        if (! $invoice) {
+            return [
+                'has_data' => false,
+            ];
+        }
+
+        $contractValue = (float) ($invoice->grand_total ?? 0);
+        $collectedAmount = (float) ($invoice->paid_amount ?? 0);
+        $balanceDue = (float) ($invoice->due_amount ?? 0);
+
+        $linkedExpenses = $invoice->expenses ?? collect();
+
+        // Direct Materials & Hardware
+        $materialsCost = (float) $linkedExpenses
+            ->filter(fn ($e) => preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter/i', (string) $e->category))
+            ->sum('amount');
+
+        // Fallback to item cost prices if no explicit material expense is logged yet
+        if ($materialsCost <= 0 && (float) $invoice->total_cost > 0) {
+            $materialsCost = (float) $invoice->total_cost;
+        }
+
+        // Labour, food, transport & operational overheads
+        $labourCost = (float) $linkedExpenses
+            ->filter(fn ($e) => preg_match('/labour|labor|installation|contractor|technician|travel|food|transport|logistics|site|overhead|utility|utilities/i', (string) $e->category))
+            ->sum('amount');
+
+        $otherCost = (float) $linkedExpenses
+            ->filter(fn ($e) => ! preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter|labour|labor|installation|contractor|technician|travel|food|transport|logistics|site|overhead|utility|utilities/i', (string) $e->category))
+            ->sum('amount');
+
+        $labourAndOps = $labourCost + $otherCost;
+
+        // Sales Agent Commission
+        $commissionAmount = (float) ($invoice->commission_amount ?? 0);
+
+        // Total Project Cost
+        $totalProjectCost = round($materialsCost + $labourAndOps + $commissionAmount, 2);
+
+        // Net Profit / Loss
+        $netProfit = round($contractValue - $totalProjectCost, 2);
+        $netMargin = $contractValue > 0 ? round(($netProfit / $contractValue) * 100, 1) : 0.0;
+        $isProfitable = $netProfit >= 0;
+
+        // Share breakdown for ApexCharts
+        $chartBasis = max($contractValue, $totalProjectCost);
+        $materialPct = $chartBasis > 0 ? round(($materialsCost / $chartBasis) * 100, 1) : 0.0;
+        $labourPct = $chartBasis > 0 ? round(($labourAndOps / $chartBasis) * 100, 1) : 0.0;
+        $commPct = $chartBasis > 0 ? round(($commissionAmount / $chartBasis) * 100, 1) : 0.0;
+        $profitPct = ($chartBasis > 0 && $netProfit > 0) ? round(($netProfit / $chartBasis) * 100, 1) : 0.0;
+
+        return [
+            'has_data' => true,
+            'invoice' => $invoice,
+            'contract_value' => $contractValue,
+            'collected_amount' => $collectedAmount,
+            'balance_due' => $balanceDue,
+            'collection_percentage' => $contractValue > 0 ? round(($collectedAmount / $contractValue) * 100, 1) : 0.0,
+            'materials_cost' => $materialsCost,
+            'labour_operational_cost' => $labourAndOps,
+            'commission_amount' => $commissionAmount,
+            'total_project_cost' => $totalProjectCost,
+            'net_profit' => $netProfit,
+            'net_margin' => $netMargin,
+            'is_profitable' => $isProfitable,
+            'linked_expenses' => $linkedExpenses,
+            'chart_series' => [$materialPct, $labourPct, $commPct, $profitPct],
+            'chart_amounts' => [$materialsCost, $labourAndOps, $commissionAmount, max(0, $netProfit)],
+            'chart_labels' => ['Direct Materials & Bills', 'Labour & Operations', 'Agent Commission', 'Net Profit Margin'],
+            'chart_colors' => ['#0284c7', '#f59e0b', '#8b5cf6', '#10b981'],
+        ];
     }
 }

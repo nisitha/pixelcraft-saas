@@ -92,6 +92,11 @@ class Invoice extends Model
         return $this->hasMany(CompletionCertificate::class);
     }
 
+    public function expenses(): HasMany
+    {
+        return $this->hasMany(Expense::class);
+    }
+
     public function getTotalCostAttribute(): float
     {
         return (float) $this->items->sum(function ($item) {

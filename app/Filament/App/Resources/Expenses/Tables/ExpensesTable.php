@@ -43,6 +43,13 @@ class ExpensesTable
                     ->label('Reference / Bill #')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('invoice.invoice_number')
+                    ->label('Linked Invoice')
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('General Overhead'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -82,6 +89,12 @@ class ExpensesTable
                         'Marketing & Sales' => 'Marketing & Sales',
                         'General Overhead' => 'General Overhead',
                     ]),
+
+                SelectFilter::make('invoice_id')
+                    ->label('Filter by Project / Invoice')
+                    ->relationship('invoice', 'invoice_number')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 EditAction::make()

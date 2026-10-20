@@ -19,6 +19,19 @@ class ExpenseForm
                 Section::make('Expense Information')
                     ->schema([
                         Grid::make(2)->schema([
+                            Select::make('invoice_id')
+                                ->label('Linked Project / Invoice')
+                                ->relationship(
+                                    name: 'invoice',
+                                    titleAttribute: 'invoice_number',
+                                    modifyQueryUsing: fn ($query) => $query->with('contact')->latest()
+                                )
+                                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->invoice_number}".($record->contact ? " - {$record->contact->name}" : ''))
+                                ->searchable(['invoice_number'])
+                                ->preload()
+                                ->nullable()
+                                ->placeholder('Select linked invoice/project (optional)')
+                                ->columnSpanFull(),
                             Select::make('category')
                                 ->options([
                                     'Operations' => 'Operations',
