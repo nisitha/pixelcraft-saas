@@ -1,6 +1,8 @@
 @php
     $paperSize = strtolower($get('paper_size') ?? 'a4');
     $orientation = strtolower($get('orientation') ?? 'landscape');
+    $status = strtolower($get('status') ?? 'draft');
+    
     $customerName = $get('customer_name') ?: 'MR. M A N A M FERNANDO';
     $systemCapacity = $get('system_capacity') ?: '05 kW+05kw Battery offgrid Solar System';
     $certificateNumber = $get('certificate_number') ?: 'CERT-VHE/2026/RU/199/005';
@@ -18,12 +20,9 @@
     $signedDate = $get('signed_date') ? \Carbon\Carbon::parse($get('signed_date'))->format('d/m/Y') : now()->format('d/m/Y');
 
     $isPortrait = $orientation === 'portrait';
-    $isA5 = $paperSize === 'a5';
-    $isB5 = $paperSize === 'b5';
-
     $company = \Filament\Facades\Filament::getTenant();
 
-    $resolveImagePath = function (?string $path): ?string {
+    $resolveImage = function (?string $path): ?string {
         if (empty($path)) return null;
         if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
             return asset('storage/' . $path);
@@ -31,189 +30,327 @@
         if (file_exists(public_path('storage/' . $path))) {
             return asset('storage/' . $path);
         }
+        if (file_exists(storage_path('app/public/' . $path))) {
+            return asset('storage/' . $path);
+        }
         return null;
     };
 
-    $logoUrl = $resolveImagePath($company?->logo_path ?? ($company?->settings['logo_path'] ?? null));
-    $signatureUrl = $resolveImagePath($company?->settings['signature_path'] ?? null);
+    $logoUrl = $resolveImage($company?->logo_path ?? ($company?->settings['logo_path'] ?? null));
+    $signatureUrl = $resolveImage($company?->settings['signature_path'] ?? null);
 
-    // Dynamic aspect ratios & max widths for preview
-    if ($isPortrait) {
-        $aspectRatio = $isA5 ? '148 / 210' : ($isB5 ? '176 / 250' : '210 / 297');
-        $maxWidth = '520px';
-        $titleSize = $isA5 ? '13px' : '17px';
-        $customerSize = $isA5 ? '13px' : '16px';
-        $subSize = $isA5 ? '7px' : '9px';
-        $bodySize = $isA5 ? '7.5px' : '9.5px';
-        $cellSize = $isA5 ? '2px 4px' : '4px 6px';
-        $sigMargin = $isA5 ? '10px' : '18px';
-    } else {
-        $aspectRatio = $isA5 ? '210 / 148' : ($isB5 ? '250 / 176' : '297 / 210');
-        $maxWidth = '100%';
-        $titleSize = $isA5 ? '14px' : '19px';
-        $customerSize = $isA5 ? '14px' : '18px';
-        $subSize = $isA5 ? '8px' : '9.5px';
-        $bodySize = $isA5 ? '8px' : '10px';
-        $cellSize = $isA5 ? '3px 5px' : '4px 7px';
-        $sigMargin = $isA5 ? '8px' : '14px';
-    }
+    // Dimension definitions with real-world aspect ratios
+    $dimensionsMap = [
+        'a4' => [
+            'name' => 'A4',
+            'landscape' => ['w' => 1000, 'h' => 707, 'ratio' => '297 : 210', 'mm' => '297 × 210 mm'],
+            'portrait' => ['w' => 707, 'h' => 1000, 'ratio' => '210 : 297', 'mm' => '210 × 297 mm'],
+        ],
+        'a5' => [
+            'name' => 'A5',
+            'landscape' => ['w' => 1000, 'h' => 705, 'ratio' => '210 : 148', 'mm' => '210 × 148 mm'],
+            'portrait' => ['w' => 705, 'h' => 1000, 'ratio' => '148 : 210', 'mm' => '148 × 210 mm'],
+        ],
+        'letter' => [
+            'name' => 'Letter',
+            'landscape' => ['w' => 1000, 'h' => 773, 'ratio' => '11 : 8.5', 'mm' => '11 × 8.5 in'],
+            'portrait' => ['w' => 773, 'h' => 1000, 'ratio' => '8.5 : 11', 'mm' => '8.5 × 11 in'],
+        ],
+        'b5' => [
+            'name' => 'B5',
+            'landscape' => ['w' => 1000, 'h' => 704, 'ratio' => '250 : 176', 'mm' => '250 × 176 mm'],
+            'portrait' => ['w' => 704, 'h' => 1000, 'ratio' => '176 : 250', 'mm' => '176 × 250 mm'],
+        ],
+    ];
+
+    $activeConfig = $dimensionsMap[$paperSize][$orientation] ?? $dimensionsMap['a4']['landscape'];
+    $baseWidth = $activeConfig['w'];
+    $baseHeight = $activeConfig['h'];
+    $aspectRatioDisplay = $activeConfig['ratio'];
+    $physicalDimensions = $activeConfig['mm'];
+
+    $initialEstimatedHeight = $isPortrait ? 650 : 360;
+
+    $canvasData = compact(
+        'customerName', 'systemCapacity', 'certificateNumber', 'siteAddress',
+        'commissioningDate', 'gridConnection', 'warrantyPeriod', 'systemStatus',
+        'verificationStatus', 'complianceNote', 'leadEngineerName', 'leadEngineerTitle',
+        'directorName', 'directorTitle', 'signedDate', 'isPortrait', 'company',
+        'logoUrl', 'signatureUrl', 'paperSize', 'orientation', 'status'
+    );
 @endphp
 
-<div class="vb-cert-preview-card" style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 16px; color: #f8fafc; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);">
-    {{-- Top Info Bar --}}
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
-            <span style="font-weight: 700; font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase; color: #38bdf8;">
-                Live Certificate Preview
-            </span>
+<div
+    x-data="{
+        baseWidth: {{ $baseWidth }},
+        baseHeight: {{ $baseHeight }},
+        scale: 0.5,
+        viewportHeight: {{ $initialEstimatedHeight }},
+        isFullscreen: false,
+        modalZoom: 1.0,
+
+        init() {
+            this.updateScale();
+            this.$nextTick(() => {
+                this.updateScale();
+                if (window.ResizeObserver && this.$refs.previewViewport) {
+                    const ro = new ResizeObserver(() => this.updateScale());
+                    ro.observe(this.$refs.previewViewport);
+                }
+            });
+        },
+
+        updateScale() {
+            if (!this.$refs.previewViewport) return;
+            const w = this.$refs.previewViewport.clientWidth;
+            if (w > 0 && this.baseWidth > 0) {
+                this.scale = w / this.baseWidth;
+                this.viewportHeight = Math.round(this.baseHeight * this.scale);
+            }
+        },
+
+        openFullscreen() {
+            this.isFullscreen = true;
+            this.modalZoom = 1.0;
+            document.body.classList.add('overflow-hidden');
+        },
+
+        closeFullscreen() {
+            this.isFullscreen = false;
+            document.body.classList.remove('overflow-hidden');
+        },
+
+        zoomIn() {
+            this.modalZoom = Math.min(2.0, Math.round((this.modalZoom + 0.15) * 100) / 100);
+        },
+
+        zoomOut() {
+            this.modalZoom = Math.max(0.4, Math.round((this.modalZoom - 0.15) * 100) / 100);
+        },
+
+        resetZoom() {
+            this.modalZoom = 1.0;
+        }
+    }"
+    wire:key="cert-preview-wrapper-{{ $paperSize }}-{{ $orientation }}"
+    class="w-full"
+    style="position: -webkit-sticky; position: sticky; top: 1.5rem; align-self: flex-start; z-index: 20;"
+>
+    {{-- Executive SaaS Live Preview Container Card --}}
+    <div class="rounded-2xl border border-slate-700/80 bg-slate-900 text-slate-100 shadow-2xl shadow-slate-950/40 overflow-hidden">
+        
+        {{-- Toolbar Top Row: Live Status & Technical Badges --}}
+        <div class="p-3.5 bg-slate-950/80 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2.5">
+            {{-- Left: Live Pulse Indicator --}}
+            <div class="flex items-center gap-2.5">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm shadow-emerald-500"></span>
+                </span>
+                <span class="text-xs font-extrabold tracking-wider text-slate-100 uppercase">
+                    Live Certificate Preview
+                </span>
+            </div>
+
+            {{-- Right: High-Visibility Dimension Badges --}}
+            <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-black tracking-wide uppercase bg-teal-500/20 text-teal-300 border border-teal-500/40">
+                    {{ strtoupper($paperSize) }} • {{ strtoupper($orientation) }}
+                </span>
+                <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-semibold text-slate-300 bg-slate-800/90 border border-slate-700">
+                    {{ $aspectRatioDisplay }}
+                </span>
+                @if ($status === 'issued')
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                        Issued
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                        Draft
+                    </span>
+                @endif
+            </div>
         </div>
-        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px;">
-            <span style="background: #0f766e; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">
-                {{ strtoupper($paperSize) }}
-            </span>
-            <span style="background: #0284c7; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">
-                {{ strtoupper($orientation) }}
-            </span>
-            <span style="background: rgba(255,255,255,0.1); color: #cbd5e1; padding: 2px 8px; border-radius: 4px;">
-                Ratio: {{ $aspectRatio }}
-            </span>
+
+        {{-- Toolbar Action Row: Fullscreen HD & Download PDF Direct Action --}}
+        <div class="px-3.5 py-2.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+            <div class="text-[11px] text-slate-400 font-medium hidden sm:block">
+                Physical standard: <span class="text-slate-200 font-semibold">{{ $physicalDimensions }}</span>
+            </div>
+
+            <div class="flex items-center gap-2 ml-auto">
+                {{-- Fullscreen HD Modal Trigger --}}
+                <button
+                    type="button"
+                    @click="openFullscreen()"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 border border-slate-700 transition shadow-sm hover:text-white"
+                    title="Inspect high-resolution full screen certificate"
+                >
+                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                    </svg>
+                    <span>Fullscreen Preview</span>
+                </button>
+
+                {{-- Direct PDF Download Button --}}
+                <button
+                    type="button"
+                    wire:click="downloadPdf"
+                    wire:loading.attr="disabled"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-500 active:bg-teal-700 text-white transition shadow-sm disabled:opacity-50"
+                    title="Download generated vector PDF"
+                >
+                    <svg wire:loading.remove wire:target="downloadPdf" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    <svg wire:loading wire:target="downloadPdf" class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Download PDF</span>
+                </button>
+            </div>
+        </div>
+
+        {{-- Dynamic Scaled Viewport Area (Zero overlap, mathematically scaled to exact container width) --}}
+        <div class="p-3 bg-slate-950 flex items-center justify-center overflow-hidden">
+            <div
+                x-ref="previewViewport"
+                class="w-full relative overflow-hidden"
+                :style="'height: ' + viewportHeight + 'px; min-height: ' + viewportHeight + 'px;'"
+            >
+                {{-- Inner Exact-Coordinate Certificate Sheet --}}
+                <div
+                    class="absolute top-0 left-0 bg-white shadow-2xl transition-transform duration-75 origin-top-left"
+                    :style="'width: ' + baseWidth + 'px; height: ' + baseHeight + 'px; transform: scale(' + scale + ');'"
+                >
+                    @include('filament.app.resources.completion-certificates.certificate-canvas', $canvasData)
+                </div>
+            </div>
+        </div>
+
+        {{-- Footer Status Bar --}}
+        <div class="px-3.5 py-2 bg-slate-950/90 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-slate-300">
+                <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span>Vector accurate preview</span>
+            </div>
+            <div class="font-mono text-slate-400">
+                {{ $certificateNumber ?: 'DRAFT' }}
+            </div>
         </div>
     </div>
 
-    {{-- Certificate Visual Box --}}
-    <div style="display: flex; justify-content: center; overflow-x: auto; padding: 8px 0;">
-        <div style="width: 100%; max-width: {{ $maxWidth }}; aspect-ratio: {{ $aspectRatio }}; background: #ffffff; color: #1e293b; border-radius: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); padding: 6px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; overflow: hidden;">
-            
-            {{-- Outer Teal Frame --}}
-            <div style="border: 3.5px solid #0d5c75; padding: 3px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
-                {{-- Inner Gold Frame --}}
-                <div style="border: 1px solid #c59b27; padding: 12px 16px; height: 100%; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; background: #ffffff;">
-                    
-                    {{-- Header Row --}}
+    {{-- Fullscreen High-Resolution Modal --}}
+    <template x-teleport="body">
+        <div
+            x-show="isFullscreen"
+            x-cloak
+            @keydown.escape.window="closeFullscreen()"
+            class="fixed inset-0 z-[99999] flex flex-col bg-slate-950/95 backdrop-blur-md text-slate-100"
+        >
+            {{-- Modal Header --}}
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-4 flex-wrap">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full bg-teal-400 shadow-sm shadow-teal-400"></div>
                     <div>
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                            @if ($logoUrl)
-                                <img src="{{ $logoUrl }}" style="max-height: {{ $isPortrait ? '36px' : '42px' }}; max-width: 120px; object-fit: contain;" alt="Logo">
-                            @else
-                                <div style="font-size: 10px; font-weight: 800; color: #0d5c75; border: 1px dashed #0d5c75; padding: 4px 8px; border-radius: 4px;">
-                                    VERTEX SOLAR
-                                </div>
-                            @endif
-
-                            <div style="text-align: right; flex: 1;">
-                                <div style="font-size: 11px; font-weight: 800; color: #0d5c75; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    {{ $company->name ?? 'VERTEX HOME SOLUTIONS (PVT) LTD' }}
-                                </div>
-                                <div style="font-family: 'Times New Roman', serif; font-size: {{ $titleSize }}; font-weight: 900; color: #0d5c75; letter-spacing: 1px; text-transform: uppercase; margin: 1px 0;">
-                                    CERTIFICATE OF COMPLETION
-                                </div>
-                                <div style="font-size: {{ $subSize }}; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    SOLAR POWER SYSTEM INSTALLATION & COMMISSIONING
-                                </div>
-                            </div>
+                        <div class="text-sm font-bold text-white flex items-center gap-2">
+                            <span>Certificate Fullscreen View</span>
+                            <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-800 text-teal-300 border border-slate-700">
+                                {{ $certificateNumber ?: 'DRAFT' }}
+                            </span>
                         </div>
-
-                        {{-- Gold Accent Line --}}
-                        <div style="height: 2px; background: #c59b27; width: 100%; margin: 6px 0;"></div>
-
-                        {{-- Proclamation Block --}}
-                        <div style="text-align: center; margin: 4px 0 6px 0;">
-                            <div style="font-style: italic; font-size: {{ $bodySize }}; color: #475569;">
-                                This is to certify that the Solar PV Power System installed at the premises of
-                            </div>
-                            <div style="margin: 3px 0;">
-                                <span style="font-family: 'Times New Roman', serif; font-size: {{ $customerSize }}; font-weight: 800; color: #0d5c75; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1.5px dotted #c59b27; padding: 0 10px 2px 10px; display: inline-block;">
-                                    {{ $customerName }}
-                                </span>
-                            </div>
-                            <div style="font-size: {{ $bodySize }}; color: #334155; max-width: 92%; margin: 2px auto 0 auto; line-height: 1.3;">
-                                has been successfully installed, thoroughly tested, and officially commissioned according to standard engineering and safety specifications.
-                            </div>
-                        </div>
-
-                        {{-- Specifications Table --}}
-                        <div style="background-color: #0d5c75; color: #ffffff; font-size: {{ $subSize }}; font-weight: 700; text-align: center; letter-spacing: 0.8px; text-transform: uppercase; padding: 3px 6px; margin-top: 4px;">
-                            SYSTEM & INSTALLATION SPECIFICATIONS
-                        </div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: {{ $bodySize }}; margin-top: 1px;">
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700; width: 18%;">System Capacity</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #0f172a; font-weight: 600; width: 32%;">{{ $systemCapacity }}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700; width: 18%;">Certificate No</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; font-family: monospace; font-weight: 700; color: #0d5c75; width: 32%;">{{ $certificateNumber }}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">Site Address</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #0f172a; font-weight: 600;">{{ $siteAddress }}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">Commissioning Date</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #0f172a; font-weight: 600;">{{ $commissioningDate }}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">Grid Connection</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #0f172a; font-weight: 600;">{{ $gridConnection }}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">Warranty Period</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #0f172a; font-weight: 600;">{{ $warrantyPeriod }}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">System Status</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #047857; font-weight: 700;">✓ {{ $systemStatus }}</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">Verification</td>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #0d5c75; font-weight: 700;">🛡 {{ $verificationStatus }}</td>
-                            </tr>
-                            <tr>
-                                <td style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; background: #f8fafc; color: #0d5c75; font-weight: 700;">Compliance Note</td>
-                                <td colspan="3" style="border: 1px solid #cbd5e1; padding: {{ $cellSize }}; color: #475569; font-size: {{ $subSize }};">
-                                    {{ $complianceNote }}
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    {{-- Bottom Zone: Signatures & Footer --}}
-                    <div>
-                        {{-- Dual Signatures --}}
-                        <div style="display: flex; justify-content: space-around; margin-top: {{ $sigMargin }}; text-align: center;">
-                            <div style="width: 42%;">
-                                <div style="height: 24px;"></div>
-                                <div style="border-top: 1.5px solid #0d5c75; width: 85%; margin: 0 auto 3px auto;"></div>
-                                <div style="font-size: {{ $subSize }}; font-weight: 800; color: #0d5c75; text-transform: uppercase;">{{ $leadEngineerName }}</div>
-                                <div style="font-size: {{ $subSize }}; color: #64748b;">{{ $leadEngineerTitle }}</div>
-                                <div style="font-size: {{ $subSize }}; color: #0d5c75; font-weight: 600;">Date: {{ $signedDate }}</div>
-                            </div>
-
-                            <div style="width: 42%;">
-                                @if ($signatureUrl)
-                                    <div style="height: 24px; display: flex; align-items: center; justify-content: center;">
-                                        <img src="{{ $signatureUrl }}" style="max-height: 24px; max-width: 100px; object-fit: contain;" alt="Signature">
-                                    </div>
-                                @else
-                                    <div style="height: 24px;"></div>
-                                @endif
-                                <div style="border-top: 1.5px solid #0d5c75; width: 85%; margin: 0 auto 3px auto;"></div>
-                                <div style="font-size: {{ $subSize }}; font-weight: 800; color: #0d5c75; text-transform: uppercase;">{{ $directorName }}</div>
-                                <div style="font-size: {{ $subSize }}; color: #64748b;">{{ $directorTitle }}</div>
-                                <div style="font-size: {{ $subSize }}; color: #0d5c75; font-weight: 600;">Date: {{ $signedDate }}</div>
-                            </div>
-                        </div>
-
-                        {{-- Footer & Gold Rule --}}
-                        <div style="margin-top: 6px; text-align: center;">
-                            <div style="height: 1.5px; background: #c59b27; width: 100%; margin: 4px 0 3px 0;"></div>
-                            <div style="font-size: {{ $subSize }}; color: #64748b;">
-                                {{ $company->address ?? '260/20, Negombo Road, Sri Lanka' }}
-                                @if ($company?->email) | Email: {{ $company->email }} @endif
-                                @if ($company?->phone) | Hotline: {{ $company->phone }} @endif
-                            </div>
-                            <div style="font-size: {{ $subSize }}; color: #0d5c75; font-style: italic; font-weight: 700;">
-                                Official Solar Installation Completion & Commissioning Record
-                            </div>
+                        <div class="text-xs text-slate-400">
+                            {{ strtoupper($paperSize) }} • {{ strtoupper($orientation) }} ({{ $physicalDimensions }})
                         </div>
                     </div>
+                </div>
 
+                {{-- Modal Center Controls: Zoom In / Out / Reset --}}
+                <div class="flex items-center gap-1.5 bg-slate-800/80 border border-slate-700 rounded-lg p-1">
+                    <button
+                        type="button"
+                        @click="zoomOut()"
+                        class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition"
+                        title="Zoom Out"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                        </svg>
+                    </button>
+                    <span class="px-2 text-xs font-mono font-bold text-teal-300 min-w-[50px] text-center" x-text="Math.round(modalZoom * 100) + '%'">
+                        100%
+                    </span>
+                    <button
+                        type="button"
+                        @click="zoomIn()"
+                        class="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition"
+                        title="Zoom In"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                    </button>
+                    <button
+                        type="button"
+                        @click="resetZoom()"
+                        class="px-2 py-1 text-[11px] font-semibold text-slate-300 hover:text-white hover:bg-slate-700 rounded transition border-l border-slate-700 ml-1"
+                    >
+                        Reset 100%
+                    </button>
+                </div>
+
+                {{-- Modal Right Actions: Print, Download, Close --}}
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onclick="window.print()"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
+                    >
+                        <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                        </svg>
+                        <span>Print</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        wire:click="downloadPdf"
+                        wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-teal-600 hover:bg-teal-500 text-white transition shadow-sm"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        <span>Download PDF</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        @click="closeFullscreen()"
+                        class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition"
+                        title="Close Fullscreen (Esc)"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
+            {{-- Modal Body: Scrollable Canvas Container --}}
+            <div class="flex-1 overflow-auto p-6 md:p-12 flex justify-center items-start">
+                <div
+                    class="bg-white text-slate-900 shadow-2xl transition-transform origin-top duration-75"
+                    :style="'width: ' + baseWidth + 'px; height: ' + baseHeight + 'px; transform: scale(' + modalZoom + ');'"
+                >
+                    @include('filament.app.resources.completion-certificates.certificate-canvas', $canvasData)
+                </div>
+            </div>
         </div>
-    </div>
+    </template>
 </div>

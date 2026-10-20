@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Filament\App\Pages\FinancialReports;
+use App\Filament\App\Resources\CompletionCertificates\Pages\CreateCompletionCertificate;
+use App\Filament\App\Resources\CompletionCertificates\Pages\EditCompletionCertificate;
 use App\Models\CommissionPayout;
 use App\Models\Company;
 use App\Models\CompletionCertificate;
@@ -14,6 +16,7 @@ use App\Models\SalesAgent;
 use App\Services\PdfService;
 use Database\Seeders\DatabaseSeeder;
 use Filament\Facades\Filament;
+use Filament\Support\Enums\Width;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -104,6 +107,54 @@ class SolarCertificatesAndSalesAgentsTest extends TestCase
         $this->assertStringContainsString('05 kW+05kw Battery offgrid Solar System', $view);
         $this->assertStringContainsString('Lead Engineer', $view);
         $this->assertStringContainsString('Managing Director', $view);
+    }
+
+    public function test_completion_certificate_canvas_blade_renders_cleanly(): void
+    {
+        $cert = CompletionCertificate::where('certificate_number', 'CERT-VHE/2026/RU/199/005')->firstOrFail();
+
+        $view = view('filament.app.resources.completion-certificates.certificate-canvas', [
+            'customerName' => $cert->customer_name,
+            'systemCapacity' => $cert->system_capacity,
+            'certificateNumber' => $cert->certificate_number,
+            'siteAddress' => $cert->site_address,
+            'commissioningDate' => $cert->commissioning_date?->format('d/m/Y'),
+            'gridConnection' => $cert->grid_connection,
+            'warrantyPeriod' => $cert->warranty_period,
+            'systemStatus' => $cert->system_status,
+            'verificationStatus' => $cert->verification_status,
+            'complianceNote' => $cert->compliance_note,
+            'leadEngineerName' => $cert->lead_engineer_name,
+            'leadEngineerTitle' => $cert->lead_engineer_title,
+            'directorName' => $cert->director_name,
+            'directorTitle' => $cert->director_title,
+            'signedDate' => $cert->signed_date?->format('d/m/Y'),
+            'isPortrait' => false,
+            'company' => $cert->company,
+            'logoUrl' => null,
+            'signatureUrl' => null,
+            'paperSize' => 'a4',
+            'orientation' => 'landscape',
+            'status' => 'issued',
+        ])->render();
+
+        $this->assertStringContainsString('CERTIFICATE OF COMPLETION', $view);
+        $this->assertStringContainsString('SYSTEM & INSTALLATION SPECIFICATIONS', $view);
+        $this->assertStringContainsString('MR. M A N A M Fernando', $view);
+        $this->assertStringContainsString('Lead Engineer', $view);
+        $this->assertStringContainsString('Managing Director', $view);
+        $this->assertStringContainsString('CERT-VHE/2026/RU/199/005', $view);
+    }
+
+    public function test_create_and_edit_completion_certificate_pages_have_full_width_and_download_pdf_actions(): void
+    {
+        $createPage = new CreateCompletionCertificate;
+        $this->assertEquals(Width::Full, $createPage->getMaxContentWidth());
+        $this->assertTrue(method_exists($createPage, 'downloadPdf'));
+
+        $editPage = new EditCompletionCertificate;
+        $this->assertEquals(Width::Full, $editPage->getMaxContentWidth());
+        $this->assertTrue(method_exists($editPage, 'downloadPdf'));
     }
 
     public function test_sales_agents_seeded_and_calculate_commissions_properly(): void

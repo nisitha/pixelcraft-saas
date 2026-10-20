@@ -9,11 +9,35 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 
 class EditCompletionCertificate extends EditRecord
 {
     protected static string $resource = CompletionCertificateResource::class;
+
+    public function getMaxContentWidth(): Width|string|null
+    {
+        return Width::Full;
+    }
+
+    public function downloadPdf()
+    {
+        /** @var CompletionCertificate $record */
+        $record = $this->record;
+
+        // Populate with current form state to reflect in-flight changes
+        $data = $this->form->getState();
+        $record->fill($data);
+
+        $filename = PdfService::getCompletionCertificateFileName($record);
+
+        return response()->streamDownload(
+            fn () => print (app(PdfService::class)->generateCompletionCertificatePdf($record)->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
+    }
 
     protected function getHeaderActions(): array
     {
@@ -22,17 +46,7 @@ class EditCompletionCertificate extends EditRecord
                 ->label('Download PDF')
                 ->icon(Heroicon::ArrowDownTray)
                 ->color('primary')
-                ->action(function () {
-                    /** @var CompletionCertificate $record */
-                    $record = $this->record;
-                    $filename = PdfService::getCompletionCertificateFileName($record);
-
-                    return response()->streamDownload(
-                        fn () => print (app(PdfService::class)->generateCompletionCertificatePdf($record)->output()),
-                        $filename,
-                        ['Content-Type' => 'application/pdf']
-                    );
-                }),
+                ->action(fn () => $this->downloadPdf()),
 
             ViewAction::make(),
             DeleteAction::make(),
