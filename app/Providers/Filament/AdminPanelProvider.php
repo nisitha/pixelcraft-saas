@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('super-admin')
             ->path('super-admin')
             ->login()
-            ->brandName('Vertex Books - Super Admin')
+            ->brandName('Pixel Craft Studios - Super Admin')
             ->colors([
                 'primary' => Color::Amber,
             ])

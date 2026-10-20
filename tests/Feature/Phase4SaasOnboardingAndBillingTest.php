@@ -288,4 +288,89 @@ class Phase4SaasOnboardingAndBillingTest extends TestCase
             'model_id' => $request->id,
         ]);
     }
+
+    public function test_pixel_craft_studios_provider_details_and_human_readable_time_remaining(): void
+    {
+        $this->assertSame('Pixel Craft Studios', SubscriptionBilling::PROVIDER_NAME);
+        $this->assertSame('Hatton National Bank PLC (HNB)', SubscriptionBilling::BANK_NAME);
+        $this->assertSame('Galle Branch', SubscriptionBilling::BANK_BRANCH);
+        $this->assertSame('P M N S T Dharmarathna', SubscriptionBilling::BANK_ACCOUNT_NAME);
+        $this->assertSame('227020114025', SubscriptionBilling::BANK_ACCOUNT_NUMBER);
+        $this->assertSame('Sri Lanka', SubscriptionBilling::BANK_COUNTRY);
+        $this->assertSame('pixelcraftstudioslk@gmail.com', SubscriptionBilling::PAYPAL_EMAIL);
+
+        $company = Company::where('slug', 'lanka-solar-solutions')->first();
+        $owner = User::where('email', 'owner@lankasolar.lk')->first();
+        $this->actingAs($owner);
+        Filament::setCurrentPanel(Filament::getPanel('app'));
+        Filament::setTenant($company);
+
+        // 1. Future expiry: ~365 days
+        $company->update(['subscription_ends_at' => now()->addDays(365)]);
+        $page = new SubscriptionBilling;
+        $info = $page->getHumanReadableTimeRemaining();
+        $this->assertFalse($info['is_expired']);
+        $this->assertStringNotContainsString('.', $info['text']);
+        $this->assertStringContainsString('365 Days remaining', $info['text']);
+
+        // 2. Expired 5 days ago
+        $company->update(['subscription_ends_at' => now()->subDays(5)]);
+        $infoExpired = $page->getHumanReadableTimeRemaining();
+        $this->assertTrue($infoExpired['is_expired']);
+        $this->assertStringNotContainsString('.', $infoExpired['text']);
+        $this->assertSame('Expired 5 days ago', $infoExpired['text']);
+    }
+
+    public function test_multi_method_subscription_renewal_paypal_and_direct_card_activation(): void
+    {
+        $company = Company::where('slug', 'lanka-solar-solutions')->first();
+        $owner = User::where('email', 'owner@lankasolar.lk')->first();
+        $silverPlan = Plan::where('slug', 'silver')->first();
+
+        $this->actingAs($owner);
+        Filament::setCurrentPanel(Filament::getPanel('app'));
+        Filament::setTenant($company);
+
+        // 1. Submit PayPal renewal request
+        Livewire::test(SubscriptionBilling::class)
+            ->set('plan_id', $silverPlan->id)
+            ->set('billing_cycle', 'monthly')
+            ->set('payment_method', 'paypal')
+            ->set('payment_reference', 'PP-TXN-99887766')
+            ->call('submitRenewalRequest')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('subscription_requests', [
+            'company_id' => $company->id,
+            'plan_id' => $silverPlan->id,
+            'billing_cycle' => 'monthly',
+            'payment_method' => 'paypal',
+            'payment_reference' => 'PP-TXN-99887766',
+            'status' => 'pending',
+        ]);
+
+        // 2. Direct Instant Card Payment
+        $goldPlan = Plan::where('slug', 'gold')->first();
+        $company->update(['subscription_ends_at' => now()->subDays(2), 'is_active' => false]);
+
+        Livewire::test(SubscriptionBilling::class)
+            ->set('plan_id', $goldPlan->id)
+            ->set('billing_cycle', 'yearly')
+            ->set('payment_method', 'card')
+            ->call('processCardPayment')
+            ->assertHasNoErrors();
+
+        $company->refresh();
+        $this->assertTrue($company->is_active);
+        $this->assertEquals($goldPlan->id, $company->plan_id);
+        $this->assertTrue($company->isSubscriptionActive());
+
+        $this->assertDatabaseHas('subscription_requests', [
+            'company_id' => $company->id,
+            'plan_id' => $goldPlan->id,
+            'billing_cycle' => 'yearly',
+            'payment_method' => 'card',
+            'status' => 'approved',
+        ]);
+    }
 }
