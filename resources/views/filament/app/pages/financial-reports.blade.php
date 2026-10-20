@@ -335,7 +335,7 @@
                                         Linked Expense Vouchers ({{ $pnl['linked_expenses']->count() }})
                                     </div>
                                     <a 
-                                        href="{{ route('filament.app.resources.expenses.index') }}?tableFilters[invoice_id][value]={{ $pnl['invoice']->id }}"
+                                        href="{{ route('filament.app.resources.expenses.index', ['tenant' => \Filament\Facades\Filament::getTenant()]) }}?tableFilters[invoice_id][value]={{ $pnl['invoice']->id }}"
                                         style="font-size: 0.7rem; font-weight: 700; color: #4f46e5; text-decoration: underline;"
                                     >
                                         Manage Expenses →
