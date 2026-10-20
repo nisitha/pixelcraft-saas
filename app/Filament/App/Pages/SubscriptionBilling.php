@@ -138,6 +138,26 @@ class SubscriptionBilling extends Page
         return round($lkr / 300, 2);
     }
 
+    public function getUsedUsersCount(): int
+    {
+        return $this->getTenant()?->users()->count() ?? 1;
+    }
+
+    public function getMaxUsersCount(): int
+    {
+        return $this->getTenant()?->getMaxUsersLimit() ?? 5;
+    }
+
+    public function getQuotationsCount(): int
+    {
+        return $this->getTenant()?->quotations()->count() ?? 0;
+    }
+
+    public function switchToAnnualBilling(): void
+    {
+        $this->billing_cycle = 'yearly';
+    }
+
     /**
      * Format time remaining into clean human-readable text (no decimals).
      *
