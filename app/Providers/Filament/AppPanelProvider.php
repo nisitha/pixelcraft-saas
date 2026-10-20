@@ -56,6 +56,7 @@ class AppPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): string => '
+                <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
                 <style>
                     /* ========================================================
                        Able Pro Design System Tokens & Aesthetics
