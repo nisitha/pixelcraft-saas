@@ -31,6 +31,7 @@ class PublicDocumentController extends Controller
             'contact' => $document->contact,
             'items' => $document->items,
             'mode' => $document->price_display_mode ?? 'itemized',
+            'summaryMode' => $document->pdf_item_summary_mode ?? 'consolidated',
         ]);
     }
 
@@ -41,26 +42,27 @@ class PublicDocumentController extends Controller
         }
 
         $pdfService = app(PdfService::class);
+        $summaryMode = $request->query('summary_mode', null);
 
         if ($type === 'quotation') {
-            $quotation = Quotation::with(['company', 'contact', 'items.product'])->findOrFail($id);
+            $quotation = Quotation::with(['company', 'contact', 'items.product.category'])->findOrFail($id);
             $safeNumber = str_replace(['/', '\\'], '-', $quotation->quote_number);
             $filename = "Quotation-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateQuotationPdf($quotation, $quotation->price_display_mode ?? 'itemized')->output()),
+                fn () => print ($pdfService->generateQuotationPdf($quotation, $request->query('mode', $quotation->price_display_mode ?? 'itemized'), $summaryMode)->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );
         }
 
         if ($type === 'invoice') {
-            $invoice = Invoice::with(['company', 'contact', 'items.product', 'payments'])->findOrFail($id);
+            $invoice = Invoice::with(['company', 'contact', 'items.product.category', 'payments'])->findOrFail($id);
             $safeNumber = str_replace(['/', '\\'], '-', $invoice->invoice_number);
             $filename = "Invoice-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateInvoicePdf($invoice, $invoice->price_display_mode ?? 'itemized')->output()),
+                fn () => print ($pdfService->generateInvoicePdf($invoice, $request->query('mode', $invoice->price_display_mode ?? 'itemized'), $summaryMode)->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );

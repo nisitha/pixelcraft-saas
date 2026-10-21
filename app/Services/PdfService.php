@@ -13,12 +13,13 @@ use Illuminate\Support\Facades\Storage;
 
 class PdfService
 {
-    public function generateQuotationPdf(Quotation $quotation, ?string $mode = null): DomPdfWrapper
+    public function generateQuotationPdf(Quotation $quotation, ?string $mode = null, ?string $summaryMode = null): DomPdfWrapper
     {
         $this->configureEnvironment();
 
         $mode ??= $quotation->price_display_mode ?? 'itemized';
-        $quotation->loadMissing(['company', 'contact', 'items.product']);
+        $summaryMode ??= $quotation->pdf_item_summary_mode ?? 'consolidated';
+        $quotation->loadMissing(['company', 'contact', 'items.product.category']);
 
         $pdf = Pdf::loadView('pdf.quotation', [
             'quotation' => $quotation,
@@ -26,6 +27,7 @@ class PdfService
             'contact' => $quotation->contact,
             'items' => $quotation->items,
             'mode' => $mode,
+            'summaryMode' => $summaryMode,
         ])->setPaper('a4', 'portrait');
 
         $this->applyDompdfOptions($pdf);
@@ -33,12 +35,13 @@ class PdfService
         return $pdf;
     }
 
-    public function generateInvoicePdf(Invoice $invoice, ?string $mode = null): DomPdfWrapper
+    public function generateInvoicePdf(Invoice $invoice, ?string $mode = null, ?string $summaryMode = null): DomPdfWrapper
     {
         $this->configureEnvironment();
 
         $mode ??= $invoice->price_display_mode ?? 'itemized';
-        $invoice->loadMissing(['company', 'contact', 'quotation', 'items.product', 'payments']);
+        $summaryMode ??= $invoice->pdf_item_summary_mode ?? 'consolidated';
+        $invoice->loadMissing(['company', 'contact', 'quotation', 'items.product.category', 'payments']);
 
         $pdf = Pdf::loadView('pdf.invoice', [
             'invoice' => $invoice,
@@ -48,6 +51,7 @@ class PdfService
             'items' => $invoice->items,
             'payments' => $invoice->payments,
             'mode' => $mode,
+            'summaryMode' => $summaryMode,
         ])->setPaper('a4', 'portrait');
 
         $this->applyDompdfOptions($pdf);

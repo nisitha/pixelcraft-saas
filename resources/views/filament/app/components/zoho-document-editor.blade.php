@@ -762,30 +762,59 @@
         </div>
 
         {{-- Row 4: PDF & Print Mode Selector --}}
-        <div class="zoho-form-row" style="background: #f8fafc; padding: 12px 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 14px;">
-            <label class="zoho-row-label" style="color: #0f172a; font-weight: 700; width: 170px;">
-                📄 PDF & Print Mode
-            </label>
-            <div class="zoho-row-controls" style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1e293b;">
-                    <input
-                        type="radio"
-                        wire:model.live="data.price_display_mode"
-                        value="itemized"
-                        style="accent-color: #3b82f6; width: 16px; height: 16px;"
-                    />
-                    <span>Standard Itemized (Show Individual Unit Prices)</span>
+        <div class="zoho-form-row" style="background: #f8fafc; padding: 14px 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+                <label class="zoho-row-label" style="color: #0f172a; font-weight: 700; width: 170px; padding-top: 2px;">
+                    💰 Pricing Mode
                 </label>
+                <div class="zoho-row-controls" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #1e293b;">
+                        <input
+                            type="radio"
+                            wire:model.live="data.price_display_mode"
+                            value="itemized"
+                            style="accent-color: #3b82f6; width: 16px; height: 16px;"
+                        />
+                        <span>Standard Itemized (Show Individual Unit Prices)</span>
+                    </label>
 
-                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #047857;">
-                    <input
-                        type="radio"
-                        wire:model.live="data.price_display_mode"
-                        value="package_total_only"
-                        style="accent-color: #059669; width: 16px; height: 16px;"
-                    />
-                    <span>Customer Package View (Hide Unit Prices — Show Total & Discount Only)</span>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #047857;">
+                        <input
+                            type="radio"
+                            wire:model.live="data.price_display_mode"
+                            value="package_total_only"
+                            style="accent-color: #059669; width: 16px; height: 16px;"
+                        />
+                        <span>Customer Package View (Hide Unit Prices — Show Total & Discount Only)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; border-top: 1px dashed #e2e8f0; padding-top: 10px;">
+                <label class="zoho-row-label" style="color: #0f172a; font-weight: 700; width: 170px; padding-top: 2px;">
+                    📄 Line Items Layout
                 </label>
+                <div class="zoho-row-controls" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #047857;">
+                        <input
+                            type="radio"
+                            wire:model.live="data.pdf_item_summary_mode"
+                            value="consolidated"
+                            style="accent-color: #059669; width: 16px; height: 16px;"
+                        />
+                        <span>Consolidated Summary (Panels, Inverter, Battery separated + Accessories & Transport grouped as 1 Set) — <em>Strict 1-Page PDF</em></span>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: #475569;">
+                        <input
+                            type="radio"
+                            wire:model.live="data.pdf_item_summary_mode"
+                            value="detailed"
+                            style="accent-color: #3b82f6; width: 16px; height: 16px;"
+                        />
+                        <span>Detailed (Show All Individual Accessory Items)</span>
+                    </label>
+                </div>
             </div>
         </div>
     </div>

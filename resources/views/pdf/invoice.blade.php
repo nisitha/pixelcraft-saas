@@ -54,55 +54,58 @@
     @endphp
     <style>
         @page {
-            margin: 28px 32px 32px 32px;
+            margin: 20px 28px 18px 28px;
             size: a4 portrait;
         }
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             color: #1e293b;
-            line-height: 1.45;
+            line-height: 1.35;
             margin: 0;
             padding: 0;
+        }
+        table, tr, td, .info-card, .specs-table, .items-table, .totals-container, .terms-box, .signatures-table {
+            page-break-inside: avoid;
         }
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .header-table td {
             vertical-align: top;
         }
         .company-title {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: {{ $primaryColor }};
             letter-spacing: -0.5px;
-            margin: 0 0 4px 0;
+            margin: 0 0 2px 0;
         }
         .company-subtitle {
-            font-size: 11px;
+            font-size: 10px;
             color: #64748b;
-            margin: 0 0 6px 0;
+            margin: 0 0 4px 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .doc-badge {
             background-color: {{ $primaryColor }};
             color: #ffffff;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            padding: 6px 14px;
+            padding: 4px 10px;
             border-radius: 4px;
             display: inline-block;
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .doc-meta {
-            font-size: 10.5px;
+            font-size: 9.5px;
             color: #334155;
-            line-height: 1.5;
+            line-height: 1.4;
         }
         .doc-meta strong {
             color: #0f172a;
@@ -110,35 +113,36 @@
         .info-grid {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 12px 0;
-            margin-bottom: 16px;
+            border-spacing: 10px 0;
+            margin-bottom: 10px;
         }
         .info-card {
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            padding: 12px;
+            padding: 8px 10px;
             vertical-align: top;
         }
         .card-heading {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: {{ $primaryColor }};
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 1px solid #cbd5e1;
-            padding-bottom: 4px;
-            margin-bottom: 8px;
+            padding-bottom: 3px;
+            margin-bottom: 6px;
         }
         .ceb-highlight {
             background-color: #fef3c7;
             border: 1px solid #f59e0b;
             color: #92400e;
-            padding: 4px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
             font-weight: bold;
-            margin-top: 6px;
+            margin-top: 4px;
             display: inline-block;
+            font-size: 9.5px;
         }
         .specs-table {
             width: 100%;
@@ -146,11 +150,11 @@
             background-color: #f0fdf4;
             border: 1px solid #bbf7d0;
             border-radius: 6px;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
         .specs-table td {
-            padding: 8px 12px;
-            font-size: 10.5px;
+            padding: 5px 8px;
+            font-size: 9.5px;
             border-bottom: 1px solid #dcfce7;
         }
         .specs-table td:nth-child(odd) {
@@ -165,20 +169,20 @@
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 16px;
+            margin-bottom: 10px;
         }
         .items-table th {
             background-color: {{ $tableHeaderColor }};
             color: {{ $textColor }};
-            font-size: 10px;
+            font-size: 9.5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 8px 10px;
+            padding: 6px 8px;
             text-align: left;
         }
         .items-table td {
-            padding: 8px 10px;
-            font-size: 10.5px;
+            padding: 5px 8px;
+            font-size: 9.5px;
             border-bottom: 1px solid #e2e8f0;
         }
         .items-table tr:nth-child(even) td {
@@ -193,7 +197,7 @@
         .totals-container {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 18px;
+            margin-bottom: 10px;
         }
         .totals-container td {
             vertical-align: top;
@@ -202,15 +206,15 @@
             background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            padding: 10px 12px;
+            padding: 8px 10px;
         }
         .milestones-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 10px;
+            font-size: 9px;
         }
         .milestones-table td {
-            padding: 4px 6px;
+            padding: 3px 5px;
             border-bottom: 1px dashed #cbd5e1;
         }
         .totals-table {
@@ -218,55 +222,56 @@
             border-collapse: collapse;
         }
         .totals-table td {
-            padding: 5px 8px;
-            font-size: 11px;
+            padding: 3px 6px;
+            font-size: 10px;
         }
         .totals-table .grand-row {
             background-color: {{ $primaryColor }};
             color: #ffffff;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11.5px;
         }
         .totals-table .due-row {
             background-color: {{ $primaryColor }};
             color: #ffffff;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 12px;
         }
-        .totals-table .due-row td {
-            padding: 8px 10px;
+        .totals-table .due-row td, .totals-table .grand-row td {
+            padding: 5px 8px;
             border-radius: 4px;
         }
         .terms-box {
             background-color: #f8fafc;
             border-left: 3px solid {{ $primaryColor }};
-            padding: 10px 14px;
-            font-size: 9.5px;
+            padding: 6px 10px;
+            font-size: 8px;
             color: #475569;
-            margin-bottom: 24px;
+            line-height: 1.3;
+            margin-bottom: 10px;
         }
         .signatures-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 8px;
         }
         .signatures-table td {
             width: 50%;
             vertical-align: top;
-            font-size: 10px;
+            font-size: 9px;
             color: #475569;
         }
         .sig-line {
-            width: 80%;
+            width: 75%;
             border-bottom: 1px solid #94a3b8;
-            margin-top: 40px;
-            margin-bottom: 4px;
+            margin-top: 24px;
+            margin-bottom: 3px;
         }
         .status-badge {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
         }
@@ -345,9 +350,6 @@
 
     <!-- Solar Technical Specifications Block (if linked to quotation) -->
     @if($quotation && $showSolarSpecs)
-        <div style="font-size: 11px; font-weight: bold; color: {{ $primaryColor }}; text-transform: uppercase; margin-bottom: 6px;">
-            Solar Engineering & System Sizing Specifications
-        </div>
         <table class="specs-table">
             <tr>
                 <td>System Capacity:</td>
@@ -370,13 +372,11 @@
 
     @php
         $mode = $mode ?? ($invoice->price_display_mode ?? 'itemized');
+        $summaryMode = $summaryMode ?? ($invoice->pdf_item_summary_mode ?? 'consolidated');
         $isPackageMode = ($mode === 'package_total_only');
-        $visibleItems = collect($items)->filter(function ($item) use ($isPackageMode) {
-            if ($isPackageMode && (bool) ($item->hide_on_customer_pdf ?? false)) {
-                return false;
-            }
-            return true;
-        });
+        $isConsolidated = ($summaryMode === 'consolidated');
+
+        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode);
     @endphp
 
     <!-- Invoice Line Items Table -->
@@ -384,30 +384,30 @@
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 6%;" class="text-center">#</th>
-                    <th style="width: 52%;">Description / Model</th>
+                    <th style="width: 5%;" class="text-center">#</th>
+                    <th style="width: 53%;">Description / Scope of Supply</th>
                     <th style="width: 14%;" class="text-center">Quantity</th>
                     <th style="width: 28%;">Remarks / Warranty</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($visibleItems->values() as $index => $item)
+                @forelse($displayItems as $index => $item)
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>
                             <strong>{{ $item->product->name ?? $item->description }}</strong>
                             @if($item->product && $item->product->name !== $item->description)
-                                <div style="font-size: 9.5px; color: #64748b;">{{ $item->description }}</div>
+                                <div style="font-size: 8.5px; color: #64748b; line-height: 1.25;">{{ $item->description }}</div>
                             @endif
                         </td>
-                        <td class="text-center">{{ number_format((float) $item->quantity, 0) }}</td>
-                        <td style="color: #047857; font-weight: bold;">
+                        <td class="text-center">{{ $item->formatted_quantity ?? number_format((float) $item->quantity, 0) }}</td>
+                        <td style="color: #047857; font-weight: bold; font-size: 9px;">
                             {{ $item->warranty_text ?: ($item->product?->formatted_warranty ?: '-') }}
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center" style="padding: 16px; color: #94a3b8;">No items listed in this invoice.</td>
+                        <td colspan="4" class="text-center" style="padding: 12px; color: #94a3b8;">No items listed in this invoice.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -418,33 +418,33 @@
                 <tr>
                     <th style="width: 5%;" class="text-center">#</th>
                     <th style="width: 48%;">Item & Technical Description</th>
-                    <th style="width: 8%;" class="text-center">Qty</th>
-                    <th style="width: 15%;" class="text-right">Unit Price (Rs.)</th>
+                    <th style="width: 9%;" class="text-center">Qty</th>
+                    <th style="width: 14%;" class="text-right">Unit Price (Rs.)</th>
                     <th style="width: 10%;" class="text-right">Tax (Rs.)</th>
                     <th style="width: 14%;" class="text-right">Total (Rs.)</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($items as $index => $item)
+                @forelse($displayItems as $index => $item)
                     <tr>
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>
                             <strong>{{ $item->product->name ?? $item->description }}</strong>
                             @if($item->product && $item->product->name !== $item->description)
-                                <div style="font-size: 9.5px; color: #64748b;">{{ $item->description }}</div>
+                                <div style="font-size: 8.5px; color: #64748b; line-height: 1.25;">{{ $item->description }}</div>
                             @endif
                             @if(!empty($item->warranty_text))
-                                <div style="font-size: 9px; color: #059669; font-weight: bold;">Warranty: {{ $item->warranty_text }}</div>
+                                <div style="font-size: 8.5px; color: #059669; font-weight: bold;">Warranty: {{ $item->warranty_text }}</div>
                             @endif
                         </td>
-                        <td class="text-center">{{ number_format((float) $item->quantity, 0) }}</td>
+                        <td class="text-center">{{ $item->formatted_quantity ?? number_format((float) $item->quantity, 0) }}</td>
                         <td class="text-right">{{ number_format((float) $item->unit_price, 2) }}</td>
                         <td class="text-right">{{ number_format((float) ($item->tax ?? 0), 2) }}</td>
                         <td class="text-right"><strong>{{ number_format((float) $item->subtotal, 2) }}</strong></td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center" style="padding: 16px; color: #94a3b8;">No items listed in this invoice.</td>
+                        <td colspan="6" class="text-center" style="padding: 12px; color: #94a3b8;">No items listed in this invoice.</td>
                     </tr>
                 @endforelse
             </tbody>

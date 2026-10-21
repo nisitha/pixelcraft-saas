@@ -510,21 +510,40 @@
             @endif
 
             {{-- Instant Preview Mode Switcher Bar --}}
-            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 13px; font-weight: 700; color: #475569;">👁️ Live Preview Mode:</span>
-                    <span style="display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; {{ $this->effectivePriceDisplayMode === 'package_total_only' ? 'background: #fef3c7; color: #92400e; border: 1px solid #fde68a;' : 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' }}">
-                        {{ $this->effectivePriceDisplayMode === 'package_total_only' ? '📦 Customer Package View (No Unit Prices)' : '📋 Standard Itemized View (With Rates)' }}
-                    </span>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #475569;">💰 Pricing:</span>
+                        <span style="display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; {{ $this->effectivePriceDisplayMode === 'package_total_only' ? 'background: #fef3c7; color: #92400e; border: 1px solid #fde68a;' : 'background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;' }}">
+                            {{ $this->effectivePriceDisplayMode === 'package_total_only' ? '📦 Customer Package View' : '📋 Standard Itemized View' }}
+                        </span>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #475569;">📄 Layout:</span>
+                        <span style="display: inline-flex; align-items: center; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; {{ $this->effectivePdfItemSummaryMode === 'consolidated' ? 'background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;' : 'background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;' }}">
+                            {{ $this->effectivePdfItemSummaryMode === 'consolidated' ? '✨ Consolidated (Strict 1-Page)' : '📑 Detailed Breakdown' }}
+                        </span>
+                    </div>
                 </div>
+
                 <div style="display: flex; align-items: center; gap: 8px;">
+                    <button
+                        type="button"
+                        wire:click="togglePreviewPdfItemSummaryMode"
+                        class="action-btn action-btn-default"
+                        style="padding: 6px 12px; font-size: 11px; font-weight: 700; background: #f8fafc; border-color: #cbd5e1;"
+                    >
+                        🔄 {{ $this->effectivePdfItemSummaryMode === 'consolidated' ? 'Show Detailed Breakdown' : 'Show Consolidated Summary' }}
+                    </button>
+
                     <button
                         type="button"
                         wire:click="togglePreviewPriceDisplayMode"
                         class="action-btn action-btn-default"
-                        style="padding: 6px 14px; font-size: 12px; font-weight: 700; background: #f8fafc; border-color: #cbd5e1;"
+                        style="padding: 6px 12px; font-size: 11px; font-weight: 700; background: #f8fafc; border-color: #cbd5e1;"
                     >
-                        🔄 Switch to {{ $this->effectivePriceDisplayMode === 'package_total_only' ? 'Itemized View' : 'Customer Package View' }}
+                        🔄 {{ $this->effectivePriceDisplayMode === 'package_total_only' ? 'Show Itemized Rates' : 'Show Package View' }}
                     </button>
                 </div>
             </div>
@@ -592,12 +611,8 @@
 
                     @php
                         $isPackageMode = ($this->effectivePriceDisplayMode === 'package_total_only');
-                        $visibleItems = $record->items->filter(function ($item) use ($isPackageMode) {
-                            if ($isPackageMode && (bool) ($item->hide_on_customer_pdf ?? false)) {
-                                return false;
-                            }
-                            return true;
-                        });
+                        $isConsolidated = ($this->effectivePdfItemSummaryMode === 'consolidated');
+                        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($record->items, $isConsolidated, $isPackageMode);
                     @endphp
 
                     <!-- Items Grid -->
@@ -612,7 +627,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($visibleItems->values() as $idx => $item)
+                                @forelse ($displayItems as $idx => $item)
                                     <tr style="border-bottom: 1px solid #f1f5f9; background-color: {{ $idx % 2 === 1 ? '#f8fafc' : 'transparent' }};">
                                         <td style="padding: 8px 10px;">{{ $idx + 1 }}</td>
                                         <td style="padding: 8px 10px;">
@@ -621,7 +636,7 @@
                                                 <div style="font-size: 10px; color: #64748b;">{{ $item->description }}</div>
                                             @endif
                                         </td>
-                                        <td style="padding: 8px 10px; text-align: center; font-weight: 600;">{{ number_format($item->quantity, 2) }}</td>
+                                        <td style="padding: 8px 10px; text-align: center; font-weight: 600;">{{ $item->formatted_quantity ?? number_format((float) $item->quantity, 2) }}</td>
                                         <td style="padding: 8px 10px; color: #047857; font-weight: 600;">
                                             {{ $item->warranty_text ?: ($item->product?->formatted_warranty ?: '-') }}
                                         </td>
@@ -645,7 +660,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($record->items as $idx => $item)
+                                @forelse ($displayItems as $idx => $item)
                                     <tr style="border-bottom: 1px solid #f1f5f9; background-color: {{ $idx % 2 === 1 ? '#f8fafc' : 'transparent' }};">
                                         <td style="padding: 8px 10px;">{{ $idx + 1 }}</td>
                                         <td style="padding: 8px 10px;">
@@ -657,11 +672,15 @@
                                                 <div style="font-size: 10px; color: #059669; font-weight: 500;">🛡️ {{ $item->warranty_text }}</div>
                                             @endif
                                         </td>
-                                        <td style="padding: 8px 10px; text-align: right;">{{ number_format($item->quantity, 2) }}</td>
-                                        <td style="padding: 8px 10px; text-align: right;">{{ number_format($item->unit_price, 2) }}</td>
-                                        <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #0f172a;">{{ number_format($item->subtotal, 2) }}</td>
+                                        <td style="padding: 8px 10px; text-align: right;">{{ $item->formatted_quantity ?? number_format((float) $item->quantity, 2) }}</td>
+                                        <td style="padding: 8px 10px; text-align: right;">{{ number_format((float) $item->unit_price, 2) }}</td>
+                                        <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #0f172a;">{{ number_format((float) $item->subtotal, 2) }}</td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="5" style="padding: 16px; text-align: center; color: #94a3b8;">No items listed.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     @endif

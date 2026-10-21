@@ -44,9 +44,12 @@ trait HasZohoSplitView
 
     public ?string $previewMode = null;
 
+    public ?string $previewSummaryMode = null;
+
     public function initSplitView(): void
     {
         $this->previewMode = $this->record?->price_display_mode ?? 'itemized';
+        $this->previewSummaryMode = $this->record?->pdf_item_summary_mode ?? 'consolidated';
         $this->refreshEmailDetails();
     }
 
@@ -80,12 +83,13 @@ trait HasZohoSplitView
         $companyId = Filament::getTenant()?->id;
 
         $record = static::getModel()::where('company_id', $companyId)
-            ->with(['contact', 'items.product'])
+            ->with(['contact', 'items.product.category'])
             ->find($id);
 
         if ($record) {
             $this->record = $record;
             $this->previewMode = $record->price_display_mode ?? 'itemized';
+            $this->previewSummaryMode = $record->pdf_item_summary_mode ?? 'consolidated';
             $this->refreshEmailDetails();
         }
     }
@@ -215,6 +219,11 @@ trait HasZohoSplitView
         return $this->previewMode ?? ($this->record?->price_display_mode ?? 'itemized');
     }
 
+    public function getEffectivePdfItemSummaryModeProperty(): string
+    {
+        return $this->previewSummaryMode ?? ($this->record?->pdf_item_summary_mode ?? 'consolidated');
+    }
+
     public function togglePreviewPriceDisplayMode(): void
     {
         $current = $this->getEffectivePriceDisplayModeProperty();
@@ -226,7 +235,23 @@ trait HasZohoSplitView
         }
 
         Notification::make()
-            ->title('Preview Mode: '.($newMode === 'package_total_only' ? 'Customer Package View (Hidden Unit Prices)' : 'Standard Itemized View (With Prices)'))
+            ->title('Preview Pricing: '.($newMode === 'package_total_only' ? 'Customer Package View (Hidden Unit Prices)' : 'Standard Itemized View (With Prices)'))
+            ->success()
+            ->send();
+    }
+
+    public function togglePreviewPdfItemSummaryMode(): void
+    {
+        $current = $this->getEffectivePdfItemSummaryModeProperty();
+        $newMode = $current === 'consolidated' ? 'detailed' : 'consolidated';
+        $this->previewSummaryMode = $newMode;
+
+        if ($this->record) {
+            $this->record->update(['pdf_item_summary_mode' => $newMode]);
+        }
+
+        Notification::make()
+            ->title('Scope Layout: '.($newMode === 'consolidated' ? 'Consolidated Summary (Strict 1-Page PDF)' : 'Detailed Breakdown (All Items)'))
             ->success()
             ->send();
     }
@@ -234,6 +259,7 @@ trait HasZohoSplitView
     public function downloadCustomerPdf(): StreamedResponse
     {
         $pdfService = app(PdfService::class);
+        $summaryMode = $this->getEffectivePdfItemSummaryModeProperty();
 
         if ($this->documentType === 'quotation') {
             /** @var Quotation $record */
@@ -242,7 +268,7 @@ trait HasZohoSplitView
             $filename = "Quotation-Customer-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateQuotationPdf($record, 'package_total_only')->output()),
+                fn () => print ($pdfService->generateQuotationPdf($record, 'package_total_only', $summaryMode)->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );
@@ -254,7 +280,7 @@ trait HasZohoSplitView
         $filename = "Invoice-Customer-{$safeNumber}.pdf";
 
         return response()->streamDownload(
-            fn () => print ($pdfService->generateInvoicePdf($record, 'package_total_only')->output()),
+            fn () => print ($pdfService->generateInvoicePdf($record, 'package_total_only', $summaryMode)->output()),
             $filename,
             ['Content-Type' => 'application/pdf']
         );
@@ -263,6 +289,7 @@ trait HasZohoSplitView
     public function downloadItemizedPdf(): StreamedResponse
     {
         $pdfService = app(PdfService::class);
+        $summaryMode = $this->getEffectivePdfItemSummaryModeProperty();
 
         if ($this->documentType === 'quotation') {
             /** @var Quotation $record */
@@ -271,7 +298,7 @@ trait HasZohoSplitView
             $filename = "Quotation-Itemized-{$safeNumber}.pdf";
 
             return response()->streamDownload(
-                fn () => print ($pdfService->generateQuotationPdf($record, 'itemized')->output()),
+                fn () => print ($pdfService->generateQuotationPdf($record, 'itemized', $summaryMode)->output()),
                 $filename,
                 ['Content-Type' => 'application/pdf']
             );
@@ -283,7 +310,7 @@ trait HasZohoSplitView
         $filename = "Invoice-Itemized-{$safeNumber}.pdf";
 
         return response()->streamDownload(
-            fn () => print ($pdfService->generateInvoicePdf($record, 'itemized')->output()),
+            fn () => print ($pdfService->generateInvoicePdf($record, 'itemized', $summaryMode)->output()),
             $filename,
             ['Content-Type' => 'application/pdf']
         );

@@ -12,6 +12,10 @@ class Invoice extends Model
 {
     use BelongsToCompany, HasFactory;
 
+    protected $attributes = [
+        'pdf_item_summary_mode' => 'consolidated',
+    ];
+
     protected $fillable = [
         'company_id',
         'contact_id',
@@ -31,6 +35,7 @@ class Invoice extends Model
         'commission_status',
         'status',
         'price_display_mode',
+        'pdf_item_summary_mode',
         'is_sent',
         'sent_at',
     ];
