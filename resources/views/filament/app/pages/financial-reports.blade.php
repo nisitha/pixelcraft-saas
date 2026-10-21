@@ -128,8 +128,8 @@
 
         <!-- 2. Invoice / Project Profitability Explorer (Requirement 3) -->
         @php
-            $pnl = $this->getInvoiceProfitabilityMetrics();
-            $availableInvoices = $this->getInvoicesList();
+            $pnl = $pnl ?? $this->getInvoiceProfitabilityMetrics();
+            $availableInvoices = $availableInvoices ?? $this->getInvoicesList();
         @endphp
 
         <x-filament::section>

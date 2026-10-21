@@ -2,14 +2,28 @@
 
 namespace App\Observers;
 
+use App\Filament\App\Pages\FinancialReports;
 use App\Models\InvoiceItem;
 use App\Models\Product;
 
 class InvoiceItemObserver
 {
+    /**
+     * Helper to invalidate/flush financial report cache keys.
+     */
+    protected function invalidateFinancialReportsCache(?int $companyId): void
+    {
+        if ($companyId) {
+            FinancialReports::flushCacheForTenant($companyId);
+        }
+    }
+
     public function created(InvoiceItem $item): void
     {
         $invoice = $item->invoice;
+        if ($invoice) {
+            $this->invalidateFinancialReportsCache($invoice->company_id);
+        }
 
         if ($invoice && $invoice->status === 'cancelled') {
             return;
@@ -33,6 +47,9 @@ class InvoiceItemObserver
     public function deleted(InvoiceItem $item): void
     {
         $invoice = $item->invoice;
+        if ($invoice) {
+            $this->invalidateFinancialReportsCache($invoice->company_id);
+        }
 
         if ($invoice && $invoice->status === 'cancelled') {
             return;

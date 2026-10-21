@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Filament\App\Pages\FinancialReports;
 use App\Models\AuditLog;
 use App\Models\Invoice;
 use App\Models\Product;
@@ -9,8 +10,20 @@ use Filament\Facades\Filament;
 
 class InvoiceObserver
 {
+    /**
+     * Helper to invalidate/flush financial report cache keys whenever an invoice is mutated.
+     */
+    protected function invalidateFinancialReportsCache(?int $companyId): void
+    {
+        if ($companyId) {
+            FinancialReports::flushCacheForTenant($companyId);
+        }
+    }
+
     public function created(Invoice $invoice): void
     {
+        $this->invalidateFinancialReportsCache($invoice->company_id);
+
         $userId = Filament::auth()->id() ?? auth()->id();
 
         AuditLog::create([
@@ -32,6 +45,8 @@ class InvoiceObserver
 
     public function updated(Invoice $invoice): void
     {
+        $this->invalidateFinancialReportsCache($invoice->company_id);
+
         if ($invoice->wasChanged('status')) {
             $newStatus = $invoice->status;
             $oldStatus = $invoice->getOriginal('status');
@@ -89,5 +104,27 @@ class InvoiceObserver
                 }
             }
         }
+    }
+
+    public function deleted(Invoice $invoice): void
+    {
+        $this->invalidateFinancialReportsCache($invoice->company_id);
+
+        $userId = Filament::auth()->id() ?? auth()->id();
+
+        AuditLog::create([
+            'company_id' => $invoice->company_id,
+            'user_id' => $userId,
+            'action' => 'deleted',
+            'model_type' => Invoice::class,
+            'model_id' => $invoice->id,
+            'ip_address' => request()?->ip() ?? '127.0.0.1',
+            'changes' => [
+                'invoice_number' => $invoice->invoice_number,
+                'grand_total' => $invoice->grand_total,
+                'status' => $invoice->status,
+            ],
+            'created_at' => now(),
+        ]);
     }
 }
