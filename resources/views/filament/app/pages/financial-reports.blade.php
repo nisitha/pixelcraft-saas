@@ -699,14 +699,14 @@
                         @forelse($this->getExpenseBreakdown() as $exp)
                             <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;">
                                 <div style="display: flex; justify-content: space-between; font-weight: 600;">
-                                    <span style="color: #111827;">{{ $exp->category }} ({{ $exp->count }})</span>
-                                    <span style="font-weight: 700; color: #111827;">Rs. {{ number_format((float) $exp->total, 2) }}</span>
+                                    <span style="color: #111827;">{{ is_object($exp) ? $exp->category : ($exp['category'] ?? '') }} ({{ is_object($exp) ? $exp->count : ($exp['count'] ?? 0) }})</span>
+                                    <span style="font-weight: 700; color: #111827;">Rs. {{ number_format((float) (is_object($exp) ? $exp->total : ($exp['total'] ?? 0)), 2) }}</span>
                                 </div>
                                 <div style="width: 100%; background-color: #f3f4f6; border-radius: 9999px; height: 0.4rem; overflow: hidden;">
-                                    <div style="background-color: #f43f5e; height: 100%; border-radius: 9999px; width: {{ $exp->percentage }}%;"></div>
+                                    <div style="background-color: #f43f5e; height: 100%; border-radius: 9999px; width: {{ is_object($exp) ? $exp->percentage : ($exp['percentage'] ?? 0) }}%;"></div>
                                 </div>
                                 <div style="font-size: 0.65rem; color: #9ca3af; text-align: right;">
-                                    {{ $exp->percentage }}% of total expenses
+                                    {{ is_object($exp) ? $exp->percentage : ($exp['percentage'] ?? 0) }}% of total expenses
                                 </div>
                             </div>
                         @empty
@@ -755,27 +755,40 @@
                     </thead>
                     <tbody>
                         @forelse($this->getReceivablesSummary() as $rec)
+                            @php
+                                $recInvNo = is_object($rec) ? $rec->invoice_number : ($rec['invoice_number'] ?? '');
+                                $recContact = is_object($rec) ? $rec->contact : ($rec['contact'] ?? null);
+                                $recContactName = is_object($recContact) ? $recContact->name : ($recContact['name'] ?? 'Unknown');
+                                $recContactPhone = is_object($recContact) ? $recContact->phone : ($recContact['phone'] ?? null);
+                                $recCebNo = is_object($recContact) ? $recContact->ceb_account_no : ($recContact['ceb_account_no'] ?? null);
+                                $recDateRaw = is_object($rec) ? $rec->invoice_date : ($rec['invoice_date'] ?? null);
+                                $recDate = $recDateRaw ? ($recDateRaw instanceof \Carbon\CarbonInterface ? $recDateRaw->format('d M Y') : \Carbon\Carbon::parse($recDateRaw)->format('d M Y')) : '-';
+                                $recTotal = (float) (is_object($rec) ? $rec->grand_total : ($rec['grand_total'] ?? 0));
+                                $recPaid = (float) (is_object($rec) ? $rec->paid_amount : ($rec['paid_amount'] ?? 0));
+                                $recDue = (float) (is_object($rec) ? $rec->due_amount : ($rec['due_amount'] ?? 0));
+                                $recId = is_object($rec) ? $rec->id : ($rec['id'] ?? 0);
+                            @endphp
                             <tr style="border-bottom: 1px solid #f3f4f6;">
-                                <td style="padding: 0.65rem 0.85rem; font-family: monospace; font-weight: 700; color: #111827;">{{ $rec->invoice_number }}</td>
+                                <td style="padding: 0.65rem 0.85rem; font-family: monospace; font-weight: 700; color: #111827;">{{ $recInvNo }}</td>
                                 <td style="padding: 0.65rem 0.85rem; font-weight: 600; color: #111827;">
-                                    {{ $rec->contact->name ?? 'Unknown' }}
-                                    @if(!empty($rec->contact->phone))
-                                        <span style="display: block; font-size: 0.65rem; color: #9ca3af; font-weight: normal;">{{ $rec->contact->phone }}</span>
+                                    {{ $recContactName }}
+                                    @if(!empty($recContactPhone))
+                                        <span style="display: block; font-size: 0.65rem; color: #9ca3af; font-weight: normal;">{{ $recContactPhone }}</span>
                                     @endif
                                 </td>
                                 <td style="padding: 0.65rem 0.85rem; color: #b45309; font-weight: 600;">
-                                    {{ $rec->contact->ceb_account_no ?? 'N/A' }}
+                                    {{ $recCebNo ?? 'N/A' }}
                                 </td>
-                                <td style="padding: 0.65rem 0.85rem; color: #6b7280;">{{ $rec->invoice_date ? $rec->invoice_date->format('d M Y') : '-' }}</td>
-                                <td style="padding: 0.65rem 0.85rem; text-align: right;">Rs. {{ number_format((float) $rec->grand_total, 2) }}</td>
-                                <td style="padding: 0.65rem 0.85rem; text-align: right; color: #059669; font-weight: 600;">Rs. {{ number_format((float) $rec->paid_amount, 2) }}</td>
+                                <td style="padding: 0.65rem 0.85rem; color: #6b7280;">{{ $recDate }}</td>
+                                <td style="padding: 0.65rem 0.85rem; text-align: right;">Rs. {{ number_format($recTotal, 2) }}</td>
+                                <td style="padding: 0.65rem 0.85rem; text-align: right; color: #059669; font-weight: 600;">Rs. {{ number_format($recPaid, 2) }}</td>
                                 <td style="padding: 0.65rem 0.85rem; text-align: right; font-weight: 800; color: #e11d48;">
-                                    Rs. {{ number_format((float) $rec->due_amount, 2) }}
+                                    Rs. {{ number_format($recDue, 2) }}
                                 </td>
                                 <td style="padding: 0.65rem 0.85rem; text-align: center;">
                                     <button 
                                         type="button"
-                                        wire:click="selectInvoice({{ $rec->id }})"
+                                        wire:click="selectInvoice({{ $recId }})"
                                         style="padding: 0.25rem 0.5rem; background-color: #eef2ff; color: #4f46e5; border-radius: 0.375rem; font-size: 0.7rem; font-weight: 700; border: 1px solid #c7d2fe; cursor: pointer;"
                                         title="Examine project P&L and cost breakdown"
                                     >

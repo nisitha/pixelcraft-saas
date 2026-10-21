@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Pages;
 
+use App\Models\Contact;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -307,7 +308,7 @@ class FinancialReports extends Page
         if ($tenantId) {
             $receivablesQuery->where('company_id', $tenantId);
         }
-        $receivablesSummary = $receivablesQuery->get();
+        $receivablesSummary = $receivablesQuery->get()->toArray();
 
         // Expense Breakdown (Grouped in SQL)
         $expGroupQuery = DB::table('expenses')
@@ -326,13 +327,13 @@ class FinancialReports extends Page
             $count = (int) $item->count;
             $percentage = $operatingExpenses > 0 ? round(($total / $operatingExpenses) * 100, 1) : 0.0;
 
-            return (object) [
+            return [
                 'category' => $item->category,
                 'count' => $count,
                 'total' => $total,
                 'percentage' => $percentage,
             ];
-        });
+        })->toArray();
 
         return [
             'invoiced_sales' => $invoicedSales,
@@ -418,7 +419,31 @@ class FinancialReports extends Page
 
     public function getReceivablesSummary(): Collection
     {
-        return $this->getFinancialMetrics()['receivables_summary'] ?? collect();
+        $data = $this->getFinancialMetrics()['receivables_summary'] ?? [];
+        if ($data instanceof Collection) {
+            return $data;
+        }
+
+        $items = is_array($data) ? $data : [];
+
+        return collect($items)->map(function ($item) {
+            if ($item instanceof Invoice) {
+                return $item;
+            }
+
+            if (is_array($item)) {
+                $contactData = $item['contact'] ?? null;
+                unset($item['contact']);
+                $invoice = (new Invoice)->newFromBuilder($item);
+                if (is_array($contactData)) {
+                    $invoice->setRelation('contact', (new Contact)->newFromBuilder($contactData));
+                }
+
+                return $invoice;
+            }
+
+            return $item;
+        });
     }
 
     public function getTotalReceivables(): float
@@ -428,7 +453,16 @@ class FinancialReports extends Page
 
     public function getExpenseBreakdown(): Collection
     {
-        return $this->getFinancialMetrics()['expense_breakdown'] ?? collect();
+        $data = $this->getFinancialMetrics()['expense_breakdown'] ?? [];
+        if ($data instanceof Collection) {
+            return $data;
+        }
+
+        $items = is_array($data) ? $data : [];
+
+        return collect($items)->map(function ($item) {
+            return is_array($item) ? (object) $item : $item;
+        });
     }
 
     public function getRealizedCashCollected(): float

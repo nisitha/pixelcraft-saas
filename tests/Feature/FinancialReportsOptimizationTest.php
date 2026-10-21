@@ -14,6 +14,7 @@ use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
@@ -167,5 +168,12 @@ class FinancialReportsOptimizationTest extends TestCase
         $this->assertEquals('all', $component->get('period'));
         $this->assertNotNull($component->get('startDate'));
         $this->assertNotNull($component->get('endDate'));
+
+        // Verify collection getters return Illuminate\Support\Collection and no __PHP_Incomplete_Class
+        $breakdown = $component->instance()->getExpenseBreakdown();
+        $this->assertInstanceOf(Collection::class, $breakdown);
+
+        $receivables = $component->instance()->getReceivablesSummary();
+        $this->assertInstanceOf(Collection::class, $receivables);
     }
 }
