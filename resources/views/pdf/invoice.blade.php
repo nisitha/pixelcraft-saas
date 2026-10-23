@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice - {{ $invoice->invoice_number }}</title>
+    @php
+        $invoice = $invoice ?? ($record ?? null);
+    @endphp
+    <title>Invoice - {{ $invoice?->invoice_number }}</title>
     @php
         $primaryColor = $company->settings['primary_color'] ?? '#047857';
         $tableHeaderColor = $company->settings['table_header_color'] ?? '#047857';
@@ -376,7 +379,8 @@
         $isPackageMode = ($mode === 'package_total_only');
         $isConsolidated = ($summaryMode === 'consolidated');
 
-        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode);
+        $profitMarkup = (float) ($invoice->profit_markup ?? 0.00);
+        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode, $profitMarkup);
     @endphp
 
     <!-- Invoice Line Items Table -->
@@ -507,7 +511,7 @@
                 <table class="totals-table">
                     <tr>
                         <td class="text-right" style="color: #64748b;">{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
-                        <td class="text-right" style="width: 45%;">Rs. {{ number_format((float) $invoice->subtotal, 2) }}</td>
+                        <td class="text-right" style="width: 45%;">Rs. {{ number_format((float) ($invoice->subtotal + $profitMarkup), 2) }}</td>
                     </tr>
                     @if((float) $invoice->discount > 0)
                         <tr>

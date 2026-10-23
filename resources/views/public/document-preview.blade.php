@@ -330,7 +330,8 @@
             $isPackageMode = ($mode === 'package_total_only');
             $isConsolidated = ($summaryMode === 'consolidated');
 
-            $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode);
+            $profitMarkup = (float) ($document->profit_markup ?? 0.00);
+            $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode, $profitMarkup);
         @endphp
 
         <!-- Line Items Table -->
@@ -448,7 +449,7 @@
                 <table class="totals-table">
                     <tr>
                         <td>{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
-                        <td style="text-align: right; font-weight: 600;">Rs. {{ number_format($document->subtotal, 2) }}</td>
+                        <td style="text-align: right; font-weight: 600;">Rs. {{ number_format((float) ($document->subtotal + $profitMarkup), 2) }}</td>
                     </tr>
                     @if ((float) $document->discount > 0)
                         <tr>

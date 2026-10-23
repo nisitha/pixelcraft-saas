@@ -15,6 +15,8 @@ class Quotation extends Model
 
     protected $attributes = [
         'pdf_item_summary_mode' => 'consolidated',
+        'profit_markup' => 0.00,
+        'profit_markup_type' => 'fixed',
     ];
 
     protected $fillable = [
@@ -32,6 +34,8 @@ class Quotation extends Model
         'subtotal',
         'discount',
         'tax',
+        'profit_markup',
+        'profit_markup_type',
         'grand_total',
         'commission_amount',
         'commission_status',
@@ -52,6 +56,7 @@ class Quotation extends Model
             'subtotal' => 'decimal:2',
             'discount' => 'decimal:2',
             'tax' => 'decimal:2',
+            'profit_markup' => 'decimal:2',
             'grand_total' => 'decimal:2',
             'commission_amount' => 'decimal:2',
             'is_sent' => 'boolean',

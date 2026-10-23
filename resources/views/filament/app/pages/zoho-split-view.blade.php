@@ -612,7 +612,9 @@
                     @php
                         $isPackageMode = ($this->effectivePriceDisplayMode === 'package_total_only');
                         $isConsolidated = ($this->effectivePdfItemSummaryMode === 'consolidated');
-                        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($record->items, $isConsolidated, $isPackageMode);
+                        $profitMarkup = (float) ($record->profit_markup ?? 0.0);
+                        $absorbedSubtotal = (float) ($record->subtotal ?? 0.0) + $profitMarkup;
+                        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($record->items, $isConsolidated, $isPackageMode, $profitMarkup);
                     @endphp
 
                     <!-- Items Grid -->
@@ -730,66 +732,162 @@
                             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
                                 <tr>
                                     <td style="padding: 4px 6px;">{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
-                                    <td style="padding: 4px 6px; text-align: right; font-weight: 600;">Rs. {{ number_format($record->subtotal, 2) }}</td>
+                                    <td style="padding: 4px 6px; text-align: right; font-weight: 600;">Rs. {{ number_format($absorbedSubtotal, 2) }}</td>
                                 </tr>
                                 @if ((float) $record->discount > 0)
-                                    <tr>
-                                        <td style="padding: 4px 6px;">Promotional Discount:</td>
-                                        <td style="padding: 4px 6px; text-align: right; color: #dc2626;">- Rs. {{ number_format($record->discount, 2) }}</td>
-                                    </tr>
-                                @endif
-                                @if ((float) $record->tax > 0)
-                                    <tr>
-                                        <td style="padding: 4px 6px;">Tax / VAT:</td>
-                                        <td style="padding: 4px 6px; text-align: right;">Rs. {{ number_format($record->tax, 2) }}</td>
-                                    </tr>
-                                @endif
-                                <tr style="background-color: {{ $primaryColor }}; color: #ffffff; font-weight: 800;">
-                                    <td style="padding: 8px 10px; border-radius: 4px 0 0 4px;">{{ $isPackageMode ? 'Total Package Amount:' : 'Total (LKR):' }}</td>
-                                    <td style="padding: 8px 10px; text-align: right; border-radius: 0 4px 4px 0;">Rs. {{ number_format($record->grand_total, 2) }}</td>
-                                </tr>
-                                @if (! $isQuote)
-                                    <tr>
-                                        <td style="padding: 4px 6px; font-weight: 600; color: #059669;">Amount Paid:</td>
-                                        <td style="padding: 4px 6px; text-align: right; font-weight: 700; color: #059669;">Rs. {{ number_format($record->paid_amount, 2) }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 4px 6px; font-weight: 700; color: #dc2626;">Balance Due:</td>
-                                        <td style="padding: 4px 6px; text-align: right; font-weight: 800; color: #dc2626;">Rs. {{ number_format($record->due_amount, 2) }}</td>
-                                    </tr>
-                                @endif
-                            </table>
+                                     <tr>
+                                         <td style="padding: 4px 6px;">Promotional Discount:</td>
+                                         <td style="padding: 4px 6px; text-align: right; color: #dc2626;">- Rs. {{ number_format($record->discount, 2) }}</td>
+                                     </tr>
+                                 @endif
+                                 @if ((float) $record->tax > 0)
+                                     <tr>
+                                         <td style="padding: 4px 6px;">Tax / VAT:</td>
+                                         <td style="padding: 4px 6px; text-align: right;">Rs. {{ number_format($record->tax, 2) }}</td>
+                                     </tr>
+                                 @endif
+                                 <tr style="background-color: {{ $primaryColor }}; color: #ffffff; font-weight: 800;">
+                                     <td style="padding: 8px 10px; border-radius: 4px 0 0 4px;">{{ $isPackageMode ? 'Total Package Amount:' : 'Total (LKR):' }}</td>
+                                     <td style="padding: 8px 10px; text-align: right; border-radius: 0 4px 4px 0;">Rs. {{ number_format($record->grand_total, 2) }}</td>
+                                 </tr>
+                                 @if (! $isQuote)
+                                     <tr>
+                                         <td style="padding: 4px 6px; font-weight: 600; color: #059669;">Amount Paid:</td>
+                                         <td style="padding: 4px 6px; text-align: right; font-weight: 700; color: #059669;">Rs. {{ number_format($record->paid_amount, 2) }}</td>
+                                     </tr>
+                                     <tr>
+                                         <td style="padding: 4px 6px; font-weight: 700; color: #dc2626;">Balance Due:</td>
+                                         <td style="padding: 4px 6px; text-align: right; font-weight: 800; color: #dc2626;">Rs. {{ number_format($record->due_amount, 2) }}</td>
+                                     </tr>
+                                 @endif
+                             </table>
 
-                            @if (auth()->user()?->isTenantOwnerOrAdmin())
-                                <div style="margin-top: 14px; background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 6px; padding: 10px 12px; color: #ffffff;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 4px; margin-bottom: 6px;">
-                                        <div style="font-size: 10px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; letter-spacing: 0.05em;">
-                                            🔒 Internal Profit Analysis (Owner Only)
-                                        </div>
-                                        <span style="font-size: 9px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #a7f3d0; padding: 1px 4px; border-radius: 3px; font-weight: 700;">CONFIDENTIAL</span>
-                                    </div>
-                                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 10px;">
-                                        <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Cost (COGS):</div>
-                                            <div style="font-weight: 700; font-size: 10.5px; color: #f8fafc;">Rs. {{ number_format($record->total_cost, 2) }}</div>
-                                        </div>
-                                        <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Gross Profit:</div>
-                                            <div style="font-weight: 700; font-size: 10.5px; color: #a7f3d0;">Rs. {{ number_format($record->gross_profit, 2) }}</div>
-                                        </div>
-                                        <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Commission:</div>
-                                            <div style="font-weight: 700; font-size: 10.5px; color: #fde047;">Rs. {{ number_format((float) ($record->commission_amount ?? 0), 2) }}</div>
-                                        </div>
-                                        <div>
-                                            <div style="color: #cbd5e1; font-size: 9px;">Net Owner Profit:</div>
-                                            <div style="font-weight: 800; font-size: 11px; color: {{ $record->net_profit >= 0 ? '#34d399' : '#f87171' }};">
-                                                Rs. {{ number_format($record->net_profit, 2) }} ({{ $record->profit_margin_percentage }}%)
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
+                             @if (auth()->user()?->isTenantOwnerOrAdmin())
+                                @php
+                                    $linkedExpenses = ($record instanceof \App\Models\Invoice) ? ($record->expenses ?? collect()) : collect();
+                                    $hasExpenses = $linkedExpenses->isNotEmpty();
+                                    $externalExpenses = $linkedExpenses->where('is_internal_overhead', false);
+                                    $internalExpenses = $linkedExpenses->where('is_internal_overhead', true);
+
+                                    $materialsCost = (float) $externalExpenses
+                                        ->filter(fn ($e) => preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter/i', (string) $e->category))
+                                        ->sum('amount');
+                                    if ($materialsCost <= 0 && (float) $record->total_cost > 0) {
+                                        $materialsCost = (float) $record->total_cost;
+                                    }
+
+                                    $labourCost = (float) $externalExpenses
+                                        ->filter(fn ($e) => preg_match('/labour|labor|installation|contractor|technician|travel|food|transport|logistics|site/i', (string) $e->category))
+                                        ->sum('amount');
+                                    $otherExternalCost = (float) $externalExpenses
+                                        ->filter(fn ($e) => ! preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter|labour|labor|installation|contractor|technician|travel|food|transport|logistics|site/i', (string) $e->category))
+                                        ->sum('amount');
+                                    $labourAndOps = $labourCost + $otherExternalCost;
+                                    $commAmount = (float) ($record->commission_amount ?? 0);
+
+                                    $directExternalOutflow = round($materialsCost + $labourAndOps + $commAmount, 2);
+                                    $internalCompanyOverhead = round((float) $internalExpenses->sum('amount'), 2);
+                                    $contractRevenue = (float) ($record->grand_total ?? 0);
+                                    $companyRetainedMargin = round($contractRevenue - $directExternalOutflow, 2);
+                                    $retainedMarginPct = $contractRevenue > 0 ? round(($companyRetainedMargin / $contractRevenue) * 100, 1) : 0.0;
+                                @endphp
+
+                                 <div style="margin-top: 14px; background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 6px; padding: 10px 12px; color: #ffffff;">
+                                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.15); padding-bottom: 4px; margin-bottom: 6px;">
+                                         <div style="font-size: 10px; font-weight: 800; color: #a7f3d0; text-transform: uppercase; letter-spacing: 0.05em;">
+                                             🔒 Internal Project Costing & Retained Margin (Owner Only)
+                                         </div>
+                                         <span style="font-size: 9px; background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #a7f3d0; padding: 1px 4px; border-radius: 3px; font-weight: 700;">CONFIDENTIAL</span>
+                                     </div>
+
+                                     @if ($hasExpenses)
+                                         <div style="display: flex; flex-direction: column; gap: 6px; font-size: 9.5px;">
+                                             <!-- Section A: Direct External Vendor Outflow -->
+                                             <div style="background: rgba(0, 0, 0, 0.25); border-radius: 4px; padding: 6px 8px;">
+                                                 <div style="color: #6ee7b7; font-weight: 700; text-transform: uppercase; font-size: 9px; margin-bottom: 3px;">
+                                                     Section A: Direct External Vendor Outflow
+                                                 </div>
+                                                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; color: #cbd5e1;">
+                                                     <div>Materials: <strong style="color: #f8fafc;">Rs. {{ number_format($materialsCost, 2) }}</strong></div>
+                                                     <div>Labour: <strong style="color: #f8fafc;">Rs. {{ number_format($labourAndOps, 2) }}</strong></div>
+                                                     <div>Commission: <strong style="color: #fde047;">Rs. {{ number_format($commAmount, 2) }}</strong></div>
+                                                 </div>
+                                                 <div style="text-align: right; margin-top: 3px; font-weight: 700; color: #fca5a5;">
+                                                     Total External Outflow: - Rs. {{ number_format($directExternalOutflow, 2) }}
+                                                 </div>
+                                             </div>
+
+                                             <!-- Retained Margin Highlight -->
+                                             <div style="background: rgba(16, 185, 129, 0.2); border: 1px solid #059669; border-radius: 4px; padding: 5px 8px; display: flex; justify-content: space-between; align-items: center;">
+                                                 <div>
+                                                     <span style="font-weight: 800; color: #6ee7b7;">Company Retained Margin:</span>
+                                                     <span style="font-size: 8.5px; color: #a7f3d0; display: block;">(Contract Revenue - Direct External Outflow; keeps overhead inside company pool)</span>
+                                                 </div>
+                                                 <div style="text-align: right;">
+                                                     <span style="font-weight: 900; font-size: 11px; color: #34d399;">Rs. {{ number_format($companyRetainedMargin, 2) }}</span>
+                                                     <span style="font-size: 9px; color: #a7f3d0;"> ({{ $retainedMarginPct }}%)</span>
+                                                 </div>
+                                             </div>
+
+                                             <!-- Section B: Internal Company Allocation -->
+                                             @if ($internalCompanyOverhead > 0)
+                                                 <div style="background: rgba(217, 119, 6, 0.2); border: 1px solid #d97706; border-radius: 4px; padding: 5px 8px; display: flex; justify-content: space-between; align-items: center;">
+                                                     <div>
+                                                         <span style="font-weight: 700; color: #fcd34d;">Section B: Internal Company Overhead:</span>
+                                                         <span style="font-size: 8.5px; color: #fde68a; display: block;">Absorbed Office Overhead Allocation</span>
+                                                     </div>
+                                                     <div style="font-weight: 800; color: #fef08a;">
+                                                         - Rs. {{ number_format($internalCompanyOverhead, 2) }}
+                                                     </div>
+                                                 </div>
+                                             @endif
+
+                                             <!-- Final Net & Markup -->
+                                             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 4px;">
+                                                 @if ($profitMarkup > 0)
+                                                     <span style="font-size: 9px; color: #fde047;">
+                                                         ✨ Hidden Profit Markup: +Rs. {{ number_format($profitMarkup, 2) }} (100% pure profit)
+                                                     </span>
+                                                 @else
+                                                     <span></span>
+                                                 @endif
+                                                 <div style="font-size: 10px;">
+                                                     <span style="color: #cbd5e1;">Net Owner Profit:</span>
+                                                     <strong style="font-size: 11px; color: {{ $record->net_profit >= 0 ? '#34d399' : '#f87171' }};">
+                                                         Rs. {{ number_format($record->net_profit, 2) }} ({{ $record->profit_margin_percentage }}%)
+                                                     </strong>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     @else
+                                         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; font-size: 10px;">
+                                             <div>
+                                                 <div style="color: #cbd5e1; font-size: 9px;">Cost (COGS):</div>
+                                                 <div style="font-weight: 700; font-size: 10.5px; color: #f8fafc;">Rs. {{ number_format($record->total_cost, 2) }}</div>
+                                             </div>
+                                             <div>
+                                                 <div style="color: #cbd5e1; font-size: 9px;">Gross Profit:</div>
+                                                 <div style="font-weight: 700; font-size: 10.5px; color: #a7f3d0;">Rs. {{ number_format($record->gross_profit, 2) }}</div>
+                                             </div>
+                                             <div>
+                                                 <div style="color: #cbd5e1; font-size: 9px;">Commission:</div>
+                                                 <div style="font-weight: 700; font-size: 10.5px; color: #fde047;">Rs. {{ number_format((float) ($record->commission_amount ?? 0), 2) }}</div>
+                                             </div>
+                                             <div>
+                                                 <div style="color: #cbd5e1; font-size: 9px;">Net Owner Profit:</div>
+                                                 <div style="font-weight: 800; font-size: 11px; color: {{ $record->net_profit >= 0 ? '#34d399' : '#f87171' }};">
+                                                     Rs. {{ number_format($record->net_profit, 2) }} ({{ $record->profit_margin_percentage }}%)
+                                                 </div>
+                                             </div>
+                                         </div>
+                                         @if ($profitMarkup > 0)
+                                             <div style="margin-top: 4px; font-size: 9px; color: #fde047; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 4px;">
+                                                 ✨ Hidden Profit Markup: +Rs. {{ number_format($profitMarkup, 2) }} (100% pure margin / 0 COGS)
+                                             </div>
+                                         @endif
+                                     @endif
+                                 </div>
+                             @endif
 
                             @if (!empty($company->settings['signature_path']))
                                 <div style="margin-top: 20px; text-align: right;">

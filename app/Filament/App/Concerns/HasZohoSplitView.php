@@ -48,6 +48,9 @@ trait HasZohoSplitView
 
     public function initSplitView(): void
     {
+        if ($this->record && $this->documentType === 'invoice' && method_exists($this->record, 'expenses')) {
+            $this->record->loadMissing(['expenses']);
+        }
         $this->previewMode = $this->record?->price_display_mode ?? 'itemized';
         $this->previewSummaryMode = $this->record?->pdf_item_summary_mode ?? 'consolidated';
         $this->refreshEmailDetails();
@@ -82,8 +85,13 @@ trait HasZohoSplitView
     {
         $companyId = Filament::getTenant()?->id;
 
+        $relations = ['contact', 'items.product.category'];
+        if ($this->documentType === 'invoice') {
+            $relations[] = 'expenses';
+        }
+
         $record = static::getModel()::where('company_id', $companyId)
-            ->with(['contact', 'items.product.category'])
+            ->with($relations)
             ->find($id);
 
         if ($record) {
@@ -406,6 +414,8 @@ trait HasZohoSplitView
                     'subtotal' => $source->subtotal,
                     'discount' => $source->discount,
                     'tax' => $source->tax,
+                    'profit_markup' => $source->profit_markup ?? 0.00,
+                    'profit_markup_type' => $source->profit_markup_type ?? 'fixed',
                     'grand_total' => $source->grand_total,
                     'terms' => $source->terms,
                     'is_sent' => false,
@@ -452,6 +462,8 @@ trait HasZohoSplitView
                     'subtotal' => $source->subtotal,
                     'discount' => $source->discount,
                     'tax' => $source->tax,
+                    'profit_markup' => $source->profit_markup ?? 0.00,
+                    'profit_markup_type' => $source->profit_markup_type ?? 'fixed',
                     'grand_total' => $source->grand_total,
                     'paid_amount' => 0.00,
                     'due_amount' => $source->grand_total,
@@ -507,6 +519,8 @@ trait HasZohoSplitView
                 'subtotal' => $record->subtotal,
                 'discount' => $record->discount,
                 'tax' => $record->tax,
+                'profit_markup' => $record->profit_markup ?? 0.00,
+                'profit_markup_type' => $record->profit_markup_type ?? 'fixed',
                 'grand_total' => $record->grand_total,
                 'paid_amount' => 0.00,
                 'due_amount' => $record->grand_total,

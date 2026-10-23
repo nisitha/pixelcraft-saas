@@ -117,6 +117,8 @@ trait HasZohoDocumentEditor
                 'subtotal' => (float) ($this->record->subtotal ?? 0),
                 'discount' => (float) ($this->record->discount ?? 0),
                 'tax' => (float) ($this->record->tax ?? 0),
+                'profit_markup' => (float) ($this->record->profit_markup ?? 0),
+                'profit_markup_type' => $this->record->profit_markup_type ?? 'fixed',
                 'grand_total' => (float) ($this->record->grand_total ?? 0),
                 'commission_amount' => (float) ($this->record->commission_amount ?? 0),
                 'commission_status' => $this->record->commission_status ?? 'pending',
@@ -158,6 +160,8 @@ trait HasZohoDocumentEditor
                 'subtotal' => 0.00,
                 'discount' => 0.00,
                 'tax' => 0.00,
+                'profit_markup' => 0.00,
+                'profit_markup_type' => 'fixed',
                 'grand_total' => 0.00,
                 'commission_amount' => 0.00,
                 'commission_status' => 'pending',
@@ -194,6 +198,8 @@ trait HasZohoDocumentEditor
                 'subtotal' => (float) ($this->record->subtotal ?? 0),
                 'discount' => (float) ($this->record->discount ?? 0),
                 'tax' => (float) ($this->record->tax ?? 0),
+                'profit_markup' => (float) ($this->record->profit_markup ?? 0),
+                'profit_markup_type' => $this->record->profit_markup_type ?? 'fixed',
                 'grand_total' => $grandTotal,
                 'settlement_status' => $settlement,
                 'initial_payment_amount' => $paid,
@@ -240,6 +246,8 @@ trait HasZohoDocumentEditor
                 'subtotal' => 0.00,
                 'discount' => 0.00,
                 'tax' => 0.00,
+                'profit_markup' => 0.00,
+                'profit_markup_type' => 'fixed',
                 'grand_total' => 0.00,
                 'settlement_status' => 'unpaid',
                 'initial_payment_amount' => 0.00,
@@ -362,10 +370,12 @@ trait HasZohoDocumentEditor
         }
 
         $tax = (float) ($this->data['tax'] ?? $totalTax);
-        $grandTotal = max(0, round($subtotal - $docDiscount + $tax, 2));
+        $profitMarkup = (float) ($this->data['profit_markup'] ?? 0.00);
+        $grandTotal = max(0, round($subtotal - $docDiscount + $tax + $profitMarkup, 2));
 
         $this->data['subtotal'] = round($subtotal, 2);
         $this->data['tax'] = round($tax, 2);
+        $this->data['profit_markup'] = round($profitMarkup, 2);
         $this->data['grand_total'] = $grandTotal;
 
         if ($this->documentType === 'invoice') {
@@ -416,6 +426,23 @@ trait HasZohoDocumentEditor
     public function updatedDiscountPercent(): void
     {
         $this->recalculateZohoTotals();
+    }
+
+    public function updatedDataProfitMarkup(): void
+    {
+        $this->recalculateZohoTotals();
+    }
+
+    public function updated($property, $value = null): void
+    {
+        if (is_string($property) && (
+            str_starts_with($property, 'data.items') ||
+            str_starts_with($property, 'data.discount') ||
+            str_starts_with($property, 'data.tax') ||
+            str_starts_with($property, 'data.profit_markup')
+        )) {
+            $this->recalculateZohoTotals();
+        }
     }
 
     public function applyTaxPreset(float $percent, string $label): void

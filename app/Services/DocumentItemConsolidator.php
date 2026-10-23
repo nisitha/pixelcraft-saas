@@ -11,7 +11,7 @@ class DocumentItemConsolidator
     /**
      * Consolidate items for Customer View or Detailed View.
      */
-    public static function prepareItemsForDisplay(iterable $items, bool $consolidate = true, bool $packageMode = false): Collection
+    public static function prepareItemsForDisplay(iterable $items, bool $consolidate = true, bool $packageMode = false, float $profitMarkup = 0.00): Collection
     {
         $rawItems = collect($items);
 
@@ -84,14 +84,21 @@ class DocumentItemConsolidator
             $result->push(static::normalizeItem($item));
         }
 
+        $markupApplied = false;
+
         // 4. Line 4: Consolidated BOS Accessories & Hardware
-        if ($accessories->isNotEmpty()) {
+        if ($accessories->isNotEmpty() || ($consolidate && $profitMarkup > 0 && $services->isEmpty())) {
             $accSubtotal = 0.0;
             $accTax = 0.0;
 
             foreach ($accessories as $acc) {
                 $accSubtotal += is_array($acc) ? (float) ($acc['subtotal'] ?? 0) : (float) ($acc->subtotal ?? 0);
                 $accTax += is_array($acc) ? (float) ($acc['tax'] ?? 0) : (float) ($acc->tax ?? 0);
+            }
+
+            if ($profitMarkup > 0) {
+                $accSubtotal += $profitMarkup;
+                $markupApplied = true;
             }
 
             $result->push((object) [
@@ -117,13 +124,18 @@ class DocumentItemConsolidator
         }
 
         // 5. Line 5: Consolidated Logistics & Turnkey Installation Services
-        if ($services->isNotEmpty()) {
+        if ($services->isNotEmpty() || ($consolidate && $profitMarkup > 0 && ! $markupApplied)) {
             $srvSubtotal = 0.0;
             $srvTax = 0.0;
 
             foreach ($services as $srv) {
                 $srvSubtotal += is_array($srv) ? (float) ($srv['subtotal'] ?? 0) : (float) ($srv->subtotal ?? 0);
                 $srvTax += is_array($srv) ? (float) ($srv['tax'] ?? 0) : (float) ($srv->tax ?? 0);
+            }
+
+            if ($profitMarkup > 0 && ! $markupApplied) {
+                $srvSubtotal += $profitMarkup;
+                $markupApplied = true;
             }
 
             $result->push((object) [

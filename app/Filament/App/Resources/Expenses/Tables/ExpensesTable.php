@@ -6,9 +6,11 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -50,6 +52,14 @@ class ExpensesTable
                     ->badge()
                     ->color('gray')
                     ->placeholder('General Overhead'),
+                IconColumn::make('is_internal_overhead')
+                    ->label('Internal Overhead')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-building-office-2')
+                    ->falseIcon('heroicon-o-arrow-up-right')
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -60,6 +70,11 @@ class ExpensesTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                TernaryFilter::make('is_internal_overhead')
+                    ->label('Overhead Type')
+                    ->placeholder('All Expenses')
+                    ->trueLabel('Internal Office Overhead')
+                    ->falseLabel('External Third-Party Outflow'),
                 Filter::make('expense_date')
                     ->form([
                         DatePicker::make('from')->label('Expense Date From'),

@@ -1229,6 +1229,32 @@
                         </div>
                     </div>
 
+                    {{-- Custom Profit / Margin Adjustment (Hidden from customer PDF) --}}
+                    <div class="zoho-summary-row" style="align-items: flex-start; background: #f0fdf4; border: 1px dashed #86efac; border-radius: 6px; padding: 8px 10px; margin: 8px 0;">
+                        <div>
+                            <div style="font-weight: 700; color: #166534; font-size: 11.5px; display: flex; align-items: center; gap: 5px;">
+                                <span>🔒</span> Custom Profit / Margin Adjustment (LKR)
+                            </div>
+                            <div style="font-size: 10px; color: #15803d; line-height: 1.35; margin-top: 2px; max-width: 240px;">
+                                Internal margin boost. Hidden from customer PDF; automatically absorbed into BOS accessories/package price.
+                            </div>
+                        </div>
+                        <div style="max-width: 150px; text-align: right;">
+                            <input
+                                type="number"
+                                step="any"
+                                min="0"
+                                wire:model.live.debounce.300ms="data.profit_markup"
+                                class="zoho-input right"
+                                style="padding: 4px 8px; font-size: 12px; font-weight: 700; text-align: right; border-color: #86efac; color: #166534; background: #ffffff;"
+                                placeholder="0.00"
+                            />
+                            <div style="font-size: 9.5px; color: #15803d; font-weight: 600; margin-top: 3px;">
+                                Pure 100% Net Profit (0 COGS)
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="zoho-summary-row" style="align-items: flex-start;">
                         <div>
                             <div>Tax / Applicable VAT (Rs.)</div>

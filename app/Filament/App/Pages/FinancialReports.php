@@ -231,6 +231,7 @@ class FinancialReports extends Page
             COALESCE(SUM(subtotal), 0) as gross_sales,
             COALESCE(SUM(discount), 0) as total_discounts,
             COALESCE(SUM(tax), 0) as total_taxes,
+            COALESCE(SUM(profit_markup), 0) as total_profit_markup,
             COALESCE(SUM(commission_amount), 0) as agent_commissions
         ')->first();
 
@@ -238,6 +239,7 @@ class FinancialReports extends Page
         $grossSales = round((float) ($invoiceSums?->gross_sales ?? 0.0), 2);
         $totalDiscounts = round((float) ($invoiceSums?->total_discounts ?? 0.0), 2);
         $totalTaxes = round((float) ($invoiceSums?->total_taxes ?? 0.0), 2);
+        $totalProfitMarkup = round((float) ($invoiceSums?->total_profit_markup ?? 0.0), 2);
         $agentCommissions = round((float) ($invoiceSums?->agent_commissions ?? 0.0), 2);
 
         // Direct SQL Payment Aggregation
@@ -248,7 +250,7 @@ class FinancialReports extends Page
         }
         $paymentsCollected = round((float) $paymentsQuery->sum('amount'), 2);
 
-        // Direct SQL Cost of Goods Sold (COGS) Aggregation
+        // Direct SQL Cost of Goods Sold (COGS) Aggregation (Profit Markup has 0 COGS)
         $cogsQuery = DB::table('invoice_items')
             ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
             ->leftJoin('products', 'invoice_items.product_id', '=', 'products.id')
@@ -261,17 +263,29 @@ class FinancialReports extends Page
 
         $cogs = round((float) $cogsQuery->sum(DB::raw('invoice_items.quantity * COALESCE(NULLIF(invoice_items.cost_price, 0), products.cost_price, 0)')), 2);
 
-        // Direct SQL Operating Expenses Aggregation
+        // Direct SQL Operating Expenses Aggregation (Distinguishing external outflows vs internal overhead absorption)
         $expensesQuery = DB::table('expenses')
             ->whereBetween('expense_date', [$startDate, $endDate]);
         if ($tenantId) {
             $expensesQuery->where('company_id', $tenantId);
         }
-        $operatingExpenses = round((float) $expensesQuery->sum('amount'), 2);
 
-        // Derived Profit & Loss
+        $expenseSums = (clone $expensesQuery)->selectRaw('
+            COALESCE(SUM(CASE WHEN is_internal_overhead = 0 THEN amount ELSE 0 END), 0) as external_expenses,
+            COALESCE(SUM(CASE WHEN is_internal_overhead = 1 THEN amount ELSE 0 END), 0) as internal_overhead,
+            COALESCE(SUM(amount), 0) as total_expenses
+        ')->first();
+
+        $externalExpenses = round((float) ($expenseSums?->external_expenses ?? 0.0), 2);
+        $internalOverhead = round((float) ($expenseSums?->internal_overhead ?? 0.0), 2);
+        $totalExpenses = round((float) ($expenseSums?->total_expenses ?? 0.0), 2);
+        // Only external vendor outflows are deducted from bottom-line retained earnings
+        $operatingExpenses = $externalExpenses;
+
+        // Derived Profit & Loss: Pure profit markup adds 100% to gross & net profit
         $grossProfit = round($invoicedSales - $cogs, 2);
         $grossMarginPercentage = $invoicedSales > 0 ? round(($grossProfit / $invoicedSales) * 100, 1) : 0.0;
+        // Internal company overhead is NOT deducted from tenant bottom-line retained earnings
         $netProfit = round($grossProfit - $operatingExpenses - $agentCommissions, 2);
         $netMarginPercentage = $invoicedSales > 0 ? round(($netProfit / $invoicedSales) * 100, 1) : 0.0;
 
@@ -322,10 +336,10 @@ class FinancialReports extends Page
         }
         $rawExpenses = $expGroupQuery->get();
 
-        $expenseBreakdown = $rawExpenses->map(function ($item) use ($operatingExpenses) {
+        $expenseBreakdown = $rawExpenses->map(function ($item) use ($totalExpenses) {
             $total = (float) $item->total;
             $count = (int) $item->count;
-            $percentage = $operatingExpenses > 0 ? round(($total / $operatingExpenses) * 100, 1) : 0.0;
+            $percentage = $totalExpenses > 0 ? round(($total / $totalExpenses) * 100, 1) : 0.0;
 
             return [
                 'category' => $item->category,
@@ -340,9 +354,13 @@ class FinancialReports extends Page
             'gross_sales' => $grossSales,
             'total_discounts' => $totalDiscounts,
             'total_taxes' => $totalTaxes,
+            'total_profit_markup' => $totalProfitMarkup,
             'payments_collected' => $paymentsCollected,
             'cogs' => $cogs,
             'operating_expenses' => $operatingExpenses,
+            'external_expenses' => $externalExpenses,
+            'internal_overhead' => $internalOverhead,
+            'total_expenses' => $totalExpenses,
             'agent_commissions' => $agentCommissions,
             'gross_profit' => $grossProfit,
             'gross_margin_percentage' => $grossMarginPercentage,
@@ -390,6 +408,16 @@ class FinancialReports extends Page
     public function getOperatingExpenses(): float
     {
         return (float) ($this->getFinancialMetrics()['operating_expenses'] ?? 0.0);
+    }
+
+    public function getExternalExpenses(): float
+    {
+        return (float) ($this->getFinancialMetrics()['external_expenses'] ?? 0.0);
+    }
+
+    public function getInternalOverhead(): float
+    {
+        return (float) ($this->getFinancialMetrics()['internal_overhead'] ?? 0.0);
     }
 
     public function getAgentCommissions(): float
@@ -517,7 +545,7 @@ class FinancialReports extends Page
         return Invoice::with([
             'contact:id,name,ceb_account_no',
             'salesAgent:id,name',
-            'expenses:id,invoice_id,title,category,amount,expense_date',
+            'expenses:id,invoice_id,title,category,amount,expense_date,is_internal_overhead',
             'items:id,invoice_id,cost_price,quantity',
         ])
             ->where('company_id', $tenantId)
@@ -543,34 +571,47 @@ class FinancialReports extends Page
 
         $linkedExpenses = $invoice->expenses ?? collect();
 
-        // Direct Materials & Hardware
-        $materialsCost = (float) $linkedExpenses
+        // Distinguish External Third-Party Expenses vs Internal Company Overhead Allocation
+        $externalExpenses = $linkedExpenses->where('is_internal_overhead', false);
+        $internalExpenses = $linkedExpenses->where('is_internal_overhead', true);
+
+        // Section A: Direct External Vendor Outflow
+        // 1. Direct Materials & Hardware (Materials Bills)
+        $materialsCost = (float) $externalExpenses
             ->filter(fn ($e) => preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter/i', (string) $e->category))
             ->sum('amount');
 
-        // Fallback to item cost prices if no explicit material expense is logged yet
+        // Fallback to item cost prices if no explicit external material expense voucher is logged yet
         if ($materialsCost <= 0 && (float) $invoice->total_cost > 0) {
             $materialsCost = (float) $invoice->total_cost;
         }
 
-        // Labour, food, transport & operational overheads
-        $labourCost = (float) $linkedExpenses
-            ->filter(fn ($e) => preg_match('/labour|labor|installation|contractor|technician|travel|food|transport|logistics|site|overhead|utility|utilities/i', (string) $e->category))
+        // 2. Installation Labour & Site Logistics
+        $labourCost = (float) $externalExpenses
+            ->filter(fn ($e) => preg_match('/labour|labor|installation|contractor|technician|travel|food|transport|logistics|site/i', (string) $e->category))
             ->sum('amount');
 
-        $otherCost = (float) $linkedExpenses
-            ->filter(fn ($e) => ! preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter|labour|labor|installation|contractor|technician|travel|food|transport|logistics|site|overhead|utility|utilities/i', (string) $e->category))
+        $otherExternalCost = (float) $externalExpenses
+            ->filter(fn ($e) => ! preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter|labour|labor|installation|contractor|technician|travel|food|transport|logistics|site/i', (string) $e->category))
             ->sum('amount');
 
-        $labourAndOps = $labourCost + $otherCost;
+        $labourAndOps = $labourCost + $otherExternalCost;
 
-        // Sales Agent Commission
+        // 3. Sales Agent Commission
         $commissionAmount = (float) ($invoice->commission_amount ?? 0);
 
-        // Total Project Cost
-        $totalProjectCost = round($materialsCost + $labourAndOps + $commissionAmount, 2);
+        // Section A Total: Direct External Vendor Outflow
+        $directExternalOutflow = round($materialsCost + $labourAndOps + $commissionAmount, 2);
 
-        // Net Profit / Loss
+        // Section B: Internal Company Allocation (Office Overhead, e.g. Rs. 112,000.00)
+        $internalCompanyOverhead = round((float) $internalExpenses->sum('amount'), 2);
+
+        // Company Retained Margin = Contract Revenue - Direct External Outflow (Keeps overhead inside gross profit pool!)
+        $companyRetainedMargin = round($contractValue - $directExternalOutflow, 2);
+        $retainedMarginPercentage = $contractValue > 0 ? round(($companyRetainedMargin / $contractValue) * 100, 1) : 0.0;
+
+        // Total Combined Cost and Net Pure Profit after internal allocation
+        $totalProjectCost = round($directExternalOutflow + $internalCompanyOverhead, 2);
         $netProfit = round($contractValue - $totalProjectCost, 2);
         $netMargin = $contractValue > 0 ? round(($netProfit / $contractValue) * 100, 1) : 0.0;
         $isProfitable = $netProfit >= 0;
@@ -580,6 +621,7 @@ class FinancialReports extends Page
         $materialPct = $chartBasis > 0 ? round(($materialsCost / $chartBasis) * 100, 1) : 0.0;
         $labourPct = $chartBasis > 0 ? round(($labourAndOps / $chartBasis) * 100, 1) : 0.0;
         $commPct = $chartBasis > 0 ? round(($commissionAmount / $chartBasis) * 100, 1) : 0.0;
+        $overheadPct = $chartBasis > 0 ? round(($internalCompanyOverhead / $chartBasis) * 100, 1) : 0.0;
         $profitPct = ($chartBasis > 0 && $netProfit > 0) ? round(($netProfit / $chartBasis) * 100, 1) : 0.0;
 
         return [
@@ -592,15 +634,21 @@ class FinancialReports extends Page
             'materials_cost' => $materialsCost,
             'labour_operational_cost' => $labourAndOps,
             'commission_amount' => $commissionAmount,
+            'direct_external_outflow' => $directExternalOutflow,
+            'internal_company_overhead' => $internalCompanyOverhead,
+            'company_retained_margin' => $companyRetainedMargin,
+            'retained_margin_percentage' => $retainedMarginPercentage,
             'total_project_cost' => $totalProjectCost,
             'net_profit' => $netProfit,
             'net_margin' => $netMargin,
             'is_profitable' => $isProfitable,
             'linked_expenses' => $linkedExpenses,
-            'chart_series' => [$materialPct, $labourPct, $commPct, $profitPct],
-            'chart_amounts' => [$materialsCost, $labourAndOps, $commissionAmount, max(0, $netProfit)],
-            'chart_labels' => ['Direct Materials & Bills', 'Labour & Operations', 'Agent Commission', 'Net Profit Margin'],
-            'chart_colors' => ['#0284c7', '#f59e0b', '#8b5cf6', '#10b981'],
+            'external_expenses' => $externalExpenses,
+            'internal_expenses' => $internalExpenses,
+            'chart_series' => [$materialPct, $labourPct, $commPct, $overheadPct, $profitPct],
+            'chart_amounts' => [$materialsCost, $labourAndOps, $commissionAmount, $internalCompanyOverhead, max(0, $netProfit)],
+            'chart_labels' => ['Material Bills', 'Installation Labour', 'Agent Commission', 'Internal Company Overhead', 'Pure Net Margin'],
+            'chart_colors' => ['#0284c7', '#f59e0b', '#8b5cf6', '#d97706', '#10b981'],
         ];
     }
 

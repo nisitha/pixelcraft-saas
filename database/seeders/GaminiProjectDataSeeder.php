@@ -587,6 +587,7 @@ class GaminiProjectDataSeeder extends Seeder
                 'category' => 'Operations',
                 'title' => 'Office Expenses Allocation',
                 'amount' => 112000.00,
+                'is_internal_overhead' => true,
                 'expense_date' => '2026-09-26',
                 'reference_no' => 'OFFICE-EXP-GAMINI',
                 'notes' => 'Project design, site coordination, transport logistics and office overhead allocation',

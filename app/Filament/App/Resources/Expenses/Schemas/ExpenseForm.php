@@ -6,6 +6,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -55,6 +56,11 @@ class ExpenseForm
                                 ->required(),
                             TextInput::make('reference_no')
                                 ->label('Receipt / Voucher Ref'),
+                            Toggle::make('is_internal_overhead')
+                                ->label('Internal Company Overhead Allocation')
+                                ->helperText('Office/admin overhead absorbed internally. Retained inside company gross profit pool instead of third-party vendor outflow.')
+                                ->default(false)
+                                ->columnSpanFull(),
                             Textarea::make('notes')
                                 ->columnSpanFull(),
                         ]),

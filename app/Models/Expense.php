@@ -18,6 +18,7 @@ class Expense extends Model
         'category',
         'title',
         'amount',
+        'is_internal_overhead',
         'expense_date',
         'reference_no',
         'notes',
@@ -28,6 +29,7 @@ class Expense extends Model
         return [
             'expense_date' => 'date',
             'amount' => 'decimal:2',
+            'is_internal_overhead' => 'boolean',
         ];
     }
 

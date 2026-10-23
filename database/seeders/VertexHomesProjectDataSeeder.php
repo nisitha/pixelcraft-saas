@@ -533,6 +533,7 @@ class VertexHomesProjectDataSeeder extends Seeder
             'category' => 'Office Overhead',
             'title' => 'Office Expenses Allocation - Project VHE/2026/RU/00199/005',
             'amount' => 112000.00,
+            'is_internal_overhead' => true,
             'expense_date' => '2026-10-18',
             'reference_no' => 'VHE/2026/RU/00199/005',
             'notes' => 'Project administrative, design, engineering & overhead cost allocation',

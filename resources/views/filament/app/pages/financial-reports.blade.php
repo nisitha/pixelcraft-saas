@@ -208,8 +208,8 @@
                         </div>
                     </div>
 
-                    <!-- 4 Summary Metric Cards for this Project -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                    <!-- 5 Summary Metric Cards for this Project -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
                         <!-- Contract Value / Revenue -->
                         <div class="vb-metric-card" style="border-top: 3px solid #6366f1;">
                             <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #6b7280;">
@@ -220,6 +220,9 @@
                             </div>
                             <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">
                                 Subtotal: Rs. {{ number_format((float) $pnl['invoice']->subtotal, 2) }}
+                                @if((float) ($pnl['invoice']->profit_markup ?? 0) > 0)
+                                    <span style="color: #059669; font-weight: 700; display: block;">+ Rs. {{ number_format((float) $pnl['invoice']->profit_markup, 2) }} Markup</span>
+                                @endif
                             </div>
                         </div>
 
@@ -239,16 +242,29 @@
                             </div>
                         </div>
 
-                        <!-- Total Project Cost -->
+                        <!-- Direct External Outflow -->
                         <div class="vb-metric-card" style="border-top: 3px solid #ef4444;">
                             <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #e11d48;">
-                                Total Project Cost
+                                Direct External Outflow
                             </div>
                             <div style="font-size: 1.35rem; font-weight: 900; color: #e11d48; margin-top: 0.25rem;">
-                                Rs. {{ number_format($pnl['total_project_cost'], 2) }}
+                                Rs. {{ number_format($pnl['direct_external_outflow'], 2) }}
                             </div>
                             <div style="font-size: 0.7rem; color: #6b7280; margin-top: 0.25rem;">
                                 Materials + Labour + Commission
+                            </div>
+                        </div>
+
+                        <!-- Company Retained Margin -->
+                        <div class="vb-metric-card" style="border-top: 3px solid #3b82f6; background-color: #f8fafc;">
+                            <div style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; color: #1d4ed8;">
+                                Company Retained Margin
+                            </div>
+                            <div style="font-size: 1.35rem; font-weight: 900; color: #1d4ed8; margin-top: 0.25rem;">
+                                Rs. {{ number_format($pnl['company_retained_margin'], 2) }}
+                            </div>
+                            <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 700; margin-top: 0.25rem;">
+                                {{ $pnl['retained_margin_percentage'] }}% Retained (Keeps Overhead In-House)
                             </div>
                         </div>
 
@@ -287,26 +303,31 @@
                                         <span style="font-weight: 700; color: #111827;">Rs. {{ number_format($pnl['contract_value'], 2) }}</span>
                                     </div>
 
+                                    <!-- Section A: Direct External Vendor Outflow -->
+                                    <div style="margin-top: 0.35rem; padding: 0.3rem 0.5rem; background-color: #fef2f2; border-left: 3px solid #ef4444; border-radius: 0.25rem; font-size: 0.72rem; font-weight: 800; color: #991b1b; text-transform: uppercase;">
+                                        Section A: Direct External Vendor Outflow
+                                    </div>
+
                                     <!-- Direct Materials & Hardware -->
-                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #0284c7;">
+                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f3f4f6; color: #0284c7;">
                                         <div style="display: flex; align-items: center; gap: 0.35rem;">
                                             <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #0284c7;"></span>
-                                            <span>Direct Materials & Supplier Bills</span>
+                                            <span>Material Bills & Procurement</span>
                                         </div>
                                         <span style="font-weight: 700;">- Rs. {{ number_format($pnl['materials_cost'], 2) }}</span>
                                     </div>
 
                                     <!-- Labour & Operations -->
-                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #f59e0b;">
+                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f3f4f6; color: #f59e0b;">
                                         <div style="display: flex; align-items: center; gap: 0.35rem;">
                                             <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #f59e0b;"></span>
-                                            <span>Labour, Food & Operational Costs</span>
+                                            <span>Installation Labour & Site Logistics</span>
                                         </div>
                                         <span style="font-weight: 700;">- Rs. {{ number_format($pnl['labour_operational_cost'], 2) }}</span>
                                     </div>
 
                                     <!-- Commission -->
-                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #8b5cf6;">
+                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f3f4f6; color: #8b5cf6;">
                                         <div style="display: flex; align-items: center; gap: 0.35rem;">
                                             <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #8b5cf6;"></span>
                                             <span>Sales Agent Commission</span>
@@ -314,10 +335,39 @@
                                         <span style="font-weight: 700;">- Rs. {{ number_format($pnl['commission_amount'], 2) }}</span>
                                     </div>
 
-                                    <!-- Total Project Cost -->
-                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0.65rem; background-color: #f9fafb; border-radius: 0.375rem; font-weight: 700; color: #e11d48;">
-                                        <span>Total Project Cost</span>
-                                        <span>Rs. {{ number_format($pnl['total_project_cost'], 2) }}</span>
+                                    <!-- Total Section A Outflow -->
+                                    <div style="display: flex; justify-content: space-between; padding: 0.45rem 0.65rem; background-color: #fff1f2; border-radius: 0.375rem; font-weight: 700; color: #be123c;">
+                                        <span>Total Direct External Outflow</span>
+                                        <span>- Rs. {{ number_format($pnl['direct_external_outflow'], 2) }}</span>
+                                    </div>
+
+                                    <!-- Company Retained Margin Box -->
+                                    <div style="margin: 0.25rem 0; padding: 0.65rem 0.85rem; background-color: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 0.5rem; display: flex; flex-direction: column; gap: 0.2rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <span style="font-weight: 800; color: #1e40af; font-size: 0.8rem;">
+                                                Company Retained Margin = Contract Revenue - Direct External Outflow
+                                            </span>
+                                            <span style="font-weight: 900; color: #1d4ed8; font-size: 0.95rem;">
+                                                Rs. {{ number_format($pnl['company_retained_margin'], 2) }}
+                                            </span>
+                                        </div>
+                                        <div style="font-size: 0.68rem; color: #2563eb; display: flex; justify-content: space-between;">
+                                            <span>Keeps office overhead inside company gross profit pool</span>
+                                            <span style="font-weight: 700;">{{ $pnl['retained_margin_percentage'] }}% Retained</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section B: Internal Company Allocation -->
+                                    <div style="margin-top: 0.25rem; padding: 0.3rem 0.5rem; background-color: #fffbeb; border-left: 3px solid #d97706; border-radius: 0.25rem; font-size: 0.72rem; font-weight: 800; color: #92400e; text-transform: uppercase;">
+                                        Section B: Internal Company Allocation
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; padding: 0.35rem 0.5rem; border-bottom: 1px solid #f3f4f6; color: #d97706;">
+                                        <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                            <span style="width: 0.5rem; height: 0.5rem; border-radius: 9999px; background-color: #d97706;"></span>
+                                            <span>Office Overhead Absorption (Internal Retained Fund)</span>
+                                        </div>
+                                        <span style="font-weight: 700;">- Rs. {{ number_format($pnl['internal_company_overhead'], 2) }}</span>
                                     </div>
 
                                     <!-- NET PROFIT -->
@@ -325,6 +375,12 @@
                                         <span>NET PROFIT / (LOSS)</span>
                                         <span>Rs. {{ number_format($pnl['net_profit'], 2) }}</span>
                                     </div>
+
+                                    @if((float) ($pnl['invoice']->profit_markup ?? 0) > 0)
+                                        <div style="font-size: 0.7rem; color: #059669; font-weight: 600; text-align: right;">
+                                            ✨ Includes Rs. {{ number_format((float) $pnl['invoice']->profit_markup, 2) }} Hidden Margin Markup (100% pure profit / 0 COGS)
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -357,8 +413,11 @@
                                                 <tr style="border-bottom: 1px solid #f3f4f6;">
                                                     <td style="padding: 0.45rem 0.65rem; font-weight: 600; color: #111827;">{{ $expItem->title }}</td>
                                                     <td style="padding: 0.45rem 0.65rem;">
-                                                        <span style="padding: 0.15rem 0.45rem; border-radius: 0.25rem; font-size: 0.65rem; background-color: #f3f4f6; color: #374151;">
+                                                        <span style="padding: 0.15rem 0.45rem; border-radius: 0.25rem; font-size: 0.65rem; {{ $expItem->is_internal_overhead ? 'background-color: #fef3c7; color: #92400e; font-weight: 700;' : 'background-color: #f3f4f6; color: #374151;' }}">
                                                             {{ $expItem->category }}
+                                                            @if($expItem->is_internal_overhead)
+                                                                (Internal Overhead)
+                                                            @endif
                                                         </span>
                                                     </td>
                                                     <td style="padding: 0.45rem 0.65rem; color: #6b7280;">{{ $expItem->expense_date ? $expItem->expense_date->format('d M') : '-' }}</td>
@@ -476,10 +535,11 @@
                             <div style="display: flex; flex-direction: column; gap: 0.45rem; font-size: 0.75rem; border-top: 1px solid #f3f4f6; padding-top: 0.85rem;">
                                 @php
                                     $legendItems = [
-                                        ['label' => 'Direct Materials & Hardware', 'pct' => $pnl['chart_series'][0], 'amt' => $pnl['materials_cost'], 'color' => '#0284c7'],
-                                        ['label' => 'Labour & Operational Costs', 'pct' => $pnl['chart_series'][1], 'amt' => $pnl['labour_operational_cost'], 'color' => '#f59e0b'],
-                                        ['label' => 'Sales Agent Commission', 'pct' => $pnl['chart_series'][2], 'amt' => $pnl['commission_amount'], 'color' => '#8b5cf6'],
-                                        ['label' => 'Net Profit Share', 'pct' => $pnl['chart_series'][3], 'amt' => max(0, $pnl['net_profit']), 'color' => '#10b981'],
+                                        ['label' => 'Direct Materials & Hardware', 'pct' => $pnl['chart_series'][0] ?? 0, 'amt' => $pnl['materials_cost'], 'color' => '#0284c7'],
+                                        ['label' => 'Labour & Operational Costs', 'pct' => $pnl['chart_series'][1] ?? 0, 'amt' => $pnl['labour_operational_cost'], 'color' => '#f59e0b'],
+                                        ['label' => 'Sales Agent Commission', 'pct' => $pnl['chart_series'][2] ?? 0, 'amt' => $pnl['commission_amount'], 'color' => '#8b5cf6'],
+                                        ['label' => 'Internal Company Overhead', 'pct' => $pnl['chart_series'][3] ?? 0, 'amt' => $pnl['internal_company_overhead'], 'color' => '#d97706'],
+                                        ['label' => 'Pure Net Profit Share', 'pct' => $pnl['chart_series'][4] ?? 0, 'amt' => max(0, $pnl['net_profit']), 'color' => '#10b981'],
                                     ];
                                 @endphp
                                 @foreach($legendItems as $item)
@@ -597,13 +657,13 @@
             <!-- Operating Expenses -->
             <div class="vb-metric-card">
                 <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #e11d48; margin-bottom: 0.25rem;">
-                    Operating Expenses
+                    External Operating Expenses
                 </div>
                 <div style="font-size: 1.25rem; font-weight: 800; color: #e11d48;">
                     Rs. {{ number_format($this->getOperatingExpenses(), 2) }}
                 </div>
                 <div style="font-size: 0.65rem; color: #9ca3af; margin-top: 0.25rem;">
-                    Overheads & operating bills
+                    Direct vendor outflows (excl. absorbed overhead)
                 </div>
             </div>
 
@@ -673,9 +733,15 @@
                             <span>Rs. {{ number_format($this->getGrossProfit(), 2) }}</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #4b5563;">
-                            <span>Less: Total Operating Overhead Expenses</span>
-                            <span style="color: #e11d48;">- Rs. {{ number_format($this->getOperatingExpenses(), 2) }}</span>
+                            <span>Less: External Vendor Operating Expenses</span>
+                            <span style="color: #e11d48;">- Rs. {{ number_format($this->getExternalExpenses(), 2) }}</span>
                         </div>
+                        @if($this->getInternalOverhead() > 0)
+                            <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #059669; font-size: 0.75rem;">
+                                <span>Company Absorbed Overhead (Retained Operating Fund)</span>
+                                <span style="font-weight: 700;">Rs. {{ number_format($this->getInternalOverhead(), 2) }}</span>
+                            </div>
+                        @endif
                         <div style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid #f3f4f6; color: #d97706;">
                             <span>Less: Sales Agent Referral Commissions</span>
                             <span style="color: #d97706;">- Rs. {{ number_format($this->getAgentCommissions(), 2) }}</span>

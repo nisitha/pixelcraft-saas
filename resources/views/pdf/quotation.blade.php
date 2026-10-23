@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quotation - {{ $quotation->quote_number }}</title>
+    @php
+        $quotation = $quotation ?? ($record ?? null);
+    @endphp
+    <title>Quotation - {{ $quotation?->quote_number }}</title>
     @php
         $primaryColor = $company->settings['primary_color'] ?? '#047857';
         $tableHeaderColor = $company->settings['table_header_color'] ?? '#047857';
@@ -351,7 +354,8 @@
         $isPackageMode = ($mode === 'package_total_only');
         $isConsolidated = ($summaryMode === 'consolidated');
 
-        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode);
+        $profitMarkup = (float) ($quotation->profit_markup ?? 0.00);
+        $displayItems = \App\Services\DocumentItemConsolidator::prepareItemsForDisplay($items, $isConsolidated, $isPackageMode, $profitMarkup);
     @endphp
 
     <!-- Quotation Line Items Table -->
@@ -465,7 +469,7 @@
                 <table class="totals-table">
                     <tr>
                         <td class="text-right" style="color: #64748b;">{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
-                        <td class="text-right" style="width: 45%;">Rs. {{ number_format((float) $quotation->subtotal, 2) }}</td>
+                        <td class="text-right" style="width: 45%;">Rs. {{ number_format((float) ($quotation->subtotal + $profitMarkup), 2) }}</td>
                     </tr>
                     @if((float) $quotation->discount > 0)
                         <tr>
