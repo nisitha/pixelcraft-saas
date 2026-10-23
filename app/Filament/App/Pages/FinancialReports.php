@@ -263,29 +263,79 @@ class FinancialReports extends Page
 
         $cogs = round((float) $cogsQuery->sum(DB::raw('invoice_items.quantity * COALESCE(NULLIF(invoice_items.cost_price, 0), products.cost_price, 0)')), 2);
 
+        $materialCategories = [
+            'Materials',
+            'Solar Equipment',
+            'Hardware',
+            'Hardware & Tools',
+            'Components',
+            'Mounting & Hardware',
+            'Solar PV Panels',
+            'Inverters',
+            'Battery Energy Storage',
+        ];
+
         // Direct SQL Operating Expenses Aggregation (Distinguishing external outflows vs internal overhead absorption)
-        $expensesQuery = DB::table('expenses')
-            ->whereBetween('expense_date', [$startDate, $endDate]);
+        // Internal company overhead is absorbed into company gross profit pool/retained funds and NOT deducted from net profit.
+        $internalOverheadQuery = DB::table('expenses')
+            ->whereBetween('expense_date', [$startDate, $endDate])
+            ->where('is_internal_overhead', 1);
         if ($tenantId) {
-            $expensesQuery->where('company_id', $tenantId);
+            $internalOverheadQuery->where('company_id', $tenantId);
         }
+        $internalOverhead = round((float) $internalOverheadQuery->sum('amount'), 2);
 
-        $expenseSums = (clone $expensesQuery)->selectRaw('
-            COALESCE(SUM(CASE WHEN is_internal_overhead = 0 THEN amount ELSE 0 END), 0) as external_expenses,
-            COALESCE(SUM(CASE WHEN is_internal_overhead = 1 THEN amount ELSE 0 END), 0) as internal_overhead,
-            COALESCE(SUM(amount), 0) as total_expenses
-        ')->first();
+        // Invoices where turnkey installation/overhead is ALREADY captured inside invoice_items cost_price
+        $invoicesWithTurnkeyCaptured = DB::table('invoice_items')
+            ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
+            ->whereBetween('invoices.invoice_date', [$startDate, $endDate])
+            ->where('invoices.status', '!=', 'cancelled')
+            ->when($tenantId, fn ($q) => $q->where('invoices.company_id', $tenantId))
+            ->where('invoice_items.cost_price', '>', 0)
+            ->where(function ($q) {
+                $q->where('invoice_items.description', 'like', '%turnkey%')
+                    ->orWhere('invoice_items.description', 'like', '%overhead allocation%');
+            })
+            ->pluck('invoices.id')
+            ->unique()
+            ->toArray();
 
-        $externalExpenses = round((float) ($expenseSums?->external_expenses ?? 0.0), 2);
-        $internalOverhead = round((float) ($expenseSums?->internal_overhead ?? 0.0), 2);
-        $totalExpenses = round((float) ($expenseSums?->total_expenses ?? 0.0), 2);
-        // Only external vendor outflows are deducted from bottom-line retained earnings
-        $operatingExpenses = $externalExpenses;
+        // Operating Expenses:
+        // 1. Unlinked general operating expenses (company period overheads, not tied to a specific project)
+        $unlinkedOpExQuery = DB::table('expenses')
+            ->whereBetween('expense_date', [$startDate, $endDate])
+            ->where('is_internal_overhead', 0)
+            ->whereNull('invoice_id');
+
+        if ($tenantId) {
+            $unlinkedOpExQuery->where('company_id', $tenantId);
+        }
+        $unlinkedOpEx = (float) $unlinkedOpExQuery->sum('amount');
+
+        // 2. Linked project expenses not captured in invoice item COGS
+        // Supplier bills and project expenses linked to invoices that ALREADY have item COGS are excluded to prevent double-deduction
+        $linkedOpExQuery = DB::table('expenses')
+            ->whereBetween('expense_date', [$startDate, $endDate])
+            ->where('is_internal_overhead', 0)
+            ->whereNotNull('invoice_id')
+            ->whereNotIn('category', array_merge($materialCategories, ['Commission']));
+
+        if ($tenantId) {
+            $linkedOpExQuery->where('company_id', $tenantId);
+        }
+        if (! empty($invoicesWithTurnkeyCaptured)) {
+            $linkedOpExQuery->whereNotIn('invoice_id', $invoicesWithTurnkeyCaptured);
+        }
+        $linkedOpEx = (float) $linkedOpExQuery->sum('amount');
+
+        $operatingExpenses = round($unlinkedOpEx + $linkedOpEx, 2);
+        $externalExpenses = $operatingExpenses;
+        $totalExpenses = round($operatingExpenses + $internalOverhead, 2);
 
         // Derived Profit & Loss: Pure profit markup adds 100% to gross & net profit
         $grossProfit = round($invoicedSales - $cogs, 2);
         $grossMarginPercentage = $invoicedSales > 0 ? round(($grossProfit / $invoicedSales) * 100, 1) : 0.0;
-        // Internal company overhead is NOT deducted from tenant bottom-line retained earnings
+        // Internal company overhead is absorbed into retained funds and NOT deducted from bottom-line profit
         $netProfit = round($grossProfit - $operatingExpenses - $agentCommissions, 2);
         $netMarginPercentage = $invoicedSales > 0 ? round(($netProfit / $invoicedSales) * 100, 1) : 0.0;
 
@@ -336,10 +386,11 @@ class FinancialReports extends Page
         }
         $rawExpenses = $expGroupQuery->get();
 
-        $expenseBreakdown = $rawExpenses->map(function ($item) use ($totalExpenses) {
+        $breakdownTotal = (float) $rawExpenses->sum('total');
+        $expenseBreakdown = $rawExpenses->map(function ($item) use ($breakdownTotal) {
             $total = (float) $item->total;
             $count = (int) $item->count;
-            $percentage = $totalExpenses > 0 ? round(($total / $totalExpenses) * 100, 1) : 0.0;
+            $percentage = $breakdownTotal > 0 ? round(($total / $breakdownTotal) * 100, 1) : 0.0;
 
             return [
                 'category' => $item->category,
@@ -546,7 +597,8 @@ class FinancialReports extends Page
             'contact:id,name,ceb_account_no',
             'salesAgent:id,name',
             'expenses:id,invoice_id,title,category,amount,expense_date,is_internal_overhead',
-            'items:id,invoice_id,cost_price,quantity',
+            'items:id,invoice_id,product_id,description,cost_price,quantity',
+            'items.product:id,cost_price',
         ])
             ->where('company_id', $tenantId)
             ->find($this->selectedInvoiceId);
@@ -583,7 +635,11 @@ class FinancialReports extends Page
 
         // Fallback to item cost prices if no explicit external material expense voucher is logged yet
         if ($materialsCost <= 0 && (float) $invoice->total_cost > 0) {
-            $materialsCost = (float) $invoice->total_cost;
+            $itemMaterialsCost = (float) $invoice->items
+                ->filter(fn ($item) => ! preg_match('/turnkey|installation|overhead/i', (string) $item->description))
+                ->sum(fn ($item) => (float) ($item->quantity * ($item->cost_price ?: $item->product?->cost_price ?: 0)));
+
+            $materialsCost = $itemMaterialsCost > 0 ? $itemMaterialsCost : (float) $invoice->total_cost;
         }
 
         // 2. Installation Labour & Site Logistics
@@ -592,7 +648,7 @@ class FinancialReports extends Page
             ->sum('amount');
 
         $otherExternalCost = (float) $externalExpenses
-            ->filter(fn ($e) => ! preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter|labour|labor|installation|contractor|technician|travel|food|transport|logistics|site/i', (string) $e->category))
+            ->filter(fn ($e) => ! preg_match('/material|hardware|equipment|tool|cable|component|solar|panel|inverter|labour|labor|installation|contractor|technician|travel|food|transport|logistics|site|commission/i', (string) $e->category) && ! preg_match('/commission/i', (string) $e->title))
             ->sum('amount');
 
         $labourAndOps = $labourCost + $otherExternalCost;

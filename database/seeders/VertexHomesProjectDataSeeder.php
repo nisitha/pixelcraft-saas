@@ -510,6 +510,7 @@ class VertexHomesProjectDataSeeder extends Seeder
 
         Expense::create([
             'company_id' => $company->id,
+            'invoice_id' => $invoice->id,
             'category' => 'Subcontractor / Labor',
             'title' => 'Installing Charges (5 x 7,000) - Mr. M.A.N.A.M. Fernando',
             'amount' => 35000.00,
@@ -520,6 +521,7 @@ class VertexHomesProjectDataSeeder extends Seeder
 
         Expense::create([
             'company_id' => $company->id,
+            'invoice_id' => $invoice->id,
             'category' => 'Site Logistics',
             'title' => 'Site Food & Refreshments - Katana Road Site',
             'amount' => 2000.00,
@@ -530,6 +532,7 @@ class VertexHomesProjectDataSeeder extends Seeder
 
         Expense::create([
             'company_id' => $company->id,
+            'invoice_id' => $invoice->id,
             'category' => 'Office Overhead',
             'title' => 'Office Expenses Allocation - Project VHE/2026/RU/00199/005',
             'amount' => 112000.00,

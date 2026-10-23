@@ -2,12 +2,14 @@
 
 namespace App\Filament\App\Resources\Payments\Tables;
 
+use App\Models\Contact;
 use App\Models\Payment;
 use App\Services\PdfService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -62,6 +64,25 @@ class PaymentsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('customer')
+                    ->label('Customer')
+                    ->options(function () {
+                        $tenant = Filament::getTenant();
+
+                        return Contact::where('company_id', $tenant?->id)
+                            ->where('type', 'customer')
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->toArray();
+                    })
+                    ->searchable()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'] ?? null,
+                            fn (Builder $q, $contactId): Builder => $q->whereHas('invoice', fn ($iq) => $iq->where('contact_id', $contactId)),
+                        );
+                    }),
+
                 Filter::make('payment_date')
                     ->form([
                         DatePicker::make('from')->label('Payment Date From'),
