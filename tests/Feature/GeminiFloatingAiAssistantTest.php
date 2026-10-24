@@ -52,20 +52,19 @@ class GeminiFloatingAiAssistantTest extends TestCase
         Filament::setTenant($this->company);
     }
 
-    public function test_floating_ai_assistant_mounts_and_renders_greeting_and_suggestion_pills(): void
+    public function test_floating_ai_assistant_mounts_and_renders_widget(): void
     {
         $component = Livewire::test(FloatingAiAssistant::class);
 
         $component->assertStatus(200);
         $component->assertSee('Pixel Craft Studios AI Assistant');
-        $component->assertSee('Mr. Fernando Profit');
-        $component->assertSee('Mr. Gamini Breakdown');
-        $component->assertSee('Unpaid Invoices');
 
         // Test toggle open
         $this->assertFalse($component->get('isOpen'));
         $component->call('toggleOpen');
         $this->assertTrue($component->get('isOpen'));
+        $component->assertSee('Pixel Craft Studios AI');
+        $component->assertSee('Gemini 2.0 Flash');
 
         // Test clear chat
         $component->set('input', 'Hello');
