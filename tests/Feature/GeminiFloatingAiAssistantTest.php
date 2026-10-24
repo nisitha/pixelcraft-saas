@@ -376,4 +376,79 @@ class GeminiFloatingAiAssistantTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Pixel Craft Studios AI Assistant');
     }
+
+    public function test_gemini_preserves_thought_signature_and_raw_metadata_in_function_calling_loop(): void
+    {
+        $tenantId = $this->company->id;
+
+        $sentPayloads = [];
+
+        Http::fake([
+            'https://generativelanguage.googleapis.com/v1beta/models/*' => function ($request) use (&$sentPayloads) {
+                $payload = json_decode($request->body(), true);
+                $sentPayloads[] = $payload;
+
+                if (count($sentPayloads) === 1) {
+                    return Http::response([
+                        'candidates' => [
+                            [
+                                'content' => [
+                                    'role' => 'model',
+                                    'parts' => [
+                                        [
+                                            'thought' => 'Thinking: User is requesting unpaid invoices.',
+                                            'thought_signature' => 'sig_abc123_xyz',
+                                        ],
+                                        [
+                                            'functionCall' => [
+                                                'name' => 'get_unpaid_invoices',
+                                                'args' => (object) [],
+                                            ],
+                                            'thought_signature' => 'sig_call_456',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ], 200);
+                }
+
+                return Http::response([
+                    'candidates' => [
+                        [
+                            'content' => [
+                                'role' => 'model',
+                                'parts' => [
+                                    [
+                                        'text' => 'You have 0 overdue invoices.',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ], 200);
+            },
+        ]);
+
+        $service = app(GeminiAssistantService::class);
+        $response = $service->chat([
+            ['role' => 'user', 'content' => 'Show unpaid invoices'],
+        ], $tenantId);
+
+        $this->assertEquals('You have 0 overdue invoices.', $response);
+        $this->assertCount(2, $sentPayloads);
+
+        // Verify the second request sent back to Gemini preserved the exact candidate content with thought_signature
+        $secondPayloadContents = $sentPayloads[1]['contents'];
+        $modelTurn = $secondPayloadContents[1];
+        $this->assertEquals('model', $modelTurn['role']);
+        $this->assertEquals('sig_abc123_xyz', $modelTurn['parts'][0]['thought_signature'] ?? null);
+        $this->assertEquals('sig_call_456', $modelTurn['parts'][1]['thought_signature'] ?? null);
+        $this->assertEquals('Thinking: User is requesting unpaid invoices.', $modelTurn['parts'][0]['thought'] ?? null);
+
+        // Verify the third turn is user functionResponse
+        $userFunctionResponseTurn = $secondPayloadContents[2];
+        $this->assertEquals('user', $userFunctionResponseTurn['role']);
+        $this->assertEquals('get_unpaid_invoices', $userFunctionResponseTurn['parts'][0]['functionResponse']['name']);
+    }
 }

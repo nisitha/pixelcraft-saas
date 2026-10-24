@@ -99,49 +99,44 @@ class GeminiAssistantService
                     return 'I received an empty response. How else may I assist you?';
                 }
 
-                // Check if candidate returned a function call
-                $functionCallPart = null;
+                // Check if candidate returned function call(s)
+                $functionCallParts = [];
                 foreach ($parts as $part) {
                     if (isset($part['functionCall'])) {
-                        $functionCallPart = $part['functionCall'];
-                        break;
+                        $functionCallParts[] = $part['functionCall'];
                     }
                 }
 
-                if ($functionCallPart) {
-                    $fnName = $functionCallPart['name'] ?? '';
-                    $fnArgs = $functionCallPart['args'] ?? [];
+                if (! empty($functionCallParts)) {
+                    // Retain thought_signature, thought parts, and all original metadata!
+                    $modelContent = $candidate['content'] ?? null;
+                    if ($modelContent) {
+                        $contents[] = $modelContent;
+                    }
 
-                    // Append the model's function call turn to conversation history
-                    $contents[] = [
-                        'role' => 'model',
-                        'parts' => [
-                            [
-                                'functionCall' => [
+                    $responseParts = [];
+                    foreach ($functionCallParts as $fCall) {
+                        $fnName = $fCall['name'] ?? '';
+                        $fnArgs = $fCall['args'] ?? [];
+
+                        // Execute local tool securely scoped to company
+                        $toolResult = $this->executeTool($fnName, $fnArgs, $companyId);
+
+                        $responseParts[] = [
+                            'functionResponse' => [
+                                'name' => $fnName,
+                                'response' => [
                                     'name' => $fnName,
-                                    'args' => (object) $fnArgs,
+                                    'content' => $toolResult,
                                 ],
                             ],
-                        ],
-                    ];
+                        ];
+                    }
 
-                    // Execute local tool securely scoped to company
-                    $toolResult = $this->executeTool($fnName, $fnArgs, $companyId);
-
-                    // Append the tool response turn to conversation history
+                    // Append the function response(s) turn to conversation history
                     $contents[] = [
                         'role' => 'user',
-                        'parts' => [
-                            [
-                                'functionResponse' => [
-                                    'name' => $fnName,
-                                    'response' => [
-                                        'name' => $fnName,
-                                        'content' => $toolResult,
-                                    ],
-                                ],
-                            ],
-                        ],
+                        'parts' => $responseParts,
                     ];
 
                     // Continue loop to let Gemini format the answer
