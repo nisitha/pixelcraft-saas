@@ -54,6 +54,10 @@ class AppPanelProvider extends PanelProvider
                 fn (): string => view('filament.tenant-subscription-banner')->render(),
             )
             ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => \Blade::render('@livewire(\'floating-ai-assistant\')'),
+            )
+            ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): string => '
                 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
