@@ -24,7 +24,7 @@ class GeminiAssistantService
     {
         $this->apiKey = $apiKey ?: (string) (config('services.gemini.api_key') ?: env('GEMINI_API_KEY', ''));
         $this->model = $model ?: (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', 'gemini-2.0-flash'));
-        $this->systemPrompt = "You are the Pixel Craft Studios AI Assistant for Vertex Books ERP. You provide business insights, project costing, profit calculations, and inventory data strictly scoped to the user's company. Respond fluently in the user's input language (Sinhala or English). Always format amounts in LKR with clear breakdowns.";
+        $this->systemPrompt = "You are the Pixel Craft Studios AI Assistant for Vertex Books ERP. You provide business insights, project costing, profit calculations, and inventory data strictly scoped to the user's company. Respond fluently in the user's input language (Sinhala or English). Always format amounts in LKR with clear breakdowns. Answer concisely with direct numbers and short bullet points. Do not write lengthy essays unless specifically requested.";
     }
 
     /**
@@ -164,7 +164,7 @@ class GeminiAssistantService
                 Log::error('Gemini Assistant Error: '.$e->getMessage(), ['exception' => $e]);
 
                 if (str_contains($e->getMessage(), 'cURL error 28') || str_contains(strtolower($e->getMessage()), 'timed out')) {
-                    return 'The request timed out while communicating with the AI service. Please try asking again or make your query more specific.';
+                    return "Calculation took too long. Please ask for a specific customer (e.g. 'Gamini project profit') for faster results.";
                 }
 
                 return 'An error occurred while communicating with the Pixel Craft Studios AI Assistant: '.$e->getMessage();
@@ -393,7 +393,7 @@ class GeminiAssistantService
                 break;
         }
 
-        // Invoices aggregation
+        // Direct Invoices & Due Aggregation in 1 single row query
         $invoiceSums = DB::table('invoices')
             ->where('company_id', $companyId)
             ->whereBetween('invoice_date', [$startDate, $endDate])
@@ -402,20 +402,22 @@ class GeminiAssistantService
                 COALESCE(SUM(grand_total), 0) as invoiced_sales,
                 COALESCE(SUM(subtotal), 0) as gross_sales,
                 COALESCE(SUM(profit_markup), 0) as total_profit_markup,
-                COALESCE(SUM(commission_amount), 0) as agent_commissions
+                COALESCE(SUM(commission_amount), 0) as agent_commissions,
+                COALESCE(SUM(due_amount), 0) as pending_cash
             ')->first();
 
         $invoicedSales = round((float) ($invoiceSums?->invoiced_sales ?? 0.0), 2);
         $totalProfitMarkup = round((float) ($invoiceSums?->total_profit_markup ?? 0.0), 2);
         $agentCommissions = round((float) ($invoiceSums?->agent_commissions ?? 0.0), 2);
+        $pendingCashToCollect = round((float) ($invoiceSums?->pending_cash ?? 0.0), 2);
 
-        // Payments aggregation
+        // Payments aggregation in 1 single SQL query
         $paymentsCollected = round((float) DB::table('payments')
             ->where('company_id', $companyId)
             ->whereBetween('payment_date', [$startDate, $endDate])
             ->sum('amount'), 2);
 
-        // COGS
+        // COGS in single SQL query
         $cogs = round((float) DB::table('invoice_items')
             ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
             ->leftJoin('products', 'invoice_items.product_id', '=', 'products.id')
@@ -429,48 +431,19 @@ class GeminiAssistantService
             'Components', 'Mounting & Hardware', 'Solar PV Panels', 'Inverters', 'Battery Energy Storage',
         ];
 
-        // Internal overhead
-        $internalOverhead = round((float) DB::table('expenses')
+        // Expenses aggregation in 1 single SQL query
+        $expenseSums = DB::table('expenses')
             ->where('company_id', $companyId)
             ->whereBetween('expense_date', [$startDate, $endDate])
-            ->where('is_internal_overhead', 1)
-            ->sum('amount'), 2);
+            ->selectRaw('
+                COALESCE(SUM(CASE WHEN is_internal_overhead = 1 THEN amount ELSE 0 END), 0) as internal_overhead,
+                COALESCE(SUM(CASE WHEN is_internal_overhead = 0 AND invoice_id IS NULL THEN amount ELSE 0 END), 0) as unlinked_opex,
+                COALESCE(SUM(CASE WHEN is_internal_overhead = 0 AND invoice_id IS NOT NULL AND category NOT IN ("'.implode('","', $materialCategories).'", "Commission") THEN amount ELSE 0 END), 0) as linked_opex
+            ')->first();
 
-        // Unlinked OpEx
-        $unlinkedOpEx = (float) DB::table('expenses')
-            ->where('company_id', $companyId)
-            ->whereBetween('expense_date', [$startDate, $endDate])
-            ->where('is_internal_overhead', 0)
-            ->whereNull('invoice_id')
-            ->sum('amount');
-
-        // Invoices with turnkey captured
-        $invoicesWithTurnkeyCaptured = DB::table('invoice_items')
-            ->join('invoices', 'invoice_items.invoice_id', '=', 'invoices.id')
-            ->where('invoices.company_id', $companyId)
-            ->whereBetween('invoices.invoice_date', [$startDate, $endDate])
-            ->where('invoices.status', '!=', 'cancelled')
-            ->where('invoice_items.cost_price', '>', 0)
-            ->where(function ($q) {
-                $q->where('invoice_items.description', 'like', '%turnkey%')
-                    ->orWhere('invoice_items.description', 'like', '%overhead allocation%');
-            })
-            ->pluck('invoices.id')
-            ->unique()
-            ->toArray();
-
-        // Linked OpEx
-        $linkedOpExQuery = DB::table('expenses')
-            ->where('company_id', $companyId)
-            ->whereBetween('expense_date', [$startDate, $endDate])
-            ->where('is_internal_overhead', 0)
-            ->whereNotNull('invoice_id')
-            ->whereNotIn('category', array_merge($materialCategories, ['Commission']));
-
-        if (! empty($invoicesWithTurnkeyCaptured)) {
-            $linkedOpExQuery->whereNotIn('invoice_id', $invoicesWithTurnkeyCaptured);
-        }
-        $linkedOpEx = (float) $linkedOpExQuery->sum('amount');
+        $internalOverhead = round((float) ($expenseSums?->internal_overhead ?? 0.0), 2);
+        $unlinkedOpEx = (float) ($expenseSums?->unlinked_opex ?? 0.0);
+        $linkedOpEx = (float) ($expenseSums?->linked_opex ?? 0.0);
 
         $operatingExpenses = round($unlinkedOpEx + $linkedOpEx, 2);
         $totalExpenses = round($operatingExpenses + $internalOverhead, 2);
@@ -479,11 +452,6 @@ class GeminiAssistantService
         $retainedMargin = round($invoicedSales - ($cogs + $operatingExpenses), 2);
         $netProfit = round($grossProfit - $operatingExpenses - $agentCommissions, 2);
         $netMarginPercentage = $invoicedSales > 0 ? round(($netProfit / $invoicedSales) * 100, 1) : 0.0;
-
-        $pendingCashToCollect = round((float) DB::table('invoices')
-            ->where('company_id', $companyId)
-            ->where('status', '!=', 'cancelled')
-            ->sum('due_amount'), 2);
 
         return [
             'period' => $period,

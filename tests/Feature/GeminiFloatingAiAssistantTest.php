@@ -467,6 +467,6 @@ class GeminiFloatingAiAssistantTest extends TestCase
         $this->assertFalse($component->get('isLoading'));
         $messages = $component->get('messages');
         $this->assertCount(3, $messages);
-        $this->assertStringContainsString('The request timed out', $messages[2]['content']);
+        $this->assertStringContainsString('Calculation took too long', $messages[2]['content']);
     }
 }

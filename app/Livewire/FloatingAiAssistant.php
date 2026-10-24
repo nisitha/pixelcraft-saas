@@ -93,7 +93,7 @@ class FloatingAiAssistant extends Component
         } catch (\Throwable $e) {
             $errorMsg = $e->getMessage();
             if (str_contains($errorMsg, 'cURL error 28') || str_contains(strtolower($errorMsg), 'timed out')) {
-                $userFriendlyMessage = 'The request timed out while communicating with the AI service. Please try asking again or make your query more specific.';
+                $userFriendlyMessage = "Calculation took too long. Please ask for a specific customer (e.g. 'Gamini project profit') for faster results.";
             } else {
                 $userFriendlyMessage = 'Sorry, I encountered an issue processing your request: '.$errorMsg;
             }

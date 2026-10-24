@@ -1,9 +1,22 @@
-<div>
+<div 
+    x-data="{
+        scrollToBottom() {
+            $nextTick(() => {
+                const el = this.$refs.chatContainer;
+                if (el) {
+                    el.scrollTop = el.scrollHeight;
+                }
+            });
+        }
+    }"
+    x-init="$watch('$wire.messages', () => scrollToBottom()); if (window.Livewire) { Livewire.hook('commit', () => scrollToBottom()); }"
+>
     <!-- Floating Trigger Button -->
     <div style="position: fixed !important; bottom: 25px !important; right: 25px !important; z-index: 999999 !important; display: block !important;">
         <button 
             type="button" 
             wire:click="toggleOpen"
+            @click="scrollToBottom()"
             style="width: 60px !important; height: 60px !important; border-radius: 50% !important; background-color: #4680ff !important; box-shadow: 0 10px 25px rgba(70, 128, 255, 0.5) !important; border: 2px solid #ffffff !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; position: relative !important; outline: none !important; padding: 0 !important;"
             title="Pixel Craft Studios AI Assistant"
         >
@@ -34,7 +47,7 @@
         </div>
 
         <!-- Chat History -->
-        <div style="flex: 1 !important; padding: 14px !important; overflow-y: auto !important; background-color: #f8f9fa !important; display: flex !important; flex-direction: column !important; gap: 12px !important;">
+        <div x-ref="chatContainer" style="flex: 1 !important; padding: 14px !important; overflow-y: auto !important; background-color: #f8f9fa !important; display: flex !important; flex-direction: column !important; gap: 12px !important;">
             @foreach($messages as $msg)
                 <div style="display: flex !important; justify-content: {{ ($msg['role'] ?? '') === 'user' ? 'flex-end' : 'flex-start' }} !important;">
                     <div style="max-width: 82% !important; padding: 10px 14px !important; border-radius: 14px !important; font-size: 13px !important; line-height: 1.5 !important; {{ ($msg['role'] ?? '') === 'user' ? 'background-color: #4680ff !important; color: #ffffff !important;' : 'background-color: #ffffff !important; color: #1e293b !important; border: 1px solid #e2e8f0 !important;' }}">
@@ -42,25 +55,28 @@
                     </div>
                 </div>
             @endforeach
-            @if($isLoading)
-                <div style="display: flex !important; justify-content: flex-start !important;">
-                    <div style="background-color: #ffffff !important; padding: 8px 14px !important; border-radius: 14px !important; border: 1px solid #e2e8f0 !important; font-size: 12px !important; color: #64748b !important;">
-                        Thinking...
-                    </div>
-                </div>
-            @endif
+
+            <!-- Instant Visual Loading Indicator -->
+            <div wire:loading.flex wire:target="sendMessage" style="display: flex; align-items: center; gap: 8px; background: #ffffff; padding: 10px 14px; border-radius: 14px; border: 1px solid #e2e8f0; width: fit-content; margin-bottom: 8px;">
+                <span style="font-size: 13px; color: #4680ff; font-weight: 500;">⚡ Calculating & analyzing project books...</span>
+                <span style="font-size: 14px;">⏳</span>
+            </div>
         </div>
 
         <!-- Input Box -->
-        <form wire:submit.prevent="sendMessage" style="padding: 10px 14px !important; background-color: #ffffff !important; border-top: 1px solid #e8ebee !important; display: flex !important; gap: 8px !important;">
+        <form wire:submit.prevent="sendMessage" @submit="scrollToBottom()" style="padding: 10px 14px !important; background-color: #ffffff !important; border-top: 1px solid #e8ebee !important; display: flex !important; gap: 8px !important;">
             <input 
                 type="text" 
                 wire:model="input" 
+                wire:loading.attr="disabled"
+                wire:target="sendMessage"
                 placeholder="Ask about projects, profit, bills..." 
                 style="flex: 1 !important; padding: 10px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 8px !important; font-size: 13px !important; outline: none !important;"
             />
             <button 
                 type="submit" 
+                wire:loading.attr="disabled"
+                wire:target="sendMessage"
                 style="background-color: #4680ff !important; color: #ffffff !important; border: none !important; border-radius: 8px !important; padding: 0 16px !important; font-weight: 600 !important; font-size: 13px !important; cursor: pointer !important;"
             >
                 Send
