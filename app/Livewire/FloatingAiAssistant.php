@@ -91,9 +91,16 @@ class FloatingAiAssistant extends Component
                 'content' => $response,
             ];
         } catch (\Throwable $e) {
+            $errorMsg = $e->getMessage();
+            if (str_contains($errorMsg, 'cURL error 28') || str_contains(strtolower($errorMsg), 'timed out')) {
+                $userFriendlyMessage = 'The request timed out while communicating with the AI service. Please try asking again or make your query more specific.';
+            } else {
+                $userFriendlyMessage = 'Sorry, I encountered an issue processing your request: '.$errorMsg;
+            }
+
             $this->messages[] = [
                 'role' => 'assistant',
-                'content' => 'Sorry, I encountered an issue processing your request: '.$e->getMessage(),
+                'content' => $userFriendlyMessage,
             ];
         } finally {
             $this->isLoading = false;

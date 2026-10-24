@@ -76,7 +76,17 @@ class GeminiAssistantService
             try {
                 $endpoint = "https://generativelanguage.googleapis.com/v1beta/models/{$this->model}:generateContent?key={$this->apiKey}";
                 $response = Http::withoutVerifying()
-                    ->timeout(30)
+                    ->timeout(90)
+                    ->connectTimeout(15)
+                    ->withOptions([
+                        'curl' => [
+                            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                            CURLOPT_TCP_NODELAY => 1,
+                        ],
+                    ])
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                    ])
                     ->post($endpoint, $payload);
 
                 if (! $response->successful()) {
@@ -155,6 +165,10 @@ class GeminiAssistantService
 
             } catch (\Throwable $e) {
                 Log::error('Gemini Assistant Error: '.$e->getMessage(), ['exception' => $e]);
+
+                if (str_contains($e->getMessage(), 'cURL error 28') || str_contains(strtolower($e->getMessage()), 'timed out')) {
+                    return 'The request timed out while communicating with the AI service. Please try asking again or make your query more specific.';
+                }
 
                 return 'An error occurred while communicating with the Pixel Craft Studios AI Assistant: '.$e->getMessage();
             }

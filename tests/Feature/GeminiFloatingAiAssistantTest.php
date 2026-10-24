@@ -18,6 +18,7 @@ use App\Services\GeminiAssistantService;
 use Database\Seeders\DatabaseSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -450,5 +451,22 @@ class GeminiFloatingAiAssistantTest extends TestCase
         $userFunctionResponseTurn = $secondPayloadContents[2];
         $this->assertEquals('user', $userFunctionResponseTurn['role']);
         $this->assertEquals('get_unpaid_invoices', $userFunctionResponseTurn['parts'][0]['functionResponse']['name']);
+    }
+
+    public function test_timeout_is_handled_gracefully_in_service_and_livewire(): void
+    {
+        Http::fake([
+            'https://generativelanguage.googleapis.com/v1beta/models/*' => function () {
+                throw new ConnectionException('cURL error 28: Operation timed out after 90001 milliseconds with 0 bytes received');
+            },
+        ]);
+
+        $component = Livewire::test(FloatingAiAssistant::class);
+        $component->call('sendMessage', 'Calculate total company profit');
+
+        $this->assertFalse($component->get('isLoading'));
+        $messages = $component->get('messages');
+        $this->assertCount(3, $messages);
+        $this->assertStringContainsString('The request timed out', $messages[2]['content']);
     }
 }
