@@ -79,10 +79,7 @@ class GeminiAssistantService
                     ->timeout(90)
                     ->connectTimeout(15)
                     ->withOptions([
-                        'curl' => [
-                            CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
-                            CURLOPT_TCP_NODELAY => 1,
-                        ],
+                        'force_ip_resolve' => 'v4',
                     ])
                     ->withHeaders([
                         'Content-Type' => 'application/json',
