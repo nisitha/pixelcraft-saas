@@ -19,6 +19,7 @@ use App\Models\QuotationItem;
 use App\Models\SalaryAdvance;
 use App\Models\SalesAgent;
 use App\Models\User;
+use App\Services\PayrollCalculationService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -1546,6 +1547,13 @@ class VertexHomesSeeder extends Seeder
                 'status' => 'pending',
                 'approved_by' => null,
             ]
+        );
+
+        // 17. Seed Sample October 2026 Payroll Run via PayrollCalculationService
+        app(PayrollCalculationService::class)->generateMonthlyPayroll(
+            $company->id,
+            '2026-10',
+            $ownerUser?->id ?? 1
         );
     }
 }

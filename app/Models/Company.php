@@ -247,4 +247,14 @@ class Company extends Model implements HasAvatar, HasName
     {
         return $this->hasMany(SalaryAdvance::class);
     }
+
+    public function payrolls(): HasMany
+    {
+        return $this->hasMany(Payroll::class);
+    }
+
+    public function payrollItems(): HasMany
+    {
+        return $this->hasMany(PayrollItem::class);
+    }
 }
