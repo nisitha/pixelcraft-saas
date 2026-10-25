@@ -9,6 +9,9 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -90,6 +93,14 @@ class PayrollsTable
                     ]),
             ])
             ->recordActions([
+                Action::make('export_all_payslips')
+                    ->label('Export All')
+                    ->tooltip('Export All Payslips (Combined PDF)')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(fn (Payroll $record): string => route('payroll.payslips.all', $record))
+                    ->openUrlInNewTab(),
+
                 Action::make('confirm')
                     ->label('Confirm & Finalize')
                     ->icon('heroicon-o-check-badge')
@@ -100,6 +111,53 @@ class PayrollsTable
                         app(PayrollCalculationService::class)->confirmPayroll($record, auth()->id());
                         Notification::make()
                             ->title('Payroll confirmed successfully! Advances marked as deducted.')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('mark_as_paid')
+                    ->label('Mark as Paid')
+                    ->tooltip('Mark as Paid & Record Expense')
+                    ->icon('heroicon-o-banknotes')
+                    ->color('primary')
+                    ->visible(fn (Payroll $record): bool => ! $record->isPaid())
+                    ->form([
+                        DatePicker::make('payment_date')
+                            ->label('Disbursement Date')
+                            ->default(now())
+                            ->required(),
+
+                        Select::make('payment_method')
+                            ->label('Payment Method')
+                            ->options([
+                                'bank_transfer' => 'Bank Transfer (Direct Remittance)',
+                                'cheque' => 'Corporate Cheque',
+                                'cash' => 'Cash Voucher',
+                            ])
+                            ->default('bank_transfer')
+                            ->required(),
+
+                        Select::make('category')
+                            ->label('Expense Category')
+                            ->options([
+                                'Salaries & Wages' => 'Salaries & Wages',
+                                'Staff Payroll' => 'Staff Payroll',
+                                'Staff Allowances' => 'Staff Allowances',
+                            ])
+                            ->default('Salaries & Wages')
+                            ->required(),
+
+                        Textarea::make('notes')
+                            ->label('Ledger Notes')
+                            ->placeholder('Optional notes for the company expense transaction')
+                            ->rows(2),
+                    ])
+                    ->action(function (Payroll $record, array $data): void {
+                        app(PayrollCalculationService::class)->markAsPaidAndRecordExpense($record, $data, auth()->id());
+
+                        Notification::make()
+                            ->title('Payroll marked as Paid & automated expense logged')
+                            ->body('Total Employer Cost booked to company expense ledger.')
                             ->success()
                             ->send();
                     }),

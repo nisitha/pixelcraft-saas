@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Contact;
 use App\Models\Invoice;
+use App\Models\Payroll;
 use App\Models\Product;
 use App\Models\Quotation;
 use Carbon\Carbon;
@@ -24,7 +25,7 @@ class GeminiAssistantService
     {
         $this->apiKey = $apiKey ?: (string) (config('services.gemini.api_key') ?: env('GEMINI_API_KEY', ''));
         $this->model = $model ?: (string) (config('services.gemini.model') ?: env('GEMINI_MODEL', 'gemini-2.0-flash'));
-        $this->systemPrompt = "You are the Pixel Craft Studios AI Assistant for Vertex Books ERP. You provide business insights, project costing, profit calculations, and inventory data strictly scoped to the user's company. Respond fluently in the user's input language (Sinhala or English). Always format amounts in LKR with clear breakdowns. Answer concisely with direct numbers and short bullet points. Do not write lengthy essays unless specifically requested.";
+        $this->systemPrompt = "You are the Pixel Craft Studios AI Assistant for Vertex Books ERP. You provide business insights, project costing, profit calculations, inventory data, and payroll management strictly scoped to the user's company. You can provide insights into company payroll, technician wages, EPF/ETF statutory liabilities, and staff salary advances. Respond fluently in the user's input language (Sinhala or English). Always format amounts in LKR with clear breakdowns. Answer concisely with direct numbers and short bullet points. Do not write lengthy essays unless specifically requested.";
     }
 
     /**
@@ -198,6 +199,10 @@ class GeminiAssistantService
             ),
             'get_customer_overview' => $this->getCustomerOverview(
                 (string) ($args['customer_name'] ?? ''),
+                $companyId
+            ),
+            'get_payroll_summary' => $this->getPayrollSummary(
+                isset($args['month']) ? (string) $args['month'] : null,
                 $companyId
             ),
             default => [
@@ -660,6 +665,79 @@ class GeminiAssistantService
     }
 
     /**
+     * Tool 6: Payroll & Statutory Liabilities Summary.
+     * Fetches monthly payroll figures, employee count, net salary disbursed, EPF/ETF statutory contributions,
+     * salary advance recoveries, and itemized breakdown by employee designation.
+     *
+     * @return array<string, mixed>
+     */
+    public function getPayrollSummary(?string $month, int $companyId): array
+    {
+        $payrollQuery = Payroll::withoutGlobalScopes()
+            ->with(['items.employee'])
+            ->where('company_id', $companyId);
+
+        if ($month) {
+            $payroll = (clone $payrollQuery)->where('month', $month)->first();
+        } else {
+            // Default to latest finalized (paid or confirmed), or latest payroll record
+            $payroll = (clone $payrollQuery)
+                ->whereIn('status', ['paid', 'confirmed'])
+                ->orderByDesc('month')
+                ->first()
+                ?? (clone $payrollQuery)->orderByDesc('month')->first();
+        }
+
+        if (! $payroll) {
+            return [
+                'found' => false,
+                'message' => $month
+                    ? "No payroll record found for month [{$month}]."
+                    : 'No payroll records found for this company.',
+            ];
+        }
+
+        $designationGroups = $payroll->items->groupBy(fn ($item) => $item->employee?->designation ?: 'Unassigned');
+
+        $designationBreakdown = [];
+        foreach ($designationGroups as $designation => $items) {
+            $designationBreakdown[] = [
+                'designation' => $designation,
+                'employee_count' => $items->count(),
+                'total_basic_lkr' => round($items->sum('basic_salary'), 2),
+                'total_gross_lkr' => round($items->sum('gross_salary'), 2),
+                'total_net_lkr' => round($items->sum('net_salary'), 2),
+                'epf_employee_8_pct_lkr' => round($items->sum('epf_employee'), 2),
+                'epf_employer_12_pct_lkr' => round($items->sum('epf_employer'), 2),
+                'etf_employer_3_pct_lkr' => round($items->sum('etf_employer'), 2),
+                'advances_recovered_lkr' => round($items->sum('advance_deduction'), 2),
+            ];
+        }
+
+        return [
+            'found' => true,
+            'month' => $payroll->month,
+            'title' => $payroll->title,
+            'status' => $payroll->status,
+            'total_employees' => $payroll->items->count(),
+            'total_basic_salary_lkr' => (float) $payroll->total_basic,
+            'total_allowances_lkr' => (float) $payroll->total_allowances,
+            'total_gross_salary_lkr' => (float) $payroll->total_gross,
+            'total_net_salary_disbursed_lkr' => (float) $payroll->total_net_payable,
+            'total_salary_advances_recovered_lkr' => (float) $payroll->total_advances,
+            'statutory_liabilities_lkr' => [
+                'epf_employee_8_pct' => (float) $payroll->total_epf_employee,
+                'epf_employer_12_pct' => (float) $payroll->total_epf_employer,
+                'etf_employer_3_pct' => (float) $payroll->total_etf_employer,
+                'employer_statutory_contribution' => round((float) $payroll->total_epf_employer + (float) $payroll->total_etf_employer, 2),
+                'total_statutory_remittance' => (float) $payroll->total_epf_etf,
+            ],
+            'total_employer_cost_lkr' => round((float) $payroll->total_gross + (float) $payroll->total_epf_employer + (float) $payroll->total_etf_employer, 2),
+            'breakdown_by_designation' => $designationBreakdown,
+        ];
+    }
+
+    /**
      * Gemini Function Calling tool definitions schema.
      *
      * @return array<int, array<string, mixed>>
@@ -727,6 +805,19 @@ class GeminiAssistantService
                         ],
                     ],
                     'required' => ['customer_name'],
+                ],
+            ],
+            [
+                'name' => 'get_payroll_summary',
+                'description' => 'Fetches monthly payroll summary, employee wages, net salary disbursed, EPF (8% employee, 12% employer) and ETF (3% employer) liabilities, salary advances recovered, and itemized breakdown by employee designation.',
+                'parameters' => [
+                    'type' => 'OBJECT',
+                    'properties' => [
+                        'month' => [
+                            'type' => 'STRING',
+                            'description' => 'Target payroll month in YYYY-MM format (e.g. "2026-10"). If omitted, defaults to the latest finalized or current month.',
+                        ],
+                    ],
                 ],
             ],
         ];

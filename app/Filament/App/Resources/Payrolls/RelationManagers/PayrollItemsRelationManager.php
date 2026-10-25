@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\Payrolls\RelationManagers;
 use App\Models\Payroll;
 use App\Models\PayrollItem;
 use App\Services\PayrollCalculationService;
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -125,6 +126,13 @@ class PayrollItemsRelationManager extends RelationManager
                     ->sortable(),
             ])
             ->recordActions([
+                Action::make('download_payslip')
+                    ->label('Download Payslip')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('primary')
+                    ->url(fn (PayrollItem $record): string => route('payroll.payslip.download', $record))
+                    ->openUrlInNewTab(),
+
                 EditAction::make()
                     ->visible($isDraft)
                     ->after(function (PayrollItem $record) use ($payroll): void {

@@ -6,6 +6,8 @@ use App\Models\CommissionPayout;
 use App\Models\CompletionCertificate;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Payroll;
+use App\Models\PayrollItem;
 use App\Models\Quotation;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as DomPdfWrapper;
@@ -312,5 +314,66 @@ class PdfService
         $safeNumber = static::sanitizeFileName($number);
 
         return "SolarAgreement-{$safeNumber}.pdf";
+    }
+
+    public function generatePayslipPdf(PayrollItem $item): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $item->loadMissing(['employee', 'payroll.company']);
+        $payroll = $item->payroll;
+        $company = $payroll?->company ?? $item->company;
+        $employee = $item->employee;
+
+        $pdf = Pdf::loadView('payroll.payslip-pdf', [
+            'item' => $item,
+            'payroll' => $payroll,
+            'company' => $company,
+            'employee' => $employee,
+        ])->setPaper('a4', 'portrait');
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public function generateCombinedPayslipsPdf(Payroll $payroll): DomPdfWrapper
+    {
+        $this->configureEnvironment();
+
+        $payroll->loadMissing(['company', 'items.employee']);
+        $company = $payroll->company;
+
+        $pdf = Pdf::loadView('payroll.combined-payslips-pdf', [
+            'payroll' => $payroll,
+            'company' => $company,
+        ])->setPaper('a4', 'portrait');
+
+        $this->applyDompdfOptions($pdf);
+
+        return $pdf;
+    }
+
+    public static function getPayslipFileName(PayrollItem|string $item): string
+    {
+        if ($item instanceof PayrollItem) {
+            $month = $item->payroll?->month ?: now()->format('Y-m');
+            $name = $item->employee?->name ?: "Emp-{$item->employee_id}";
+            $safeName = static::sanitizeFileName($name);
+
+            return "Payslip-{$month}-{$safeName}.pdf";
+        }
+
+        $safe = static::sanitizeFileName($item);
+
+        return "Payslip-{$safe}.pdf";
+    }
+
+    public static function getAllPayslipsFileName(Payroll|string $payroll): string
+    {
+        $month = $payroll instanceof Payroll ? $payroll->month : $payroll;
+        $safeMonth = static::sanitizeFileName($month);
+
+        return "Payslips-All-{$safeMonth}.pdf";
     }
 }

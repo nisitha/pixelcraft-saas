@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Employee;
+use App\Models\Expense;
 use App\Models\Payroll;
 use App\Models\PayrollItem;
 use App\Models\SalaryAdvance;
@@ -164,6 +165,80 @@ class PayrollCalculationService
             ]);
 
             $this->recalculateTotals($payroll);
+        });
+    }
+
+    /**
+     * Mark payroll as paid, transition status, and record an automated expense entry.
+     *
+     * @param  array{payment_date?: string, payment_method?: string, category?: string, notes?: string}  $data
+     *
+     * @throws DomainException
+     */
+    public function markAsPaidAndRecordExpense(Payroll $payroll, array $data, int $userId): Expense
+    {
+        if ($payroll->isPaid()) {
+            throw new DomainException('Payroll run has already been marked as paid.');
+        }
+
+        return DB::transaction(function () use ($payroll, $data, $userId) {
+            $totalEmployerCost = round(
+                (float) $payroll->total_gross + (float) $payroll->total_epf_employer + (float) $payroll->total_etf_employer,
+                2
+            );
+
+            $refNo = 'PAY-'.$payroll->month;
+            $category = $data['category'] ?? 'Salaries & Wages';
+            $paymentDate = $data['payment_date'] ?? now()->toDateString();
+            $paymentMethod = $data['payment_method'] ?? 'bank_transfer';
+            $itemCount = $payroll->items()->count();
+
+            $defaultNotes = "Automated payroll expense entry for {$payroll->month} ({$itemCount} employees). Method: ".ucfirst(str_replace('_', ' ', $paymentMethod));
+            $notes = ! empty($data['notes']) ? $data['notes'].' | '.$defaultNotes : $defaultNotes;
+
+            // Ensure linked salary advances for this month are marked as deducted
+            $employeeIds = $payroll->items()->pluck('employee_id');
+            SalaryAdvance::withoutGlobalScopes()
+                ->where('company_id', $payroll->company_id)
+                ->where('status', 'approved')
+                ->where('deduct_month', $payroll->month)
+                ->whereIn('employee_id', $employeeIds)
+                ->update(['status' => 'deducted']);
+
+            // Prevent double-entry or duplicate expense with this reference for this company
+            $existingExpense = Expense::withoutGlobalScopes()
+                ->where('company_id', $payroll->company_id)
+                ->where('reference_no', $refNo)
+                ->first();
+
+            if ($existingExpense) {
+                $existingExpense->update([
+                    'category' => $category,
+                    'title' => "Monthly Staff Payroll - {$payroll->month}",
+                    'amount' => $totalEmployerCost,
+                    'expense_date' => $paymentDate,
+                    'notes' => $notes,
+                ]);
+                $expense = $existingExpense;
+            } else {
+                $expense = Expense::create([
+                    'company_id' => $payroll->company_id,
+                    'category' => $category,
+                    'title' => "Monthly Staff Payroll - {$payroll->month}",
+                    'amount' => $totalEmployerCost,
+                    'expense_date' => $paymentDate,
+                    'reference_no' => $refNo,
+                    'notes' => $notes,
+                    'is_internal_overhead' => false,
+                ]);
+            }
+
+            $payroll->update([
+                'status' => 'paid',
+                'processed_by' => $userId,
+            ]);
+
+            return $expense;
         });
     }
 }
