@@ -16,25 +16,28 @@ class SalaryAdvanceForm
     {
         return $schema
             ->components([
-                Section::make('Salary Advance Request')
-                    ->description('Record and approve advance salary requests for employees')
+                Section::make('Salary Advance Application & Approval')
+                    ->description('Request, review, and schedule advance wage deductions for staff members')
+                    ->icon('heroicon-o-banknotes')
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('employee_id')
-                                ->label('Employee')
+                                ->label('Employee Staff Member')
                                 ->relationship('employee', 'name')
+                                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->name} — {$record->designation} (Basic: Rs. ".number_format($record->basic_salary, 2).')')
                                 ->searchable(['name', 'calling_name'])
                                 ->preload()
                                 ->required(),
 
                             TextInput::make('amount')
-                                ->label('Advance Amount')
+                                ->label('Advance Amount Requested')
                                 ->numeric()
                                 ->prefix('Rs.')
+                                ->placeholder('e.g. 15000')
                                 ->required(),
 
                             DatePicker::make('request_date')
-                                ->label('Request Date')
+                                ->label('Application Date')
                                 ->default(now())
                                 ->required(),
 
@@ -43,23 +46,23 @@ class SalaryAdvanceForm
                                 ->placeholder('YYYY-MM (e.g. 2026-10)')
                                 ->default(fn () => now()->format('Y-m'))
                                 ->regex('/^\d{4}-\d{2}$/')
-                                ->helperText('Month when this advance will be deducted from payroll (Format: YYYY-MM)')
+                                ->helperText('Scheduled deduction month from monthly payroll run (Format: YYYY-MM)')
                                 ->required(),
 
                             Select::make('status')
-                                ->label('Approval Status')
+                                ->label('Review & Approval Status')
                                 ->options([
-                                    'pending' => 'Pending',
-                                    'approved' => 'Approved',
-                                    'deducted' => 'Deducted',
-                                    'rejected' => 'Rejected',
+                                    'pending' => 'Pending Review',
+                                    'approved' => 'Approved (Ready to Deduct)',
+                                    'deducted' => 'Deducted (Recovered in Payroll)',
+                                    'rejected' => 'Rejected / Cancelled',
                                 ])
                                 ->default('pending')
                                 ->required(),
 
                             Textarea::make('reason')
-                                ->label('Reason for Request')
-                                ->placeholder('State the purpose or justification for the advance request')
+                                ->label('Purpose / Reason for Advance')
+                                ->placeholder('State emergency medical, festival advance, tool purchase, or other reason')
                                 ->rows(3)
                                 ->columnSpanFull(),
                         ]),

@@ -2,10 +2,12 @@
 
 namespace App\Filament\App\Resources\Payrolls\Schemas;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 
 class PayrollForm
@@ -14,8 +16,13 @@ class PayrollForm
     {
         return $schema
             ->components([
-                Section::make('Payroll Run Details & Status')
-                    ->description('Monthly payroll batch information and processing state')
+                View::make('filament.app.components.payroll-kpi-banner')
+                    ->columnSpanFull(),
+
+                Section::make('Payroll Run Details & Identification')
+                    ->description('Batch identification and processing workflow status')
+                    ->icon('heroicon-o-document-text')
+                    ->collapsible()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('month')
@@ -40,70 +47,15 @@ class PayrollForm
                         ]),
                     ]),
 
-                Section::make('Run KPI Summary & Statutory Remittance')
-                    ->description('Aggregated financial summary of all included employees')
-                    ->schema([
-                        Grid::make(3)->schema([
-                            TextInput::make('total_basic')
-                                ->label('Total Basic Salary')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-
-                            TextInput::make('total_allowances')
-                                ->label('Total Allowances')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-
-                            TextInput::make('total_gross')
-                                ->label('Total Gross Pay')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-                        ]),
-
-                        Grid::make(3)->schema([
-                            TextInput::make('total_epf_employee')
-                                ->label('EPF Employee (8%)')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-
-                            TextInput::make('total_epf_employer')
-                                ->label('EPF Employer (12%)')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-
-                            TextInput::make('total_etf_employer')
-                                ->label('ETF Employer (3%)')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-                        ]),
-
-                        Grid::make(3)->schema([
-                            TextInput::make('total_advances')
-                                ->label('Total Advances Deducted')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-
-                            TextInput::make('total_deductions')
-                                ->label('Total Deductions')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->readOnly(),
-
-                            TextInput::make('total_net_payable')
-                                ->label('Total Net Payable to Staff')
-                                ->numeric()
-                                ->prefix('Rs.')
-                                ->extraAttributes(['class' => 'font-bold text-success-600'])
-                                ->readOnly(),
-                        ]),
-                    ]),
+                Hidden::make('total_basic'),
+                Hidden::make('total_allowances'),
+                Hidden::make('total_gross'),
+                Hidden::make('total_epf_employee'),
+                Hidden::make('total_epf_employer'),
+                Hidden::make('total_etf_employer'),
+                Hidden::make('total_advances'),
+                Hidden::make('total_deductions'),
+                Hidden::make('total_net_payable'),
             ]);
     }
 }
