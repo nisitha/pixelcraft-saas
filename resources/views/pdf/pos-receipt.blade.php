@@ -113,6 +113,7 @@
         };
 
         $logoPath = $resolveImagePath($company->logo_path ?? ($company->settings['logo_path'] ?? null));
+        $currencySymbol = method_exists($company, 'getCurrencySymbol') ? $company->getCurrencySymbol() : ($company->currency ?? 'Rs.');
     @endphp
 </head>
 <body>
@@ -123,9 +124,10 @@
                 <img src="{{ $logoPath }}" style="max-height: 40px; max-width: 140px; margin: 0 auto; display: block;" alt="{{ $company->name }}">
             </div>
         @endif
-        <div class="company-name">{{ $company->name ?? 'Vertex Books' }}</div>
+        <div class="company-name">{{ $company->name ?? config('app.name', 'PixelCraft SaaS') }}</div>
         <div>{{ $company->address ?? 'Colombo, Sri Lanka' }}</div>
         @if(!empty($company->phone)) <div>Tel: {{ $company->phone }}</div> @endif
+        @if(!empty($company->br_number)) <div>BR No: {{ $company->br_number }}</div> @endif
         @if(!empty($company->tax_number)) <div>VAT/Tax: {{ $company->tax_number }}</div> @endif
     </div>
 
@@ -191,32 +193,32 @@
     <table class="totals-table">
         <tr>
             <td class="text-left">Subtotal:</td>
-            <td class="text-right">Rs. {{ number_format((float) $invoice->subtotal, 2) }}</td>
+            <td class="text-right">{{ $currencySymbol }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
         </tr>
         @if((float) $invoice->discount > 0)
             <tr>
                 <td class="text-left">Discount:</td>
-                <td class="text-right">- Rs. {{ number_format((float) $invoice->discount, 2) }}</td>
+                <td class="text-right">- {{ $currencySymbol }} {{ number_format((float) $invoice->discount, 2) }}</td>
             </tr>
         @endif
         @if((float) $invoice->tax > 0)
             <tr>
                 <td class="text-left">Tax:</td>
-                <td class="text-right">Rs. {{ number_format((float) $invoice->tax, 2) }}</td>
+                <td class="text-right">{{ $currencySymbol }} {{ number_format((float) $invoice->tax, 2) }}</td>
             </tr>
         @endif
         <tr class="grand-total">
             <td class="text-left">NET TOTAL:</td>
-            <td class="text-right">Rs. {{ number_format((float) $invoice->grand_total, 2) }}</td>
+            <td class="text-right">{{ $currencySymbol }} {{ number_format((float) $invoice->grand_total, 2) }}</td>
         </tr>
         <tr>
             <td class="text-left">Paid ({{ isset($payments[0]) ? strtoupper($payments[0]->method) : 'CASH' }}):</td>
-            <td class="text-right bold">Rs. {{ number_format((float) $invoice->paid_amount, 2) }}</td>
+            <td class="text-right bold">{{ $currencySymbol }} {{ number_format((float) $invoice->paid_amount, 2) }}</td>
         </tr>
         @if($changeDue > 0)
             <tr>
                 <td class="text-left">Change Tendered:</td>
-                <td class="text-right">Rs. {{ number_format((float) $changeDue, 2) }}</td>
+                <td class="text-right">{{ $currencySymbol }} {{ number_format((float) $changeDue, 2) }}</td>
             </tr>
         @endif
     </table>
@@ -226,8 +228,8 @@
     <div class="footer text-center">
         <div class="bold">THANK YOU FOR YOUR BUSINESS!</div>
         <div>Please retain this receipt for warranty claims.</div>
-        <div style="margin-top: 4px;">Powered by Vertex Books</div>
-        <div>www.vertexinnovationlk.com</div>
+        <div style="margin-top: 4px;">Powered by {{ config('app.name', 'PixelCraft SaaS') }}</div>
+        <div>{{ config('app.url', 'app.pixelcraftlk.com') }}</div>
     </div>
 
 </body>

@@ -193,13 +193,14 @@
                         <img src="{{ $logoPath }}" style="max-height: 65px; max-width: 180px; object-fit: contain;" alt="{{ $company->name }}">
                     </div>
                 @endif
-                <div class="company-title">{{ $company->name ?? 'Vertex Books Solutions' }}</div>
+                <div class="company-title">{{ $company->name ?? config('app.name', 'PixelCraft SaaS') }}</div>
                 <div class="company-subtitle">Inventory Dispatch & Material Gate Pass</div>
-                <div style="color: #475569; font-size: 10px; line-height: 1.5;">
+                <div style="color: #475569; font-size: 10px; line-height: 1.5; margin-top: 4px;">
                     @if(!empty($company->address)) {{ $company->address }}<br> @endif
                     @if(!empty($company->phone)) Tel: {{ $company->phone }} | @endif
-                    @if(!empty($company->email)) Email: {{ $company->email }}<br> @endif
-                    @if(!empty($company->tax_number)) VAT/SVAT No: <strong>{{ $company->tax_number }}</strong> @endif
+                    @if(!empty($company->email)) Email: {{ $company->email }} | @endif
+                    @if(!empty($company->br_number)) BR No: <strong>{{ $company->br_number }}</strong> @endif
+                    @if(!empty($company->tax_number)) | VAT/SVAT No: <strong>{{ $company->tax_number }}</strong> @endif
                 </div>
             </td>
             <td style="width: 42%; text-align: right;">
@@ -320,7 +321,7 @@
                     <div class="sig-line"></div>
                 @endif
                 <strong>Dispatched By (Storekeeper / QC)</strong><br>
-                <span>Vertex Books Warehousing</span><br>
+                <span>{{ $company->name ?? config('app.name', 'PixelCraft SaaS') }} Logistics</span><br>
                 <span>Date: {{ now()->format('d M Y') }}</span>
             </td>
             <td>

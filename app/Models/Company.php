@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Company extends Model implements HasAvatar, HasName
 {
@@ -18,13 +19,15 @@ class Company extends Model implements HasAvatar, HasName
     protected $fillable = [
         'name',
         'slug',
-        'plan_id',
-        'subscription_ends_at',
-        'is_active',
+        'br_number',
         'phone',
         'email',
+        'currency',
         'address',
         'logo_path',
+        'is_active',
+        'plan_id',
+        'subscription_ends_at',
         'tax_number',
         'settings',
     ];
@@ -36,6 +39,39 @@ class Company extends Model implements HasAvatar, HasName
             'is_active' => 'boolean',
             'settings' => 'array',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Company $company) {
+            if (empty($company->slug)) {
+                $baseSlug = Str::slug($company->name) ?: 'company';
+                $slug = $baseSlug;
+                $counter = 1;
+
+                while (static::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug.'-'.(++$counter);
+                }
+
+                $company->slug = $slug;
+            }
+
+            if (empty($company->currency)) {
+                $company->currency = 'LKR';
+            }
+        });
+    }
+
+    public function getCurrencySymbol(): string
+    {
+        return match (strtoupper($this->currency ?? 'LKR')) {
+            'USD' => '$',
+            'GBP' => '£',
+            'EUR' => '€',
+            'AED' => 'AED',
+            'LKR' => 'Rs.',
+            default => $this->currency ?? 'Rs.',
+        };
     }
 
     public function getFilamentName(): string
@@ -53,6 +89,8 @@ class Company extends Model implements HasAvatar, HasName
 
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             $url = $path;
+        } elseif (Storage::disk('company-logos')->exists($path)) {
+            $url = Storage::disk('company-logos')->url($path);
         } else {
             $url = Storage::disk('public')->url($path);
         }

@@ -149,7 +149,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
             return false;
         }
 
-        if ($panel->getId() === 'super-admin' || $panel->getId() === 'admin') {
+        if ($panel->getId() === 'admin' || $panel->getId() === 'super-admin') {
             return (bool) $this->is_super_admin;
         }
 
@@ -166,10 +166,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
     public function getTenants(Panel $panel): array|Collection
     {
         if ($this->is_super_admin && $this->companies->isEmpty()) {
-            return Company::all();
+            return Company::where('is_active', true)->get();
         }
 
-        return $this->companies;
+        return $this->companies()->where('is_active', true)->get();
     }
 
     public function canAccessTenant(Model $tenant): bool
@@ -178,6 +178,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasTenant
             return true;
         }
 
-        return $this->companies->contains($tenant);
+        if ($this->relationLoaded('companies')) {
+            return $this->companies->contains('id', $tenant->getKey());
+        }
+
+        return $this->companies()->where('companies.id', $tenant->getKey())->exists();
     }
 }

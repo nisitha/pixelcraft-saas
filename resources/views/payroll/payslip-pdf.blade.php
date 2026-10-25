@@ -293,16 +293,25 @@
 </head>
 <body>
 <div class="container">
+@php
+    $currencySymbol = method_exists($company, 'getCurrencySymbol') ? $company->getCurrencySymbol() : ($company->currency ?? 'Rs.');
+@endphp
     <!-- Top Header -->
     <table class="header-table">
         <tr>
             <td style="width: 60%; vertical-align: top;">
-                <div class="company-name">{{ $company->name ?: 'Vertex Home Solutions (Pvt) Ltd' }}</div>
+                @if(!empty($company->logo_path))
+                    <div style="margin-bottom: 6px;">
+                        <img src="{{ filter_var($company->logo_path, FILTER_VALIDATE_URL) ? $company->logo_path : \Illuminate\Support\Facades\Storage::disk('company-logos')->url($company->logo_path) }}" style="max-height: 48px; max-width: 140px; object-fit: contain;" alt="{{ $company->name }}">
+                    </div>
+                @endif
+                <div class="company-name">{{ $company->name ?: config('app.name', 'PixelCraft SaaS') }}</div>
                 <div class="company-meta">
-                    {{ $company->address ?: 'Mirigama, Sri Lanka' }}<br>
+                    @if($company->address) {{ $company->address }}<br> @endif
                     @if($company->phone) Phone: {{ $company->phone }} | @endif
                     @if($company->email) Email: {{ $company->email }} | @endif
-                    @if($company->tax_number) TIN / Reg: {{ $company->tax_number }} @endif
+                    @if($company->br_number) BR No: {{ $company->br_number }} @endif
+                    @if($company->tax_number) | TIN / Reg: {{ $company->tax_number }} @endif
                 </div>
             </td>
             <td style="width: 40%; vertical-align: top;" class="payslip-badge-title">
@@ -364,25 +373,25 @@
                     <table class="item-row-table">
                         <tr>
                             <td class="item-label">Basic Salary</td>
-                            <td class="item-amount">Rs. {{ number_format($item->basic_salary, 2) }}</td>
+                            <td class="item-amount">{{ $currencySymbol }} {{ number_format($item->basic_salary, 2) }}</td>
                         </tr>
                         <tr>
                             <td class="item-label">Fixed Monthly Allowance</td>
-                            <td class="item-amount">Rs. {{ number_format($item->fixed_allowance, 2) }}</td>
+                            <td class="item-amount">{{ $currencySymbol }} {{ number_format($item->fixed_allowance, 2) }}</td>
                         </tr>
                         <tr>
                             <td class="item-label">Additional / Site Allowance (OT)</td>
-                            <td class="item-amount">Rs. {{ number_format($item->additional_allowance, 2) }}</td>
+                            <td class="item-amount">{{ $currencySymbol }} {{ number_format($item->additional_allowance, 2) }}</td>
                         </tr>
                         @if($employee->daily_rate && $employee->daily_rate > 0)
                         <tr>
                             <td class="item-label">Agreed Daily Wage Rate (Ref)</td>
-                            <td class="item-amount" style="color: #64748b; font-weight: normal;">Rs. {{ number_format($employee->daily_rate, 2) }}/day</td>
+                            <td class="item-amount" style="color: #64748b; font-weight: normal;">{{ $currencySymbol }} {{ number_format($employee->daily_rate, 2) }}/day</td>
                         </tr>
                         @endif
                         <tr class="subtotal-row">
                             <td class="item-label" style="color: #0369a1;">TOTAL GROSS EARNINGS</td>
-                            <td class="item-amount" style="color: #0369a1;">Rs. {{ number_format($item->gross_salary, 2) }}</td>
+                            <td class="item-amount" style="color: #0369a1;">{{ $currencySymbol }} {{ number_format($item->gross_salary, 2) }}</td>
                         </tr>
                     </table>
                 </div>
@@ -397,17 +406,17 @@
                     <table class="item-row-table">
                         <tr>
                             <td class="item-label">EPF Contribution (Employee 8%)</td>
-                            <td class="item-amount">Rs. {{ number_format($item->epf_employee, 2) }}</td>
+                            <td class="item-amount">{{ $currencySymbol }} {{ number_format($item->epf_employee, 2) }}</td>
                         </tr>
                         <tr>
                             <td class="item-label">Salary Advance Recoveries</td>
                             <td class="item-amount" style="{{ $item->advance_deduction > 0 ? 'color: #dc2626;' : '' }}">
-                                Rs. {{ number_format($item->advance_deduction, 2) }}
+                                {{ $currencySymbol }} {{ number_format($item->advance_deduction, 2) }}
                             </td>
                         </tr>
                         <tr>
                             <td class="item-label">Other Deductions / Penalties</td>
-                            <td class="item-amount">Rs. {{ number_format($item->other_deductions, 2) }}</td>
+                            <td class="item-amount">{{ $currencySymbol }} {{ number_format($item->other_deductions, 2) }}</td>
                         </tr>
                         @if($employee->daily_rate && $employee->daily_rate > 0)
                         <tr>
@@ -417,7 +426,7 @@
                         @endif
                         <tr class="subtotal-row">
                             <td class="item-label" style="color: #b91c1c;">TOTAL DEDUCTIONS</td>
-                            <td class="item-amount" style="color: #b91c1c;">Rs. {{ number_format($item->total_deductions, 2) }}</td>
+                            <td class="item-amount" style="color: #b91c1c;">{{ $currencySymbol }} {{ number_format($item->total_deductions, 2) }}</td>
                         </tr>
                     </table>
                 </div>
@@ -434,7 +443,7 @@
                     <div class="net-pay-sub">Gross Earnings minus Statutory EPF 8% and Advance Recoveries</div>
                 </td>
                 <td style="vertical-align: middle;">
-                    <div class="net-pay-amount">Rs. {{ number_format($item->net_salary, 2) }}</div>
+                    <div class="net-pay-amount">{{ $currencySymbol }} {{ number_format($item->net_salary, 2) }}</div>
                 </td>
             </tr>
         </table>
@@ -446,18 +455,18 @@
         <table class="statutory-table">
             <tr>
                 <td style="width: 25%;">Employer EPF (12%):</td>
-                <td class="statutory-value" style="width: 25%;">Rs. {{ number_format($item->epf_employer, 2) }}</td>
+                <td class="statutory-value" style="width: 25%;">{{ $currencySymbol }} {{ number_format($item->epf_employer, 2) }}</td>
                 <td style="width: 25%;">Employer ETF (3%):</td>
-                <td class="statutory-value" style="width: 25%;">Rs. {{ number_format($item->etf_employer, 2) }}</td>
+                <td class="statutory-value" style="width: 25%;">{{ $currencySymbol }} {{ number_format($item->etf_employer, 2) }}</td>
             </tr>
             <tr>
                 <td style="width: 25%; font-weight: bold; border-top: 1px dashed #d8b4fe; padding-top: 4px;">Total Statutory Remittance:</td>
                 <td class="statutory-value" style="width: 25%; border-top: 1px dashed #d8b4fe; padding-top: 4px;">
-                    Rs. {{ number_format($item->epf_employer + $item->etf_employer, 2) }}
+                    {{ $currencySymbol }} {{ number_format($item->epf_employer + $item->etf_employer, 2) }}
                 </td>
                 <td style="width: 25%; font-weight: bold; border-top: 1px dashed #d8b4fe; padding-top: 4px;">Total Cost to Employer (CTC):</td>
                 <td class="statutory-value" style="width: 25%; border-top: 1px dashed #d8b4fe; padding-top: 4px; color: #581c87;">
-                    Rs. {{ number_format($item->gross_salary + $item->epf_employer + $item->etf_employer, 2) }}
+                    {{ $currencySymbol }} {{ number_format($item->gross_salary + $item->epf_employer + $item->etf_employer, 2) }}
                 </td>
             </tr>
         </table>
@@ -494,7 +503,7 @@
     </table>
 
     <div class="footer-note">
-        This is a confidential computer-generated payslip generated by Vertex Books ERP for {{ $company->name }}. Printed on {{ now()->format('d M Y, h:i A') }}.
+        This is a confidential computer-generated payslip generated by {{ config('app.name', 'PixelCraft SaaS') }} for {{ $company->name }}. Printed on {{ now()->format('d M Y, h:i A') }}.
     </div>
 </div>
 </body>

@@ -26,6 +26,7 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
             ->id('app')
             ->path('app')
             ->login()
@@ -33,7 +34,7 @@ class AppPanelProvider extends PanelProvider
             ->tenant(Company::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterCompany::class)
             ->tenantProfile(EditCompanyProfile::class)
-            ->brandName('Vertex Books')
+            ->brandName('PixelCraft SaaS')
             ->colors([
                 'primary' => [
                     50 => '#eef4fe',

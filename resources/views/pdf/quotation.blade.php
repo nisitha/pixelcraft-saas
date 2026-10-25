@@ -266,6 +266,10 @@
 </head>
 <body>
 
+@php
+    $currencySymbol = method_exists($company, 'getCurrencySymbol') ? $company->getCurrencySymbol() : ($company->currency ?? 'Rs.');
+@endphp
+
     <!-- Header Section -->
     <table class="header-table">
         <tr>
@@ -275,13 +279,13 @@
                         <img src="{{ $logoPath }}" style="max-height: 52px; max-width: 160px; object-fit: contain;" alt="{{ $company->name }}">
                     </div>
                 @endif
-                <div class="company-title">{{ $company->name ?? 'Vertex Books Solar Energy' }}</div>
-                <div class="company-subtitle">Clean Energy Solutions & Engineering</div>
-                <div style="color: #475569; font-size: 9.5px; line-height: 1.4;">
+                <div class="company-title">{{ $company->name ?? config('app.name', 'PixelCraft SaaS') }}</div>
+                <div style="color: #475569; font-size: 9.5px; line-height: 1.4; margin-top: 3px;">
                     @if(!empty($company->address)) {{ $company->address }}<br> @endif
                     @if(!empty($company->phone)) Phone: {{ $company->phone }} | @endif
-                    @if(!empty($company->email)) Email: {{ $company->email }}<br> @endif
-                    @if(!empty($company->tax_number)) Tax / VAT No: <strong>{{ $company->tax_number }}</strong> @endif
+                    @if(!empty($company->email)) Email: {{ $company->email }} | @endif
+                    @if(!empty($company->br_number)) BR No: <strong>{{ $company->br_number }}</strong> @endif
+                    @if(!empty($company->tax_number)) | Tax / VAT No: <strong>{{ $company->tax_number }}</strong> @endif
                 </div>
             </td>
             <td style="width: 42%; text-align: right;">
@@ -398,9 +402,9 @@
                     <th style="width: 5%;" class="text-center">#</th>
                     <th style="width: 48%;">Item & Technical Description</th>
                     <th style="width: 9%;" class="text-center">Qty</th>
-                    <th style="width: 14%;" class="text-right">Unit Price (Rs.)</th>
-                    <th style="width: 10%;" class="text-right">Tax (Rs.)</th>
-                    <th style="width: 14%;" class="text-right">Total (Rs.)</th>
+                    <th style="width: 14%;" class="text-right">Unit Price ({{ $currencySymbol }})</th>
+                    <th style="width: 10%;" class="text-right">Tax ({{ $currencySymbol }})</th>
+                    <th style="width: 14%;" class="text-right">Total ({{ $currencySymbol }})</th>
                 </tr>
             </thead>
             <tbody>
@@ -440,15 +444,15 @@
                         <table class="milestones-table">
                             <tr>
                                 <td><strong>Milestone 1: 50% Advance</strong><br><span style="color: #64748b;">Confirmation & equipment reservation</span></td>
-                                <td class="text-right"><strong>Rs. {{ number_format((float) $quotation->grand_total * 0.50, 2) }}</strong></td>
+                                <td class="text-right"><strong>{{ $currencySymbol }} {{ number_format((float) $quotation->grand_total * 0.50, 2) }}</strong></td>
                             </tr>
                             <tr>
                                 <td><strong>Milestone 2: 40% Delivery</strong><br><span style="color: #64748b;">Upon site arrival of panels & inverter</span></td>
-                                <td class="text-right"><strong>Rs. {{ number_format((float) $quotation->grand_total * 0.40, 2) }}</strong></td>
+                                <td class="text-right"><strong>{{ $currencySymbol }} {{ number_format((float) $quotation->grand_total * 0.40, 2) }}</strong></td>
                             </tr>
                             <tr>
                                 <td><strong>Milestone 3: 10% Grid Connection</strong><br><span style="color: #64748b;">CEB net-metering & commissioning</span></td>
-                                <td class="text-right"><strong>Rs. {{ number_format((float) $quotation->grand_total * 0.10, 2) }}</strong></td>
+                                <td class="text-right"><strong>{{ $currencySymbol }} {{ number_format((float) $quotation->grand_total * 0.10, 2) }}</strong></td>
                             </tr>
                         </table>
                     </div>
@@ -469,23 +473,23 @@
                 <table class="totals-table">
                     <tr>
                         <td class="text-right" style="color: #64748b;">{{ $isPackageMode ? 'Package Subtotal:' : 'Subtotal:' }}</td>
-                        <td class="text-right" style="width: 45%;">Rs. {{ number_format((float) ($quotation->subtotal + $profitMarkup), 2) }}</td>
+                        <td class="text-right" style="width: 45%;">{{ $currencySymbol }} {{ number_format((float) ($quotation->subtotal + $profitMarkup), 2) }}</td>
                     </tr>
                     @if((float) $quotation->discount > 0)
                         <tr>
                             <td class="text-right" style="color: #dc2626;">Promotional Discount:</td>
-                            <td class="text-right" style="color: #dc2626;">- Rs. {{ number_format((float) $quotation->discount, 2) }}</td>
+                            <td class="text-right" style="color: #dc2626;">- {{ $currencySymbol }} {{ number_format((float) $quotation->discount, 2) }}</td>
                         </tr>
                     @endif
                     @if((float) $quotation->tax > 0)
                         <tr>
                             <td class="text-right" style="color: #64748b;">Applicable Taxes:</td>
-                            <td class="text-right">Rs. {{ number_format((float) $quotation->tax, 2) }}</td>
+                            <td class="text-right">{{ $currencySymbol }} {{ number_format((float) $quotation->tax, 2) }}</td>
                         </tr>
                     @endif
                     <tr class="grand-row">
                         <td class="text-right">{{ $isPackageMode ? 'Total Package Amount:' : 'Grand Total:' }}</td>
-                        <td class="text-right">Rs. {{ number_format((float) $quotation->grand_total, 2) }}</td>
+                        <td class="text-right">{{ $currencySymbol }} {{ number_format((float) $quotation->grand_total, 2) }}</td>
                     </tr>
                 </table>
             </td>
@@ -533,7 +537,7 @@
                 @endif
                 <div class="sig-line" style="{{ $signaturePath ? 'margin-top: 4px;' : '' }}"></div>
                 <strong>Authorized Signatory / Stamp</strong><br>
-                {{ $company->name ?? 'Vertex Books Solar Energy' }}
+                {{ $company->name ?? config('app.name', 'PixelCraft SaaS') }}
             </td>
             <td>
                 <div class="sig-line"></div>

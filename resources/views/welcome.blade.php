@@ -40,8 +40,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Vertex Books — Executive Cloud Accounting, POS & Solar ERP for Sri Lanka</title>
-    <meta name="description" content="Vertex Books is Sri Lanka's leading cloud ERP for Solar EPC installers, hardware merchants, and trade distributors. Features CEB solar sizing, milestone invoicing, POS counter receipts, and project profitability.">
+    <title>PixelCraft SaaS — Modern Multi-Tenant Cloud Invoicing, Payroll & Business Operations Platform</title>
+    <meta name="description" content="PixelCraft SaaS is Sri Lanka's leading multi-tenant B2B platform with dual Filament panels, automated onboarding, payroll statutory deductions, and white-labeled invoicing.">
 
     <!-- Google Fonts: Public Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,14 +141,14 @@
                 <!-- Brand Logo -->
                 <a href="/" class="flex items-center gap-3 text-decoration-none">
                     <div class="w-10 h-10 rounded-xl bg-[#4680ff] flex items-center justify-center text-white font-black text-xl shadow-md shadow-blue-500/20">
-                        VB
+                        PC
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xl font-extrabold tracking-tight text-[#1d2630]">Vertex Books</span>
-                            <span class="text-[10.5px] font-bold uppercase tracking-wider bg-[#eef4fe] text-[#4680ff] border border-blue-200 px-2 py-0.5 rounded-full">ERP Sri Lanka</span>
+                            <span class="text-xl font-extrabold tracking-tight text-[#1d2630]">PixelCraft SaaS</span>
+                            <span class="text-[10.5px] font-bold uppercase tracking-wider bg-[#eef4fe] text-[#4680ff] border border-blue-200 px-2 py-0.5 rounded-full">B2B Platform</span>
                         </div>
-                        <span class="text-xs text-[#5b6b79] hidden sm:block">Accounting, POS & Solar ERP</span>
+                        <span class="text-xs text-[#5b6b79] hidden sm:block">Accounting, Payroll & Invoicing SaaS</span>
                     </div>
                 </a>
 
@@ -531,12 +531,12 @@
                 <div class="space-y-3">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-lg bg-[#4680ff] flex items-center justify-center text-white font-bold text-base">
-                            VB
+                            PC
                         </div>
-                        <span class="text-lg font-bold text-[#1d2630]">Vertex Books</span>
+                        <span class="text-lg font-bold text-[#1d2630]">PixelCraft SaaS</span>
                     </div>
                     <p class="text-xs text-[#5b6b79] leading-relaxed">
-                        Sri Lanka's dedicated cloud ERP platform for solar engineering, retail point-of-sale, and wholesale distribution.
+                        Sri Lanka's dedicated multi-tenant SaaS platform for engineering, retail point-of-sale, and wholesale invoicing.
                     </p>
                 </div>
 
@@ -544,10 +544,10 @@
                 <div>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#1d2630] mb-3">Solutions</h4>
                     <ul class="space-y-2 text-xs text-[#5b6b79]">
-                        <li><a href="#solar-erp" class="hover:text-[#4680ff]">Solar Sizing & Agreements</a></li>
-                        <li><a href="#features" class="hover:text-[#4680ff]">Zoho-Style Invoicing</a></li>
+                        <li><a href="#solar-erp" class="hover:text-[#4680ff]">Quotations & Sales Agreements</a></li>
+                        <li><a href="#features" class="hover:text-[#4680ff]">Multi-Tenant Invoicing</a></li>
                         <li><a href="#pos" class="hover:text-[#4680ff]">Counter POS Receipts</a></li>
-                        <li><a href="#solar-erp" class="hover:text-[#4680ff]">Completion Certificates</a></li>
+                        <li><a href="#solar-erp" class="hover:text-[#4680ff]">EPF/ETF Payroll Engine</a></li>
                     </ul>
                 </div>
 
@@ -565,20 +565,20 @@
                 <div>
                     <h4 class="text-xs font-bold uppercase tracking-wider text-[#1d2630] mb-3">Compliance & Region</h4>
                     <p class="text-xs text-[#5b6b79] leading-relaxed">
-                        Optimized for Sri Lanka Telecom & Dialog 4G networks. LKR native currency with bank transfer & card processing.
+                        Dual Filament architecture with complete multi-tenant database isolation. Native multi-currency support (LKR, USD, GBP, EUR, AED).
                     </p>
                     <div class="mt-2 text-xs text-[#5b6b79]">
-                        Inquiries: <a href="mailto:support@vertexinnovationlk.com" class="text-[#4680ff] hover:underline font-semibold">support@vertexinnovationlk.com</a>
+                        Inquiries: <a href="mailto:support@pixelcraftlk.com" class="text-[#4680ff] hover:underline font-semibold">support@pixelcraftlk.com</a>
                     </div>
                     <div class="mt-3 text-[11px] text-[#059669] font-bold">
-                        ● Official Cloud Infrastructure (vertexinnovationlk.com)
+                        ● Official Cloud Infrastructure (app.pixelcraftlk.com)
                     </div>
                 </div>
             </div>
 
             <div class="pt-8 border-t border-[#e8ebee] flex flex-col sm:flex-row items-center justify-between text-xs text-[#64748b] gap-4">
                 <div>
-                    © {{ date('Y') }} Vertex Books ERP. All rights reserved.
+                    © {{ date('Y') }} PixelCraft SaaS. All rights reserved.
                 </div>
                 <div class="flex items-center gap-6">
                     <a href="/privacy" class="hover:text-[#4680ff]">Privacy Policy</a>

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained('companies')->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->string('role')->default('staff'); // owner, admin, staff, cashier
+            $table->string('role')->default('owner');
             $table->timestamps();
 
             $table->unique(['company_id', 'user_id']);

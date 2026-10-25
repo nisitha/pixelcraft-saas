@@ -19,6 +19,19 @@ class CompanyForm
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
+                TextInput::make('br_number')
+                    ->label('BR Number')
+                    ->default(null),
+                Select::make('currency')
+                    ->options([
+                        'LKR' => 'LKR',
+                        'USD' => 'USD',
+                        'GBP' => 'GBP',
+                        'EUR' => 'EUR',
+                        'AED' => 'AED',
+                    ])
+                    ->default('LKR')
+                    ->required(),
                 Select::make('plan_id')
                     ->relationship('plan', 'name')
                     ->default(null),

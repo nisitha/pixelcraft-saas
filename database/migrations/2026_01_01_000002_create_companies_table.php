@@ -15,13 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->foreignId('plan_id')->nullable()->constrained('plans')->nullOnDelete();
-            $table->timestamp('subscription_ends_at')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->string('br_number')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
+            $table->char('currency', 3)->default('LKR');
             $table->text('address')->nullable();
             $table->string('logo_path')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->foreignId('plan_id')->nullable()->constrained('plans')->nullOnDelete();
+            $table->timestamp('subscription_ends_at')->nullable();
             $table->string('tax_number')->nullable();
             $table->json('settings')->nullable();
             $table->timestamps();

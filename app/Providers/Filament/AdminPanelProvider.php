@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\SuperAdmin\Widgets\PlatformOverviewWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -24,11 +25,10 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('super-admin')
-            ->path('super-admin')
+            ->id('admin')
+            ->path('admin')
             ->login()
-            ->brandName('Pixel Craft Studios - Super Admin')
+            ->brandName('PixelCraft SaaS - Super Admin')
             ->colors([
                 'primary' => Color::Amber,
             ])
@@ -39,6 +39,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/SuperAdmin/Widgets'), for: 'App\\Filament\\SuperAdmin\\Widgets')
             ->widgets([
+                PlatformOverviewWidget::class,
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])

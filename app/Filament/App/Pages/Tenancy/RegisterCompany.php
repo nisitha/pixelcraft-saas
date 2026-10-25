@@ -5,13 +5,13 @@ namespace App\Filament\App\Pages\Tenancy;
 use App\Models\AuditLog;
 use App\Models\Company;
 use App\Models\Plan;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 class RegisterCompany extends RegisterTenant
 {
@@ -28,13 +28,44 @@ class RegisterCompany extends RegisterTenant
                     ->label('Company / Business Name')
                     ->required()
                     ->maxLength(255)
-                    ->placeholder('e.g. Apex Solar Lanka (Pvt) Ltd'),
+                    ->placeholder('e.g. PixelCraft Solutions (Pvt) Ltd'),
+
+                TextInput::make('br_number')
+                    ->label('Business Registration (BR) Number')
+                    ->maxLength(100)
+                    ->placeholder('e.g. PV-123456 or BR-987654'),
 
                 TextInput::make('phone')
                     ->label('Primary Phone Number')
                     ->tel()
+                    ->required()
                     ->maxLength(30)
                     ->placeholder('+94 77 123 4567'),
+
+                Select::make('currency')
+                    ->label('Currency')
+                    ->options([
+                        'LKR' => 'LKR - Sri Lankan Rupee',
+                        'USD' => 'USD - US Dollar',
+                        'GBP' => 'GBP - British Pound',
+                        'EUR' => 'EUR - Euro',
+                        'AED' => 'AED - UAE Dirham',
+                    ])
+                    ->default('LKR')
+                    ->required(),
+
+                Textarea::make('address')
+                    ->label('Business Address')
+                    ->rows(2)
+                    ->placeholder('No. 45, Galle Road, Colombo 03, Sri Lanka'),
+
+                FileUpload::make('logo_path')
+                    ->label('Company Logo')
+                    ->disk('company-logos')
+                    ->directory('logos')
+                    ->image()
+                    ->visibility('public')
+                    ->maxSize(2048),
 
                 TextInput::make('email')
                     ->label('Official Business Email')
@@ -42,18 +73,13 @@ class RegisterCompany extends RegisterTenant
                     ->maxLength(255)
                     ->placeholder('contact@company.lk'),
 
-                Textarea::make('address')
-                    ->label('Registered Business Address')
-                    ->rows(2)
-                    ->placeholder('No. 45, Galle Road, Colombo 03, Sri Lanka'),
-
                 TextInput::make('tax_number')
                     ->label('Tax / VAT / TIN Number')
                     ->maxLength(50)
                     ->placeholder('e.g. VAT-123456789 or TIN-10293847'),
 
                 Select::make('plan_id')
-                    ->label('Select Subscription Plan')
+                    ->label('Subscription Plan')
                     ->options(function () {
                         return Plan::where('is_active', true)
                             ->orderBy('price_monthly')
@@ -67,21 +93,20 @@ class RegisterCompany extends RegisterTenant
                             ?? Plan::where('slug', 'bronze')->value('id')
                             ?? Plan::first()?->id;
                     })
-                    ->required()
                     ->helperText('Every new company receives a full 14-day free trial on the selected tier. No advance payment required.'),
             ]);
     }
 
     protected function handleRegistration(array $data): Model
     {
-        $baseSlug = Str::slug($data['name']);
-        $slug = $baseSlug ?: 'company-'.Str::lower(Str::random(6));
-        $uniqueSlug = $slug;
-        $counter = 1;
-
-        while (Company::where('slug', $uniqueSlug)->exists()) {
-            $uniqueSlug = $slug.'-'.(++$counter);
-        }
+        $currency = $data['currency'] ?? 'LKR';
+        $currencySymbol = match ($currency) {
+            'USD' => '$',
+            'GBP' => '£',
+            'EUR' => '€',
+            'AED' => 'AED',
+            default => 'Rs.',
+        };
 
         $defaultPlanId = Plan::where('slug', 'silver')->value('id')
             ?? Plan::where('slug', 'bronze')->value('id')
@@ -89,17 +114,19 @@ class RegisterCompany extends RegisterTenant
 
         $company = Company::create([
             'name' => $data['name'],
-            'slug' => $uniqueSlug,
+            'br_number' => $data['br_number'] ?? null,
             'phone' => $data['phone'] ?? null,
             'email' => $data['email'] ?? null,
+            'currency' => $currency,
             'address' => $data['address'] ?? null,
+            'logo_path' => $data['logo_path'] ?? null,
             'tax_number' => $data['tax_number'] ?? null,
             'plan_id' => $data['plan_id'] ?? $defaultPlanId,
             'is_active' => true,
             'subscription_ends_at' => now()->addDays(14),
             'settings' => [
-                'currency' => 'LKR',
-                'currency_symbol' => 'Rs.',
+                'currency' => $currency,
+                'currency_symbol' => $currencySymbol,
                 'default_tax_rate' => 0.00,
             ],
         ]);
@@ -121,9 +148,8 @@ class RegisterCompany extends RegisterTenant
             'changes' => [
                 'name' => $company->name,
                 'slug' => $company->slug,
-                'plan_id' => $company->plan_id,
-                'subscription_ends_at' => $company->subscription_ends_at?->toDateTimeString(),
-                'trial_days' => 14,
+                'br_number' => $company->br_number,
+                'currency' => $company->currency,
                 'role' => 'owner',
             ],
         ]);

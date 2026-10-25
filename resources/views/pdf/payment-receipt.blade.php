@@ -218,6 +218,10 @@
 </head>
 <body>
 
+@php
+    $currencySymbol = method_exists($company, 'getCurrencySymbol') ? $company->getCurrencySymbol() : ($company->currency ?? 'Rs.');
+@endphp
+
     <!-- Header Section -->
     <table class="header-table">
         <tr>
@@ -227,13 +231,14 @@
                         <img src="{{ $logoPath }}" style="max-height: 65px; max-width: 180px; object-fit: contain;" alt="{{ $company->name }}">
                     </div>
                 @endif
-                <div class="company-title">{{ $company->name ?? 'Vertex Books Solutions' }}</div>
+                <div class="company-title">{{ $company->name ?? config('app.name', 'PixelCraft SaaS') }}</div>
                 <div class="company-subtitle">Official Payment Receipt & Wire Acknowledgment</div>
-                <div style="color: #475569; font-size: 10px; line-height: 1.5;">
+                <div style="color: #475569; font-size: 10px; line-height: 1.5; margin-top: 4px;">
                     @if(!empty($company->address)) {{ $company->address }}<br> @endif
                     @if(!empty($company->phone)) Tel: {{ $company->phone }} | @endif
-                    @if(!empty($company->email)) Email: {{ $company->email }}<br> @endif
-                    @if(!empty($company->tax_number)) VAT/SVAT No: <strong>{{ $company->tax_number }}</strong> @endif
+                    @if(!empty($company->email)) Email: {{ $company->email }} | @endif
+                    @if(!empty($company->br_number)) BR No: <strong>{{ $company->br_number }}</strong> @endif
+                    @if(!empty($company->tax_number)) | VAT/SVAT No: <strong>{{ $company->tax_number }}</strong> @endif
                 </div>
             </td>
             <td style="width: 42%; text-align: right;">
@@ -320,12 +325,12 @@
             </thead>
             <tbody>
                 <tr>
-                    <td style="font-weight: bold;">Rs. {{ number_format((float) $invoice->grand_total, 2) }}</td>
-                    <td>Rs. {{ number_format(max(0, (float) $invoice->paid_amount - (float) $payment->amount), 2) }}</td>
-                    <td style="color: #047857; font-weight: bold;">Rs. {{ number_format((float) $payment->amount, 2) }}</td>
-                    <td style="font-weight: bold; color: #166534;">Rs. {{ number_format((float) $invoice->paid_amount, 2) }}</td>
+                    <td style="font-weight: bold;">{{ $currencySymbol }} {{ number_format((float) $invoice->grand_total, 2) }}</td>
+                    <td>{{ $currencySymbol }} {{ number_format(max(0, (float) $invoice->paid_amount - (float) $payment->amount), 2) }}</td>
+                    <td style="color: #047857; font-weight: bold;">{{ $currencySymbol }} {{ number_format((float) $payment->amount, 2) }}</td>
+                    <td style="font-weight: bold; color: #166534;">{{ $currencySymbol }} {{ number_format((float) $invoice->paid_amount, 2) }}</td>
                     <td style="font-weight: 800; color: {{ (float)$invoice->due_amount > 0 ? '#dc2626' : '#166534' }};">
-                        Rs. {{ number_format((float) $invoice->due_amount, 2) }}
+                        {{ $currencySymbol }} {{ number_format((float) $invoice->due_amount, 2) }}
                     </td>
                 </tr>
             </tbody>
@@ -355,7 +360,7 @@
                 @endif
                 <div style="clear: both;"></div>
                 <strong>Authorized Signatory / Accounts</strong><br>
-                <span>For {{ $company->name ?? 'Vertex Books Solutions' }}</span><br>
+                <span>For {{ $company->name ?? config('app.name', 'PixelCraft SaaS') }}</span><br>
                 <span>Verified & Endorsed</span>
             </td>
         </tr>

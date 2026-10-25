@@ -109,12 +109,14 @@ trait HasZohoSplitView
         }
 
         $docNum = $this->documentType === 'quotation' ? $this->record->quote_number : $this->record->invoice_number;
-        $companyName = Filament::getTenant()?->name ?? 'Vertex Books';
+        $tenant = Filament::getTenant();
+        $companyName = $tenant?->name ?? config('app.name', 'PixelCraft SaaS');
+        $currency = $tenant?->currency ?? 'LKR';
         $customerName = $this->record->contact?->name ?? 'Valued Customer';
 
         $this->emailRecipient = $this->record->contact?->email ?? '';
         $this->emailSubject = ucfirst($this->documentType)." #{$docNum} from {$companyName}";
-        $this->emailMessage = "Dear {$customerName},\n\nPlease find your official {$this->documentType} #{$docNum} attached.\n\nTotal Amount: LKR ".number_format($this->record->grand_total, 2)."\n\nYou can also view your verified document online:\n{$this->getPublicShareUrlProperty()}\n\nThank you for choosing {$companyName}!";
+        $this->emailMessage = "Dear {$customerName},\n\nPlease find your official {$this->documentType} #{$docNum} attached.\n\nTotal Amount: {$currency} ".number_format($this->record->grand_total, 2)."\n\nYou can also view your verified document online:\n{$this->getPublicShareUrlProperty()}\n\nThank you for choosing {$companyName}!";
     }
 
     public function markAsSent(): void
@@ -200,12 +202,14 @@ trait HasZohoSplitView
         }
 
         $docNum = $this->documentType === 'quotation' ? $this->record->quote_number : $this->record->invoice_number;
-        $companyName = Filament::getTenant()?->name ?? 'Vertex Books';
+        $tenant = Filament::getTenant();
+        $companyName = $tenant?->name ?? config('app.name', 'PixelCraft SaaS');
+        $currency = $tenant?->currency ?? 'LKR';
         $custName = $this->record->contact?->name ?? 'Valued Customer';
         $amount = number_format($this->record->grand_total, 2);
         $link = $this->getPublicShareUrlProperty();
 
-        $message = "Hello {$custName},\n\nHere is your official {$this->documentType} #{$docNum} from {$companyName}.\nTotal Amount: LKR {$amount}\n\nYou can view and download your official document online here:\n{$link}\n\nThank you for choosing {$companyName}!";
+        $message = "Hello {$custName},\n\nHere is your official {$this->documentType} #{$docNum} from {$companyName}.\nTotal Amount: {$currency} {$amount}\n\nYou can view and download your official document online here:\n{$link}\n\nThank you for choosing {$companyName}!";
 
         return "https://wa.me/{$phone}?text=".rawurlencode($message);
     }

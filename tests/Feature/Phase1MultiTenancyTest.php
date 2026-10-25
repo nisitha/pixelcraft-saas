@@ -44,7 +44,7 @@ class Phase1MultiTenancyTest extends TestCase
     {
         $superAdmin = User::where('email', 'admin@vertexinnovationlk.com')->first();
         $owner = User::where('email', 'owner@lankasolar.lk')->first();
-        $superPanel = Filament::getPanel('super-admin');
+        $superPanel = Filament::getPanel('admin');
 
         $this->assertTrue($superAdmin->canAccessPanel($superPanel));
         $this->assertFalse($owner->canAccessPanel($superPanel));
