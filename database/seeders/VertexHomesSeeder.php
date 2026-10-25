@@ -8,6 +8,7 @@ use App\Models\CommissionPayout;
 use App\Models\Company;
 use App\Models\CompletionCertificate;
 use App\Models\Contact;
+use App\Models\Employee;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Plan;
@@ -15,6 +16,7 @@ use App\Models\Product;
 use App\Models\ProductSerial;
 use App\Models\Quotation;
 use App\Models\QuotationItem;
+use App\Models\SalaryAdvance;
 use App\Models\SalesAgent;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -1421,6 +1423,128 @@ class VertexHomesSeeder extends Seeder
                 'notes' => 'Settlement for referral of Katana Road 5kW Off-Grid Project (Inv: INV-2026-0005)',
                 'paper_size' => 'a4',
                 'orientation' => 'portrait',
+            ]
+        );
+
+        // 15. Seed Sample Employees for Vertex Homes ERP (Solar Technicians, Supervisors, Staff)
+        $empKasun = Employee::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'nic_number' => '199318402910',
+            ],
+            [
+                'name' => 'Kasun Chamara Perera',
+                'calling_name' => 'Kasun',
+                'designation' => 'Solar Technician',
+                'contact_number' => '077 234 5678',
+                'daily_rate' => 3500.00,
+                'basic_salary' => 85000.00,
+                'fixed_allowance' => 15000.00,
+                'epf_number' => 'EPF-8812',
+                'bank_name' => 'Commercial Bank of Ceylon',
+                'bank_branch' => 'Mirigama Branch',
+                'bank_account_number' => '8001928374',
+                'joined_date' => '2024-02-01',
+                'is_active' => true,
+            ]
+        );
+
+        $empNiroshan = Employee::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'nic_number' => '198912049182',
+            ],
+            [
+                'name' => 'Niroshan Bandara Dissanayake',
+                'calling_name' => 'Niroshan',
+                'designation' => 'Site Supervisor',
+                'contact_number' => '071 882 3910',
+                'daily_rate' => null,
+                'basic_salary' => 115000.00,
+                'fixed_allowance' => 20000.00,
+                'epf_number' => 'EPF-8813',
+                'bank_name' => 'DFCC Bank',
+                'bank_branch' => 'Giriulla Branch',
+                'bank_account_number' => '1010029384',
+                'joined_date' => '2023-08-15',
+                'is_active' => true,
+            ]
+        );
+
+        $empPradeep = Employee::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'nic_number' => '199510294819',
+            ],
+            [
+                'name' => 'Pradeep Kumara Senarath',
+                'calling_name' => 'Pradeep',
+                'designation' => 'Electrician',
+                'contact_number' => '078 991 2834',
+                'daily_rate' => 3000.00,
+                'basic_salary' => 75000.00,
+                'fixed_allowance' => 10000.00,
+                'epf_number' => 'EPF-8814',
+                'bank_name' => 'Bank of Ceylon',
+                'bank_branch' => 'Mirigama Branch',
+                'bank_account_number' => '971988231',
+                'joined_date' => '2024-05-10',
+                'is_active' => true,
+            ]
+        );
+
+        $empSanduni = Employee::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'nic_number' => '199689201928',
+            ],
+            [
+                'name' => 'Sanduni Himasha Jayawardena',
+                'calling_name' => 'Sanduni',
+                'designation' => 'Office Staff',
+                'contact_number' => '076 449 1029',
+                'daily_rate' => null,
+                'basic_salary' => 65000.00,
+                'fixed_allowance' => 10000.00,
+                'epf_number' => 'EPF-8815',
+                'bank_name' => 'Sampath Bank',
+                'bank_branch' => 'Pasyala Branch',
+                'bank_account_number' => '1004928172',
+                'joined_date' => '2024-01-15',
+                'is_active' => true,
+            ]
+        );
+
+        $ownerUser = $company->users()->first();
+
+        // 16. Seed Sample Salary Advances
+        SalaryAdvance::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'employee_id' => $empKasun->id,
+                'deduct_month' => '2026-10',
+            ],
+            [
+                'amount' => 15000.00,
+                'request_date' => '2026-10-10',
+                'reason' => 'Emergency medical expense advance for family hospital settlement',
+                'status' => 'approved',
+                'approved_by' => $ownerUser?->id,
+            ]
+        );
+
+        SalaryAdvance::updateOrCreate(
+            [
+                'company_id' => $company->id,
+                'employee_id' => $empPradeep->id,
+                'deduct_month' => '2026-10',
+            ],
+            [
+                'amount' => 10000.00,
+                'request_date' => '2026-10-18',
+                'reason' => 'Motorbike repair required for urgent offgrid site installation commute',
+                'status' => 'pending',
+                'approved_by' => null,
             ]
         );
     }
