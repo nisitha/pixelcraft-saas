@@ -26,6 +26,8 @@ class Company extends Model implements HasAvatar, HasName
         'address',
         'logo_path',
         'is_active',
+        'subscription_plan_id',
+        'trial_ends_at',
         'plan_id',
         'subscription_ends_at',
         'tax_number',
@@ -35,6 +37,7 @@ class Company extends Model implements HasAvatar, HasName
     protected function casts(): array
     {
         return [
+            'trial_ends_at' => 'datetime',
             'subscription_ends_at' => 'datetime',
             'is_active' => 'boolean',
             'settings' => 'array',
@@ -178,6 +181,10 @@ class Company extends Model implements HasAvatar, HasName
             return false;
         }
 
+        if ($this->trial_ends_at !== null && $this->trial_ends_at->isFuture()) {
+            return true;
+        }
+
         if ($this->subscription_ends_at !== null && $this->subscription_ends_at->isPast()) {
             return false;
         }
@@ -185,9 +192,14 @@ class Company extends Model implements HasAvatar, HasName
         return true;
     }
 
+    public function subscriptionPlan(): BelongsTo
+    {
+        return $this->belongsTo(SubscriptionPlan::class, 'subscription_plan_id');
+    }
+
     public function plan(): BelongsTo
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(Plan::class, 'plan_id');
     }
 
     public function users(): BelongsToMany

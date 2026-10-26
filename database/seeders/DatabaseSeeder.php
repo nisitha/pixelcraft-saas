@@ -26,6 +26,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 0. Subscription Plans
+        $this->call(SubscriptionPlanSeeder::class);
+
         // 1. Super Admin User
         $superAdmin = User::updateOrCreate(
             ['email' => 'admin@vertexinnovationlk.com'],

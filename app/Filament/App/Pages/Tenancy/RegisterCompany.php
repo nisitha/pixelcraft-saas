@@ -5,13 +5,18 @@ namespace App\Filament\App\Pages\Tenancy;
 use App\Models\AuditLog;
 use App\Models\Company;
 use App\Models\Plan;
+use App\Models\SubscriptionPlan;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema as DbSchema;
 
 class RegisterCompany extends RegisterTenant
 {
@@ -78,23 +83,73 @@ class RegisterCompany extends RegisterTenant
                     ->maxLength(50)
                     ->placeholder('e.g. VAT-123456789 or TIN-10293847'),
 
-                Select::make('plan_id')
-                    ->label('Subscription Plan')
+                Radio::make('subscription_plan_id')
+                    ->label('Select Subscription Plan')
                     ->options(function () {
-                        return Plan::where('is_active', true)
-                            ->orderBy('price_monthly')
-                            ->get()
-                            ->mapWithKeys(function (Plan $plan) {
-                                return [$plan->id => "{$plan->name} — Rs. ".number_format($plan->price_monthly, 0).' / mo (14-Day Free Trial)'];
-                            });
+                        if (DbSchema::hasTable('subscription_plans')) {
+                            $plans = SubscriptionPlan::where('is_active', true)->orderBy('price')->get();
+                            if ($plans->isNotEmpty()) {
+                                return $plans->mapWithKeys(function (SubscriptionPlan $plan) {
+                                    $priceDisplay = $plan->price <= 0
+                                        ? 'Free Trial — LKR 0 (14-Day Full Access)'
+                                        : "{$plan->currency} ".number_format($plan->price, 0).' / '.ucfirst($plan->billing_interval);
+
+                                    return [$plan->id => "{$plan->name} — {$priceDisplay}"];
+                                });
+                            }
+                        }
+
+                        return [
+                            1 => 'Free Trial / Starter — Free Trial — LKR 0 (14-Day Full Access)',
+                            2 => 'Professional — LKR 7,500 / Monthly',
+                            3 => 'Enterprise — LKR 15,000 / Monthly',
+                        ];
+                    })
+                    ->descriptions(function () {
+                        if (DbSchema::hasTable('subscription_plans')) {
+                            $plans = SubscriptionPlan::where('is_active', true)->orderBy('price')->get();
+                            if ($plans->isNotEmpty()) {
+                                return $plans->mapWithKeys(function (SubscriptionPlan $plan) {
+                                    $features = is_array($plan->features)
+                                        ? implode(' • ', $plan->features)
+                                        : (string) $plan->features;
+
+                                    return [$plan->id => $features ?: '14-Day Free Trial period included.'];
+                                });
+                            }
+                        }
+
+                        return [
+                            1 => '14-Day Free Trial • Basic Invoicing • 2 Employees',
+                            2 => 'Unlimited Invoices • Payroll & EPF/ETF • 10 Employees',
+                            3 => 'Full Feature Access • Unlimited Employees • Gemini AI Assistant',
+                        ];
                     })
                     ->default(function () {
-                        return Plan::where('slug', 'silver')->value('id')
-                            ?? Plan::where('slug', 'bronze')->value('id')
-                            ?? Plan::first()?->id;
+                        if (DbSchema::hasTable('subscription_plans')) {
+                            return SubscriptionPlan::where('slug', 'starter')->value('id')
+                                ?? SubscriptionPlan::where('is_active', true)->orderBy('price')->value('id');
+                        }
+
+                        return 1;
                     })
+                    ->required()
                     ->helperText('Every new company receives a full 14-day free trial on the selected tier. No advance payment required.'),
+
+                Hidden::make('plan_id')
+                    ->dehydrated(),
             ]);
+    }
+
+    protected function mutateFormDataBeforeRegister(array $data): array
+    {
+        if (empty($data['subscription_plan_id']) && ! empty($data['plan_id'])) {
+            $data['subscription_plan_id'] = SubscriptionPlan::where('id', $data['plan_id'])->value('id')
+                ?? SubscriptionPlan::where('slug', 'starter')->value('id')
+                ?? SubscriptionPlan::first()?->id;
+        }
+
+        return $data;
     }
 
     protected function handleRegistration(array $data): Model
@@ -108,9 +163,32 @@ class RegisterCompany extends RegisterTenant
             default => 'Rs.',
         };
 
-        $defaultPlanId = Plan::where('slug', 'silver')->value('id')
-            ?? Plan::where('slug', 'bronze')->value('id')
-            ?? Plan::first()?->id;
+        // Extract selected subscription plan
+        $subscriptionPlanId = $data['subscription_plan_id'] ?? null;
+        if (! $subscriptionPlanId && ! empty($data['plan_id'])) {
+            $subscriptionPlanId = SubscriptionPlan::where('id', $data['plan_id'])->value('id')
+                ?? SubscriptionPlan::where('slug', 'starter')->value('id')
+                ?? SubscriptionPlan::first()?->id;
+        }
+
+        if (! $subscriptionPlanId && DbSchema::hasTable('subscription_plans')) {
+            $subscriptionPlanId = SubscriptionPlan::where('slug', 'starter')->value('id')
+                ?? SubscriptionPlan::where('is_active', true)->orderBy('price')->value('id')
+                ?? SubscriptionPlan::first()?->id;
+        }
+
+        $subscriptionPlan = $subscriptionPlanId ? SubscriptionPlan::find($subscriptionPlanId) : null;
+        $trialDays = $subscriptionPlan?->trial_days ?? 14;
+        $trialEndsAt = now()->addDays($trialDays);
+
+        // Map legacy plan_id for backward compatibility
+        $legacyPlanId = $data['plan_id'] ?? null;
+        if (! $legacyPlanId && $subscriptionPlan) {
+            $legacyPlanId = Plan::where('slug', $subscriptionPlan->slug)->value('id')
+                ?? Plan::where('slug', 'silver')->value('id')
+                ?? Plan::where('slug', 'bronze')->value('id')
+                ?? Plan::first()?->id;
+        }
 
         $company = Company::create([
             'name' => $data['name'],
@@ -121,9 +199,11 @@ class RegisterCompany extends RegisterTenant
             'address' => $data['address'] ?? null,
             'logo_path' => $data['logo_path'] ?? null,
             'tax_number' => $data['tax_number'] ?? null,
-            'plan_id' => $data['plan_id'] ?? $defaultPlanId,
+            'subscription_plan_id' => $subscriptionPlanId,
+            'trial_ends_at' => $trialEndsAt,
+            'plan_id' => $legacyPlanId,
+            'subscription_ends_at' => $trialEndsAt,
             'is_active' => true,
-            'subscription_ends_at' => now()->addDays(14),
             'settings' => [
                 'currency' => $currency,
                 'currency_symbol' => $currencySymbol,
@@ -155,5 +235,10 @@ class RegisterCompany extends RegisterTenant
         ]);
 
         return $company;
+    }
+
+    protected function getRedirectUrl(): ?string
+    {
+        return Filament::getUrl($this->tenant);
     }
 }

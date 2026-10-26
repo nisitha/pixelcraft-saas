@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\App\Pages\Auth\Register;
 use App\Filament\App\Pages\Dashboard;
 use App\Filament\App\Pages\Tenancy\EditCompanyProfile;
 use App\Filament\App\Pages\Tenancy\RegisterCompany;
@@ -30,7 +31,8 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login()
-            ->registration()
+            ->registration(Register::class)
+            ->emailVerification()
             ->tenant(Company::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterCompany::class)
             ->tenantProfile(EditCompanyProfile::class)
