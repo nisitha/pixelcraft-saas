@@ -24,7 +24,10 @@ class EnsureTenantHasActiveSubscription
         $path = $request->path();
         $referer = (string) $request->header('referer', '');
         $isBillingRoute = str_contains($path, 'subscription-billing')
-            || str_contains($referer, 'subscription-billing');
+            || str_contains($path, '/billing')
+            || str_ends_with($path, 'billing')
+            || str_contains($referer, 'subscription-billing')
+            || str_contains($referer, 'billing');
 
         if (! $isBillingRoute && $request->hasHeader('X-Livewire')) {
             $snapshot = $request->input('components.0.snapshot');

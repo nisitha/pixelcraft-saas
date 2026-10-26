@@ -25,3 +25,7 @@ Route::get('/payroll/items/{payrollItem}/payslip', [PayrollPdfController::class,
 
 Route::get('/payrolls/{payroll}/payslips-all', [PayrollPdfController::class, 'downloadAllPayslips'])
     ->name('payroll.payslips.all');
+
+Route::get('/app/{tenant}/billing', function ($tenant) {
+    return redirect("/app/{$tenant}/subscription-billing");
+})->middleware(['web', 'auth'])->name('tenant.billing');

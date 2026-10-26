@@ -5,6 +5,8 @@ namespace App\Filament\App\Pages;
 use App\Models\AuditLog;
 use App\Models\Company;
 use App\Models\Plan;
+use App\Models\SubscriptionPayment;
+use App\Models\SubscriptionPlan;
 use App\Models\SubscriptionRequest;
 use BackedEnum;
 use Filament\Facades\Filament;
@@ -269,6 +271,24 @@ class SubscriptionBilling extends Page
         $receiptPath = null;
         if ($this->receipt) {
             $receiptPath = $this->receipt->store('subscription-receipts', 'public');
+        }
+
+        $subPlanId = SubscriptionPlan::where('slug', $plan->slug)->value('id')
+            ?? SubscriptionPlan::where('id', $plan->id)->value('id')
+            ?? SubscriptionPlan::first()?->id;
+
+        if ($subPlanId) {
+            SubscriptionPayment::create([
+                'company_id' => $tenant->id,
+                'subscription_plan_id' => $subPlanId,
+                'amount' => $amount,
+                'currency' => $tenant->currency ?? 'LKR',
+                'period_years' => $this->billing_cycle === 'yearly' ? 1 : 1,
+                'reference_number' => trim($this->payment_reference),
+                'slip_path' => $receiptPath ?? '',
+                'status' => 'pending',
+                'notes' => trim($this->notes) ?: null,
+            ]);
         }
 
         SubscriptionRequest::create([

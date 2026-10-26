@@ -222,6 +222,11 @@ class Company extends Model implements HasAvatar, HasName
             ->withTimestamps();
     }
 
+    public function owner(): ?User
+    {
+        return $this->users()->wherePivot('role', 'owner')->first() ?? $this->users()->first();
+    }
+
     public function canAddMoreUsers(): bool
     {
         if (! $this->plan || ! $this->plan->max_users) {
@@ -284,6 +289,11 @@ class Company extends Model implements HasAvatar, HasName
     public function subscriptionRequests(): HasMany
     {
         return $this->hasMany(SubscriptionRequest::class);
+    }
+
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
     }
 
     public function completionCertificates(): HasMany
