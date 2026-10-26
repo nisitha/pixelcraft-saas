@@ -25,7 +25,7 @@
         }
 
         .able-card-title {
-            font-size: 11.5px;
+            font-size: 13.5px;
             font-weight: 700;
             color: #5b6b79;
             text-transform: uppercase;
@@ -55,7 +55,7 @@
         }
 
         .able-conversion-val {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: -0.01em;
             color: #1d2630;
@@ -66,7 +66,7 @@
         }
 
         .able-conversion-sub {
-            font-size: 12px;
+            font-size: 13px;
             color: #5b6b79;
             font-weight: 500;
         }
@@ -115,7 +115,7 @@
         }
 
         .able-stage-count {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             color: #1d2630;
         }
@@ -125,7 +125,7 @@
         }
 
         .able-stage-lbl {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
             color: #899bb5;
             text-transform: uppercase;
@@ -216,7 +216,7 @@
         .able-dot-invoiced { background-color: #6366f1; }
 
         .able-quote-customer {
-            font-size: 12.5px;
+            font-size: 13.5px;
             font-weight: 600;
             color: #1d2630;
             white-space: nowrap;
@@ -230,7 +230,7 @@
         }
 
         .able-quote-kw {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 500;
             color: #5b6b79;
             background: #eef2f6;
@@ -251,13 +251,13 @@
         }
 
         .able-quote-number {
-            font-size: 11.5px;
+            font-size: 12px;
             color: #899bb5;
             font-family: ui-monospace, monospace;
         }
 
         .able-quote-amount {
-            font-size: 12px;
+            font-size: 13.5px;
             font-weight: 700;
             color: #1d2630;
         }

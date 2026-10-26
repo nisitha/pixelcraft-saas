@@ -36,7 +36,7 @@
                 margin-bottom: 16px;
             }
             .able-card-title {
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 700;
                 color: #1d2630;
                 letter-spacing: -0.01em;
@@ -67,13 +67,13 @@
                 pointer-events: none;
             }
             .able-hero-content { position: relative; z-index: 2; max-width: 650px; }
-            .able-hero-title { font-size: 24px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0; }
-            .able-hero-subtitle { font-size: 13.5px; color: rgba(255, 255, 255, 0.9); line-height: 1.5; margin: 0 0 20px 0; }
+            .able-hero-title { font-size: 26px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0; }
+            .able-hero-subtitle { font-size: 15px; color: #dbeafe; line-height: 1.6; margin: 0 0 20px 0; }
             .able-hero-btn {
                 display: inline-flex; align-items: center; gap: 8px;
-                background: rgba(255, 255, 255, 0.15); color: #ffffff;
-                border: 1.5px solid rgba(255, 255, 255, 0.7);
-                border-radius: 9999px; padding: 8px 22px; font-size: 13px; font-weight: 700;
+                background: rgba(255, 255, 255, 0.18); color: #ffffff;
+                border: 1.5px solid rgba(255, 255, 255, 0.75);
+                border-radius: 9999px; padding: 10px 24px; font-size: 14px; font-weight: 600;
                 text-decoration: none; backdrop-filter: blur(6px); transition: all 0.2s ease;
             }
             .able-hero-btn:hover { background: #ffffff; color: #2563eb; transform: translateY(-1px); }
@@ -116,14 +116,14 @@
                 <h1 class="able-hero-title">
                     Welcome back, {{ $user?->name ?? 'Team Member' }}!
                 </h1>
-                <p class="able-hero-subtitle">
+                <p class="able-hero-subtitle text-sm md:text-base text-blue-100">
                     Workspace: <strong>{{ $tenant?->name ?? 'Vertex Books' }}</strong>. Access all authorized quotation creation, sales agreements, and POS counter operations.
                 </p>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('create') }}" class="able-hero-btn">
+                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('create') }}" class="able-hero-btn text-sm font-semibold">
                         <span>+ Create Quotation</span>
                     </a>
-                    <a href="/app/{{ $tenant?->slug ?? 'default' }}/pos-terminal" class="able-hero-btn" style="background: #ffffff; color: #2563eb; border-color: #ffffff;">
+                    <a href="/app/{{ $tenant?->slug ?? 'default' }}/pos-terminal" class="able-hero-btn text-sm font-semibold" style="background: #ffffff; color: #2563eb; border-color: #ffffff;">
                         <span>Open POS Terminal</span>
                     </a>
                 </div>
@@ -149,13 +149,13 @@
                         </svg>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Today's Quotations</div>
-                        <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Created today</div>
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100">Today's Quotations</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Created today</div>
                     </div>
                 </div>
                 <div class="stat-inner-box">
-                    <span style="font-size: 12px; color: #64748b;" class="dark:text-slate-400">Daily Volume</span>
-                    <span style="font-size: 18px; font-weight: 800; color: #f59e0b;">{{ $todayQuotesCount }}</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Volume</span>
+                    <span class="text-2xl font-bold text-amber-500">{{ $todayQuotesCount }}</span>
                 </div>
             </div>
 
@@ -167,13 +167,13 @@
                         </svg>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Today's Invoices</div>
-                        <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Issued today</div>
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100">Today's Invoices</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Issued today</div>
                     </div>
                 </div>
                 <div class="stat-inner-box">
-                    <span style="font-size: 12px; color: #64748b;" class="dark:text-slate-400">Daily Volume</span>
-                    <span style="font-size: 18px; font-weight: 800; color: #4680ff;">{{ $todayInvoicesCount }}</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Volume</span>
+                    <span class="text-2xl font-bold text-blue-600">{{ $todayInvoicesCount }}</span>
                 </div>
             </div>
 
@@ -185,13 +185,13 @@
                         </svg>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Certificates</div>
-                        <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Commissioned today</div>
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100">Certificates</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Commissioned today</div>
                     </div>
                 </div>
                 <div class="stat-inner-box">
-                    <span style="font-size: 12px; color: #64748b;" class="dark:text-slate-400">Daily Volume</span>
-                    <span style="font-size: 18px; font-weight: 800; color: #10b981;">{{ $todayCertificatesCount }}</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Volume</span>
+                    <span class="text-2xl font-bold text-emerald-600">{{ $todayCertificatesCount }}</span>
                 </div>
             </div>
 
@@ -203,13 +203,13 @@
                         </svg>
                     </div>
                     <div>
-                        <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Receipts & Payments</div>
-                        <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Recorded today</div>
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100">Receipts & Payments</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Recorded today</div>
                     </div>
                 </div>
                 <div class="stat-inner-box">
-                    <span style="font-size: 12px; color: #64748b;" class="dark:text-slate-400">Daily Volume</span>
-                    <span style="font-size: 18px; font-weight: 800; color: #8b5cf6;">{{ $todayPaymentsCount }}</span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Volume</span>
+                    <span class="text-2xl font-bold text-purple-600">{{ $todayPaymentsCount }}</span>
                 </div>
             </div>
         </div>
@@ -386,7 +386,7 @@
                 margin-bottom: 16px;
             }
             .able-card-title {
-                font-size: 15px;
+                font-size: 16px;
                 font-weight: 700;
                 color: #1d2630;
                 letter-spacing: -0.01em;
@@ -456,13 +456,13 @@
                 pointer-events: none;
             }
             .able-hero-content { position: relative; z-index: 2; max-width: 650px; }
-            .able-hero-title { font-size: 24px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0; }
-            .able-hero-subtitle { font-size: 13.5px; color: rgba(255, 255, 255, 0.9); line-height: 1.5; margin: 0 0 20px 0; }
+            .able-hero-title { font-size: 26px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0; }
+            .able-hero-subtitle { font-size: 15px; color: #dbeafe; line-height: 1.6; margin: 0 0 20px 0; }
             .able-hero-btn {
                 display: inline-flex; align-items: center; gap: 8px;
-                background: rgba(255, 255, 255, 0.15); color: #ffffff;
-                border: 1.5px solid rgba(255, 255, 255, 0.7);
-                border-radius: 9999px; padding: 8px 22px; font-size: 13px; font-weight: 700;
+                background: rgba(255, 255, 255, 0.18); color: #ffffff;
+                border: 1.5px solid rgba(255, 255, 255, 0.75);
+                border-radius: 9999px; padding: 10px 24px; font-size: 14px; font-weight: 600;
                 text-decoration: none; backdrop-filter: blur(6px); transition: all 0.2s ease;
             }
             .able-hero-btn:hover { background: #ffffff; color: #2563eb; transform: translateY(-1px); }
@@ -482,7 +482,7 @@
 
             .able-btn-primary {
                 background: #4680ff; color: #ffffff; border: none; border-radius: 8px;
-                padding: 9px 18px; font-size: 12.5px; font-weight: 700; cursor: pointer;
+                padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
                 text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
                 transition: background 0.15s ease, transform 0.15s ease;
             }
@@ -490,13 +490,13 @@
 
             .able-btn-outline {
                 background: #ffffff; color: #334155; border: 1px solid #cbd5e1; border-radius: 8px;
-                padding: 8px 16px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+                padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
                 text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             }
             .dark .able-btn-outline { background: #1e293b; color: #f8fafc; border-color: #334155; }
 
             .able-tab-btn {
-                background: none; border: none; padding: 8px 14px; font-size: 12.5px;
+                background: none; border: none; padding: 10px 16px; font-size: 14px;
                 font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent;
             }
             .dark .able-tab-btn { color: #94a3b8; }
@@ -510,14 +510,14 @@
                 <h1 class="able-hero-title">
                     Explore {{ $tenant?->name ?? 'Your Workspace' }} ERP
                 </h1>
-                <p class="able-hero-subtitle">
+                <p class="able-hero-subtitle text-sm md:text-base text-blue-100">
                     Solar System Sizing, Milestone Invoicing, POS Counter Receipts, and Real-Time Profitability Analysis in one executive workspace.
                 </p>
-                <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('create') }}" class="able-hero-btn">
-                    <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('create') }}" class="able-hero-btn text-sm font-semibold">
+                    <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"></path>
                     </svg>
-                    <span>Create New Quotation</span>
+                    <span>+ Create New Quotation</span>
                 </a>
             </div>
             <div style="position: relative; z-index: 2;">
@@ -547,8 +547,8 @@
                             </svg>
                         </div>
                         <div>
-                            <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">All Earnings</div>
-                            <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Total Invoiced Revenue</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-slate-100">All Earnings</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Total Invoiced Revenue</div>
                         </div>
                     </div>
                     <button type="button" class="able-dots-btn">•••</button>
@@ -560,14 +560,14 @@
                         @endfor
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 17px; font-weight: 800; color: #1d2630;" class="dark:text-slate-100">
+                        <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                             @if ($totalRevenue >= 1000000)
                                 Rs. {{ number_format($totalRevenue / 1000000, 2) }}M
                             @else
                                 Rs. {{ number_format($totalRevenue, 2) }}
                             @endif
                         </div>
-                        <div style="font-size: 11px; font-weight: 700; color: #4680ff; margin-top: 2px;">
+                        <div class="text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
                             {{ $totalRevenue > 0 ? '↗ Active' : 'No Sales Yet' }}
                         </div>
                     </div>
@@ -584,8 +584,8 @@
                             </svg>
                         </div>
                         <div>
-                            <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Quotations</div>
-                            <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Proposals & Sizing</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-slate-100">Quotations</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Proposals & Sizing</div>
                         </div>
                     </div>
                     <button type="button" class="able-dots-btn">•••</button>
@@ -597,10 +597,10 @@
                         @endfor
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 17px; font-weight: 800; color: #1d2630;" class="dark:text-slate-100">
+                        <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                             {{ $quotationsCount }}
                         </div>
-                        <div style="font-size: 11px; font-weight: 700; color: #d97706; margin-top: 2px;">
+                        <div class="text-xs sm:text-sm font-medium text-amber-600 dark:text-amber-400 mt-1">
                             {{ $quotationsCount > 0 ? '↗ Pipeline' : '0 Created' }}
                         </div>
                     </div>
@@ -617,8 +617,8 @@
                             </svg>
                         </div>
                         <div>
-                            <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Total Projects</div>
-                            <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">Invoices & Jobs</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-slate-100">Total Projects</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Invoices & Jobs</div>
                         </div>
                     </div>
                     <button type="button" class="able-dots-btn">•••</button>
@@ -630,10 +630,10 @@
                         @endfor
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 17px; font-weight: 800; color: #1d2630;" class="dark:text-slate-100">
+                        <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                             {{ $invoicesCount }}
                         </div>
-                        <div style="font-size: 11px; font-weight: 700; color: #10b981; margin-top: 2px;">
+                        <div class="text-xs sm:text-sm font-medium text-emerald-600 dark:text-emerald-400 mt-1">
                             {{ $invoicesCount > 0 ? '↗ Active' : '0 Invoiced' }}
                         </div>
                     </div>
@@ -650,8 +650,8 @@
                             </svg>
                         </div>
                         <div>
-                            <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">Total Expenses</div>
-                            <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">COGS & Overheads</div>
+                            <div class="text-base font-bold text-gray-900 dark:text-slate-100">Total Expenses</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">COGS & Overheads</div>
                         </div>
                     </div>
                     <button type="button" class="able-dots-btn">•••</button>
@@ -663,14 +663,14 @@
                         @endfor
                     </div>
                     <div style="text-align: right;">
-                        <div style="font-size: 17px; font-weight: 800; color: #1d2630;" class="dark:text-slate-100">
+                        <div class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                             @if ($totalExpenses >= 1000000)
                                 Rs. {{ number_format($totalExpenses / 1000000, 2) }}M
                             @else
                                 Rs. {{ number_format($totalExpenses, 2) }}
                             @endif
                         </div>
-                        <div style="font-size: 11px; font-weight: 700; color: #dc2626; margin-top: 2px;">
+                        <div class="text-xs sm:text-sm font-medium text-red-600 dark:text-red-400 mt-1">
                             {{ $totalExpenses > 0 ? 'Outflow' : '0.00 Recorded' }}
                         </div>
                     </div>
@@ -683,13 +683,13 @@
             <div class="able-card able-col-8">
                 <div class="able-card-header">
                     <div>
-                        <h3 class="able-card-title">Monthly Revenue & Customer Rate</h3>
-                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;" class="dark:text-slate-400">
+                        <h3 class="able-card-title text-base font-semibold">Monthly Revenue & Customer Rate</h3>
+                        <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             Annual revenue progression for {{ $tenant?->name ?? 'workspace' }}
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <span style="background: #ecfdf5; color: #047857; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #a7f3d0;" class="dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800">
+                        <span class="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-xs sm:text-sm font-semibold px-2.5 py-1 rounded-full">
                             +{{ $profitMargin }}% Profit Margin
                         </span>
                         <button type="button" class="able-dots-btn">•••</button>
@@ -702,8 +702,8 @@
                 <div>
                     <div class="able-card-header">
                         <div>
-                            <h3 class="able-card-title">Solar Project Pipeline</h3>
-                            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;" class="dark:text-slate-400">
+                            <h3 class="able-card-title text-base font-semibold">Solar Project Pipeline</h3>
+                            <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 Conversion & Stage Progress
                             </div>
                         </div>
@@ -720,41 +720,41 @@
 
                     <div style="display: flex; flex-direction: column; gap: 14px;">
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
-                                <span style="width: 9px; height: 9px; border-radius: 50%; background: #f59e0b;"></span>
-                                <span style="color: #334155;" class="dark:text-slate-200">Pending Quotations</span>
+                            <div style="display: flex; align-items: center; gap: 8px;" class="text-sm font-medium">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #f59e0b;"></span>
+                                <span class="text-gray-700 dark:text-slate-200">Pending Quotations</span>
                             </div>
-                            <span style="background: #fff8ec; color: #d97706; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                            <span class="text-sm font-bold px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40">
                                 {{ $pendingQuotationsCount }}
                             </span>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
-                                <span style="width: 9px; height: 9px; border-radius: 50%; background: #4680ff;"></span>
-                                <span style="color: #334155;" class="dark:text-slate-200">Active Installations</span>
+                            <div style="display: flex; align-items: center; gap: 8px;" class="text-sm font-medium">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #4680ff;"></span>
+                                <span class="text-gray-700 dark:text-slate-200">Active Installations</span>
                             </div>
-                            <span style="background: #eef4fe; color: #2563eb; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                            <span class="text-sm font-bold px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border border-blue-200 dark:border-blue-900/40">
                                 {{ $activeInstallationsCount }}
                             </span>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
-                                <span style="width: 9px; height: 9px; border-radius: 50%; background: #10b981;"></span>
-                                <span style="color: #334155;" class="dark:text-slate-200">Commissioned Systems</span>
+                            <div style="display: flex; align-items: center; gap: 8px;" class="text-sm font-medium">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+                                <span class="text-gray-700 dark:text-slate-200">Commissioned Systems</span>
                             </div>
-                            <span style="background: #ecfdf5; color: #059669; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                            <span class="text-sm font-bold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40">
                                 {{ $commissionedSystemsCount }}
                             </span>
                         </div>
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
-                                <span style="width: 9px; height: 9px; border-radius: 50%; background: #8b5cf6;"></span>
-                                <span style="color: #334155;" class="dark:text-slate-200">Certificates Issued</span>
+                            <div style="display: flex; align-items: center; gap: 8px;" class="text-sm font-medium">
+                                <span style="width: 10px; height: 10px; border-radius: 50%; background: #8b5cf6;"></span>
+                                <span class="text-gray-700 dark:text-slate-200">Certificates Issued</span>
                             </div>
-                            <span style="background: #f5f3ff; color: #7c3aed; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
+                            <span class="text-sm font-bold px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-400 border border-purple-200 dark:border-purple-900/40">
                                 {{ $certificatesCount }}
                             </span>
                         </div>
@@ -762,7 +762,7 @@
                 </div>
 
                 <div style="margin-top: 24px;">
-                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('create') }}" class="able-btn-primary" style="width: 100%;">
+                    <a href="{{ \App\Filament\App\Resources\Quotations\QuotationResource::getUrl('create') }}" class="able-btn-primary text-sm font-semibold" style="width: 100%; padding: 10px 18px;">
                         + New Solar Quotation
                     </a>
                 </div>
@@ -773,15 +773,15 @@
         <div class="able-grid-12">
             <div class="able-card able-col-8">
                 <div class="able-card-header">
-                    <h3 class="able-card-title">Project overview</h3>
+                    <h3 class="able-card-title text-base font-semibold">Project overview</h3>
                     <button type="button" class="able-dots-btn">•••</button>
                 </div>
 
                 <div class="able-overview-columns" style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 20px; align-items: center; padding: 10px 0;">
                     <div class="able-overview-divider" style="display: flex; align-items: center; justify-content: space-between; padding-right: 14px; border-right: 1px solid #e8ebee;" class="dark:border-slate-800">
                         <div>
-                            <div style="font-size: 12px; color: #64748b;" class="dark:text-slate-400">Completed Invoices</div>
-                            <div style="font-size: 20px; font-weight: 800; color: #1d2630; margin-top: 4px;" class="dark:text-slate-100">
+                            <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Completed Invoices</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">
                                 {{ $commissionedSystemsCount }}
                             </div>
                         </div>
@@ -790,8 +790,8 @@
 
                     <div class="able-overview-divider" style="display: flex; align-items: center; justify-content: space-between; padding-right: 14px; border-right: 1px solid #e8ebee;" class="dark:border-slate-800">
                         <div>
-                            <div style="font-size: 12px; color: #64748b;" class="dark:text-slate-400">Pending Tasks</div>
-                            <div style="font-size: 20px; font-weight: 800; color: #1d2630; margin-top: 4px;" class="dark:text-slate-100">
+                            <div class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Tasks</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-slate-100 mt-1">
                                 {{ $pendingQuotationsCount }}
                             </div>
                         </div>
@@ -799,7 +799,7 @@
                     </div>
 
                     <div style="display: flex; justify-content: flex-end;">
-                        <a href="{{ \App\Filament\App\Resources\Invoices\InvoiceResource::getUrl('create') }}" class="able-btn-primary" style="padding: 11px 24px;">
+                        <a href="{{ \App\Filament\App\Resources\Invoices\InvoiceResource::getUrl('create') }}" class="able-btn-primary text-sm font-semibold" style="padding: 11px 24px;">
                             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"></path>
                             </svg>
@@ -857,13 +857,13 @@
             <div class="able-card able-col-6" style="display: flex; flex-direction: column; justify-content: space-between;">
                 <div>
                     <div class="able-card-header" style="margin-bottom: 8px;">
-                        <h3 class="able-card-title">Transactions</h3>
+                        <h3 class="able-card-title text-base font-semibold">Transactions</h3>
                         <button type="button" class="able-dots-btn">•••</button>
                     </div>
 
                     <div style="display: flex; gap: 8px; border-bottom: 1px solid #e8ebee; margin-bottom: 14px;" class="dark:border-slate-800">
                         <button type="button" class="able-tab-btn" :class="{ 'active': activeTab === 'all' }" @click="activeTab = 'all'">
-                            All Transaction
+                            All Transactions
                         </button>
                         <button type="button" class="able-tab-btn" :class="{ 'active': activeTab === 'income' }" @click="activeTab = 'income'">
                             Payments Received
@@ -878,10 +878,10 @@
                             <div style="width: 48px; height: 48px; border-radius: 12px; background: #eef4fe; color: #4680ff; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px;">
                                 💳
                             </div>
-                            <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">
+                            <div class="text-sm font-bold text-gray-900 dark:text-slate-100">
                                 No transactions recorded yet for {{ $tenant?->name ?? 'your workspace' }}
                             </div>
-                            <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;" class="dark:text-slate-400">
+                            <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                                 Record customer payments or log supplier expenses to populate live cashflow.
                             </div>
                         </div>
@@ -897,20 +897,20 @@
                                             {{ $txn['initials'] }}
                                         </div>
                                         <div>
-                                            <div style="font-size: 13.5px; font-weight: 700; color: #1d2630;" class="dark:text-slate-100">
+                                            <div class="text-sm font-bold text-gray-900 dark:text-slate-100">
                                                 {{ $txn['title'] }}
                                             </div>
-                                            <div style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">
+                                            <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                                                 {{ $txn['subtitle'] }} • {{ $txn['date'] }}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div style="text-align: right;">
-                                        <div style="font-size: 13px; font-weight: 800; color: {{ $txn['type'] === 'income' ? '#059669' : '#1d2630' }};" class="dark:text-slate-100">
+                                        <div class="text-sm sm:text-base font-bold" style="color: {{ $txn['type'] === 'income' ? '#059669' : '#1d2630' }};">
                                             {{ $txn['type'] === 'income' ? '+' : '-' }}Rs. {{ number_format($txn['amount'], 2) }}
                                         </div>
-                                        <div style="font-size: 10.5px; font-weight: 700; color: {{ $txn['type'] === 'income' ? '#059669' : '#dc2626' }};">
+                                        <div class="text-xs font-semibold" style="color: {{ $txn['type'] === 'income' ? '#059669' : '#dc2626' }};">
                                             {{ $txn['type'] === 'income' ? '↗ Verified' : '↘ Settlement' }}
                                         </div>
                                     </div>
@@ -934,8 +934,8 @@
             <div class="able-card able-col-6">
                 <div class="able-card-header">
                     <div>
-                        <h3 class="able-card-title">Total Income & Financial Breakdown</h3>
-                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;" class="dark:text-slate-400">
+                        <h3 class="able-card-title text-base font-semibold">Total Income & Financial Breakdown</h3>
+                        <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             Revenue vs. Material & Operational Allocation
                         </div>
                     </div>
@@ -945,42 +945,42 @@
                 <div id="ableProDonutChart" style="min-height: 270px; display: flex; align-items: center; justify-content: center;"></div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px;">
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 10px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b;" class="dark:text-slate-400">
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 12px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
+                        <div style="display: flex; align-items: center; gap: 6px;" class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: #4680ff;"></span>
                             <span>Total Revenue</span>
                         </div>
-                        <div style="font-size: 13.5px; font-weight: 800; color: #1d2630; margin-top: 2px;" class="dark:text-slate-100">
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100 mt-1">
                             Rs. {{ number_format($totalRevenue, 2) }}
                         </div>
                     </div>
 
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 10px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b;" class="dark:text-slate-400">
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 12px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
+                        <div style="display: flex; align-items: center; gap: 6px;" class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: #93c5fd;"></span>
                             <span>Net Owner Profit</span>
                         </div>
-                        <div style="font-size: 13.5px; font-weight: 800; color: #2563eb; margin-top: 2px;">
+                        <div class="text-base font-bold text-blue-600 dark:text-blue-400 mt-1">
                             Rs. {{ number_format($netProfit, 2) }}
                         </div>
                     </div>
 
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 10px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b;" class="dark:text-slate-400">
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 12px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
+                        <div style="display: flex; align-items: center; gap: 6px;" class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: #d97706;"></span>
                             <span>Material Cost (COGS)</span>
                         </div>
-                        <div style="font-size: 13.5px; font-weight: 800; color: #1d2630; margin-top: 2px;" class="dark:text-slate-100">
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100 mt-1">
                             Rs. {{ number_format($materialCost, 2) }}
                         </div>
                     </div>
 
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 10px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
-                        <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: #64748b;" class="dark:text-slate-400">
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 12px 14px; border: 1px solid #eef1f4;" class="dark:bg-slate-900 dark:border-slate-800">
+                        <div style="display: flex; align-items: center; gap: 6px;" class="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
                             <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
                             <span>Commissions & Overhead</span>
                         </div>
-                        <div style="font-size: 13.5px; font-weight: 800; color: #1d2630; margin-top: 2px;" class="dark:text-slate-100">
+                        <div class="text-base font-bold text-gray-900 dark:text-slate-100 mt-1">
                             Rs. {{ number_format($overheadAndCommissions, 2) }}
                         </div>
                     </div>
@@ -993,13 +993,13 @@
             <div class="able-card able-col-7">
                 <div class="able-card-header">
                     <div>
-                        <h3 class="able-card-title">Income & Cashflow Dynamics</h3>
-                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;" class="dark:text-slate-400">
+                        <h3 class="able-card-title text-base font-semibold">Income & Cashflow Dynamics</h3>
+                        <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             Monthly Income vs Expenses with Net Operating Line
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 11px; color: #64748b;" class="dark:text-slate-400">{{ date('Y') }} Fiscal</span>
+                        <span class="text-xs sm:text-sm font-semibold text-gray-500 dark:text-gray-400">{{ date('Y') }} Fiscal</span>
                         <button type="button" class="able-dots-btn">•••</button>
                     </div>
                 </div>
@@ -1009,8 +1009,8 @@
             <div class="able-card able-col-5">
                 <div class="able-card-header">
                     <div>
-                        <h3 class="able-card-title">Category Performance</h3>
-                        <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;" class="dark:text-slate-400">
+                        <h3 class="able-card-title text-base font-semibold">Category Performance</h3>
+                        <div class="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                             Solar inventory deployment & volume share
                         </div>
                     </div>
@@ -1072,12 +1072,12 @@
                             xaxis: {
                                 categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                                 axisBorder: { show: false }, axisTicks: { show: false },
-                                labels: { style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '11px' } }
+                                labels: { style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '12px', fontWeight: 500 } }
                             },
                             yaxis: {
                                 labels: {
                                     formatter: (val) => val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val >= 1000 ? (val / 1000).toFixed(0) + 'K' : val),
-                                    style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '11px' }
+                                    style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '12px', fontWeight: 500 }
                                 }
                             },
                             grid: {
@@ -1137,15 +1137,15 @@
                                         size: '72%',
                                         labels: {
                                             show: true,
-                                            name: { show: true, fontSize: '12px', color: isDark ? '#94a3b8' : '#64748b' },
+                                            name: { show: true, fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b' },
                                             value: {
-                                                show: true, fontSize: '17px', fontWeight: 800,
+                                                show: true, fontSize: '18px', fontWeight: 800,
                                                 color: isDark ? '#f8fafc' : '#1d2630',
                                                 formatter: (val) => hasData ? ('Rs. ' + (val >= 1000 ? (val / 1000).toFixed(0) + 'K' : val)) : 'Rs. 0'
                                             },
                                             total: {
                                                 show: true, label: hasData ? 'Net Profit' : 'No Data',
-                                                color: isDark ? '#94a3b8' : '#64748b', fontSize: '11px', fontWeight: 600,
+                                                color: isDark ? '#94a3b8' : '#64748b', fontSize: '12px', fontWeight: 600,
                                                 formatter: () => hasData ? ('Rs. ' + (prof >= 1000 ? (prof / 1000).toFixed(1) + 'K' : prof)) : 'Rs. 0.00'
                                             }
                                         }
@@ -1181,12 +1181,12 @@
                             xaxis: {
                                 categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                                 axisBorder: { show: false }, axisTicks: { show: false },
-                                labels: { style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '11px' } }
+                                labels: { style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '12px', fontWeight: 500 } }
                             },
                             yaxis: {
                                 labels: {
                                     formatter: (val) => val >= 1000000 ? (val / 1000000).toFixed(1) + 'M' : (val >= 1000 ? (val / 1000).toFixed(0) + 'K' : val),
-                                    style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '11px' }
+                                    style: { colors: isDark ? '#94a3b8' : '#64748b', fontSize: '12px', fontWeight: 500 }
                                 }
                             },
                             grid: {
@@ -1218,7 +1218,7 @@
                                     },
                                     dataLabels: {
                                         name: { fontSize: '13px', color: isDark ? '#94a3b8' : '#64748b', offsetY: -8 },
-                                        value: { fontSize: '18px', fontWeight: 800, color: isDark ? '#f8fafc' : '#1d2630', offsetY: 4 },
+                                        value: { fontSize: '19px', fontWeight: 800, color: isDark ? '#f8fafc' : '#1d2630', offsetY: 4 },
                                         total: {
                                             show: true, label: sum > 0 ? 'Solar PV' : 'No Items',
                                             color: isDark ? '#94a3b8' : '#64748b',

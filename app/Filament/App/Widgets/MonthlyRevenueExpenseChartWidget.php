@@ -85,7 +85,7 @@ class MonthlyRevenueExpenseChartWidget extends ChartWidget
                         'usePointStyle' => true,
                         'pointStyle' => 'circle',
                         'font' => [
-                            'size' => 11,
+                            'size' => 12,
                             'weight' => '500',
                         ],
                     ],
@@ -98,7 +98,7 @@ class MonthlyRevenueExpenseChartWidget extends ChartWidget
                     ],
                     'ticks' => [
                         'font' => [
-                            'size' => 10,
+                            'size' => 12,
                         ],
                     ],
                 ],
@@ -111,7 +111,7 @@ class MonthlyRevenueExpenseChartWidget extends ChartWidget
                     ],
                     'ticks' => [
                         'font' => [
-                            'size' => 10,
+                            'size' => 12,
                         ],
                     ],
                 ],
