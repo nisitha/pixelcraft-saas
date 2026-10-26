@@ -234,7 +234,7 @@
                         <span class="w-3 h-3 rounded-full bg-red-400"></span>
                         <span class="w-3 h-3 rounded-full bg-amber-400"></span>
                         <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
-                        <span class="ml-2 text-xs font-mono text-[#64748b]">erp.vertexhomeslk.com • Lanka Solar EPC Solutions</span>
+                        <span class="ml-2 text-xs font-mono text-[#64748b]">app.pixelcraftlk.com • PixelCraft SaaS Workspace</span>
                     </div>
                     <span class="text-xs bg-[#ecfdf5] text-[#059669] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
                         ● Live Multi-Tenant ERP
@@ -245,7 +245,7 @@
                 <div class="hero-banner-gradient rounded-xl p-5 text-white flex items-center justify-between shadow-md mb-5">
                     <div>
                         <div class="text-xs font-bold uppercase tracking-wider text-blue-100 mb-1">Executive Workspace</div>
-                        <h3 class="text-xl font-bold">Explore Redesigned Vertex Books ERP</h3>
+                        <h3 class="text-xl font-bold">Explore PixelCraft Cloud ERP</h3>
                         <p class="text-xs text-blue-100 mt-1 max-w-lg">Solar PV system sizing, milestone billing, inventory and project profitability in one unified workspace.</p>
                     </div>
                     <div class="hidden sm:block">

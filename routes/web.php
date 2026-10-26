@@ -11,7 +11,11 @@ Route::get('/', function () {
         ? Plan::where('is_active', true)->orderBy('price_monthly')->get()
         : collect();
 
-    return view('welcome', compact('plans'));
+    return response()
+        ->view('welcome', compact('plans'))
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
 });
 
 Route::get('/public/documents/{type}/{id}', [PublicDocumentController::class, 'show'])

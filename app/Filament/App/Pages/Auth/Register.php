@@ -3,6 +3,7 @@
 namespace App\Filament\App\Pages\Auth;
 
 use Filament\Auth\Pages\Register as BaseRegister;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
@@ -13,6 +14,29 @@ use SensitiveParameter;
 class Register extends BaseRegister
 {
     protected static bool $isDiscovered = false;
+
+    public function mount(): void
+    {
+        if (Filament::auth()->check()) {
+            $user = Filament::auth()->user();
+
+            if ($user && $user->companies()->count() === 0) {
+                redirect()->to('/app/new');
+
+                return;
+            }
+
+            Filament::auth()->logout();
+            session()->invalidate();
+            session()->regenerateToken();
+        }
+
+        $this->callHook('beforeFill');
+
+        $this->form->fill();
+
+        $this->callHook('afterFill');
+    }
 
     public function form(Schema $schema): Schema
     {
