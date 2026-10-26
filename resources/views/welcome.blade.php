@@ -511,7 +511,7 @@
 
                         <div class="mt-8 pt-6 border-t border-[#e8ebee]">
                             <a
-                                href="/app/register?plan={{ $plan->slug }}"
+                                href="/app/register"
                                 class="{{ $isPopular ? 'btn-primary' : 'btn-outline' }} w-full py-3 text-center block text-sm font-bold"
                             >
                                 Start 14-Day Free Trial
