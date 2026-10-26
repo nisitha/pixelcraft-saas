@@ -190,16 +190,18 @@ class Dashboard extends BaseDashboard
         $monthlyExpenses = array_fill(0, 12, 0.0);
         $monthlyCashflow = array_fill(0, 12, 0.0);
 
-        $currentYearInvoices = Invoice::where('company_id', $tenant?->id)
-            ->where('status', '!=', 'cancelled')
-            ->whereYear('invoice_date', now()->year)
-            ->get(['invoice_date', 'grand_total', 'total_cost', 'commission_amount']);
+        $currentYear = (int) now()->year;
+        $currentYearInvoices = $invoices->filter(function ($inv) use ($currentYear) {
+            return $inv->invoice_date && (int) $inv->invoice_date->format('Y') === $currentYear;
+        });
 
         foreach ($currentYearInvoices as $inv) {
             if ($inv->invoice_date) {
                 $m = (int) $inv->invoice_date->format('n') - 1;
-                $monthlyRevenue[$m] += (float) $inv->grand_total;
-                $monthlyExpenses[$m] += (float) ($inv->total_cost + $inv->commission_amount);
+                $monthlyRevenue[$m] += (float) ($inv->grand_total ?? 0);
+                $cost = (float) ($inv->total_cost ?? 0);
+                $commission = (float) ($inv->commission_amount ?? 0);
+                $monthlyExpenses[$m] += ($cost + $commission);
             }
         }
 
