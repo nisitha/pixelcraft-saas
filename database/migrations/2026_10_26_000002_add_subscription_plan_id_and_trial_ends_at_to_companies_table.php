@@ -12,6 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('companies', function (Blueprint $table) {
+            $table->string('subscription_status', 20)
+                ->default('trialing')
+                ->after('is_active');
             $table->foreignId('subscription_plan_id')
                 ->nullable()
                 ->after('plan_id')
@@ -30,7 +33,7 @@ return new class extends Migration
     {
         Schema::table('companies', function (Blueprint $table) {
             $table->dropConstrainedForeignId('subscription_plan_id');
-            $table->dropColumn('trial_ends_at');
+            $table->dropColumn(['subscription_status', 'trial_ends_at']);
         });
     }
 };

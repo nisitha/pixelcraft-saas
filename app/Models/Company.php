@@ -26,6 +26,7 @@ class Company extends Model implements HasAvatar, HasName
         'address',
         'logo_path',
         'is_active',
+        'subscription_status',
         'subscription_plan_id',
         'trial_ends_at',
         'plan_id',
@@ -179,6 +180,18 @@ class Company extends Model implements HasAvatar, HasName
     {
         if (! $this->is_active) {
             return false;
+        }
+
+        if ($this->subscription_status === 'suspended' || $this->subscription_status === 'expired') {
+            return false;
+        }
+
+        if ($this->subscription_status === 'trialing') {
+            if ($this->trial_ends_at !== null && $this->trial_ends_at->isPast()) {
+                return false;
+            }
+
+            return true;
         }
 
         if ($this->trial_ends_at !== null && $this->trial_ends_at->isFuture()) {

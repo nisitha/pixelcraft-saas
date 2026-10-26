@@ -199,6 +199,7 @@ class RegisterCompany extends RegisterTenant
             'address' => $data['address'] ?? null,
             'logo_path' => $data['logo_path'] ?? null,
             'tax_number' => $data['tax_number'] ?? null,
+            'subscription_status' => 'trialing',
             'subscription_plan_id' => $subscriptionPlanId,
             'trial_ends_at' => $trialEndsAt,
             'plan_id' => $legacyPlanId,

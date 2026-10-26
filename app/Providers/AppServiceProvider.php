@@ -10,6 +10,7 @@ use App\Observers\ExpenseObserver;
 use App\Observers\InvoiceItemObserver;
 use App\Observers\InvoiceObserver;
 use App\Observers\PaymentObserver;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
+
         Invoice::observe(InvoiceObserver::class);
         InvoiceItem::observe(InvoiceItemObserver::class);
         Payment::observe(PaymentObserver::class);

@@ -14,14 +14,14 @@ class SubscriptionPlanSeeder extends Seeder
     {
         $plans = [
             [
-                'name' => 'Free Trial / Starter',
+                'name' => 'Starter / Trial',
                 'slug' => 'starter',
-                'price' => 0.00,
+                'price' => 3500.00,
                 'currency' => 'LKR',
                 'billing_interval' => 'monthly',
                 'trial_days' => 14,
                 'features' => [
-                    '14-Day Free Trial',
+                    '14-Day Free Trial Included',
                     'Basic Invoicing',
                     '2 Employees',
                     'Standard Quotations',

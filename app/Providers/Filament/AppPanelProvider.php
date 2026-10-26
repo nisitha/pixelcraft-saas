@@ -6,7 +6,7 @@ use App\Filament\App\Pages\Auth\Register;
 use App\Filament\App\Pages\Dashboard;
 use App\Filament\App\Pages\Tenancy\EditCompanyProfile;
 use App\Filament\App\Pages\Tenancy\RegisterCompany;
-use App\Http\Middleware\EnsureTenantSubscriptionIsActive;
+use App\Http\Middleware\EnsureTenantHasActiveSubscription;
 use App\Models\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -502,7 +502,7 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->tenantMiddleware([
-                EnsureTenantSubscriptionIsActive::class,
+                EnsureTenantHasActiveSubscription::class,
             ], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\App\Pages\Auth\Register;
 use App\Filament\App\Pages\Tenancy\RegisterCompany;
+use App\Http\Middleware\EnsureTenantHasActiveSubscription;
 use App\Models\Company;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
@@ -11,7 +12,10 @@ use Database\Seeders\DatabaseSeeder;
 use Filament\Facades\Filament;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Livewire\Livewire;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class TenantOnboardingTest extends TestCase
@@ -149,6 +153,7 @@ class TenantOnboardingTest extends TestCase
         $this->assertEquals($proPlan->id, $company->subscription_plan_id);
         $this->assertNotNull($company->trial_ends_at);
         $this->assertEquals(14, round(now()->diffInDays($company->trial_ends_at)));
+        $this->assertEquals('trialing', $company->subscription_status);
 
         // Verify company relationship
         $this->assertNotNull($company->subscriptionPlan);
@@ -157,5 +162,85 @@ class TenantOnboardingTest extends TestCase
         // Verify user attached as owner
         $this->assertTrue($user->companies()->where('companies.id', $company->id)->exists());
         $this->assertEquals('owner', $user->roleInTenant($company));
+    }
+
+    public function test_expired_trial_middleware_blocks_operational_mutations_and_allows_billing(): void
+    {
+        $user = User::factory()->create([
+            'email_verified_at' => now(),
+            'is_active' => true,
+        ]);
+
+        $company = Company::create([
+            'name' => 'Expired Trial Corp',
+            'slug' => 'expired-trial-corp',
+            'phone' => '+94 77 111 2222',
+            'currency' => 'LKR',
+            'is_active' => true,
+            'subscription_status' => 'trialing',
+            'trial_ends_at' => now()->subDay(),
+            'subscription_ends_at' => now()->subDay(),
+        ]);
+
+        $company->users()->attach($user->id, ['role' => 'owner']);
+
+        $this->actingAs($user);
+        Filament::setCurrentPanel(Filament::getPanel('app'));
+        Filament::setTenant($company);
+
+        // 1. Subscription billing route must remain accessible
+        $billingResponse = $this->get("/app/{$company->slug}/subscription-billing");
+        $billingResponse->assertStatus(200);
+
+        // 2. Operational state mutation (POST/PUT/DELETE) on non-billing module must be blocked (403)
+        $request = Request::create("/app/{$company->slug}/contacts", 'POST');
+        $middleware = new EnsureTenantHasActiveSubscription;
+
+        try {
+            $middleware->handle($request, fn () => new Response);
+            $this->fail('Expected 403 HttpException was not thrown by EnsureTenantHasActiveSubscription.');
+        } catch (HttpException $e) {
+            $this->assertEquals(403, $e->getStatusCode());
+            $this->assertStringContainsString('Subscription Expired / Free Trial Ended', $e->getMessage());
+        }
+    }
+
+    public function test_trial_expiry_command_transitions_companies_and_logs_reminders(): void
+    {
+        // Company 1: Expired trial
+        $expiredCompany = Company::create([
+            'name' => 'Overdue Trial Co',
+            'slug' => 'overdue-trial-co',
+            'currency' => 'LKR',
+            'is_active' => true,
+            'subscription_status' => 'trialing',
+            'trial_ends_at' => now()->subHour(),
+        ]);
+
+        // Company 2: Expiring in 2 days
+        $expiringCompany = Company::create([
+            'name' => 'Expiring Soon Co',
+            'slug' => 'expiring-soon-co',
+            'currency' => 'LKR',
+            'is_active' => true,
+            'subscription_status' => 'trialing',
+            'trial_ends_at' => now()->addDays(2),
+        ]);
+
+        $this->artisan('subscription:check-trials')
+            ->assertExitCode(0);
+
+        $expiredCompany->refresh();
+        $this->assertEquals('expired', $expiredCompany->subscription_status);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'company_id' => $expiredCompany->id,
+            'action' => 'trial_expired',
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'company_id' => $expiringCompany->id,
+            'action' => 'trial_expiry_reminder',
+        ]);
     }
 }
