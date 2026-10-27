@@ -17,28 +17,27 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_welcome_page_contains_framer_marketinglab_dark_design_tokens_and_fonts(): void
+    public function test_welcome_page_contains_framer_growthlab_editorial_tokens_and_fonts(): void
     {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Urbanist');
-        $response->assertSee('Inter');
+        $response->assertSee('Anton');
+        $response->assertSee('Plus Jakarta Sans');
         $response->assertSee('PIXELCRAFT');
-        $response->assertSee('#070709');
-        $response->assertSee('glass-card', false);
-        $response->assertSee('ambient-mesh', false);
+        $response->assertSee('#FF3838');
+        $response->assertSee('#F5F4F0');
+        $response->assertSee('#0A0A0A');
     }
 
-    public function test_welcome_page_loads_framer_motion_engine(): void
+    public function test_welcome_page_loads_alpine_and_lucide(): void
     {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('https://cdn.jsdelivr.net/npm/motion@12.4.2/+esm', false);
-        $response->assertSee('data-motion-hero', false);
-        $response->assertSee('inView', false);
-        $response->assertSee('stagger', false);
+        $response->assertSee('alpinejs', false);
+        $response->assertSee('lucide', false);
+        $response->assertSee('x-data', false);
     }
 
     public function test_welcome_page_contains_four_process_cards(): void
@@ -46,28 +45,28 @@ class MarketingLabWelcomePageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Our Process');
+        $response->assertSee('OUR PROCESS');
         $response->assertSee('01');
-        $response->assertSee('Onboard & Brand', false);
+        $response->assertSee('ONBOARD & BRAND', false);
         $response->assertSee('02');
-        $response->assertSee('Engineer & Quote', false);
+        $response->assertSee('ENGINEER & QUOTE', false);
         $response->assertSee('03');
-        $response->assertSee('Bill & Transact', false);
+        $response->assertSee('BILL & TRANSACT', false);
         $response->assertSee('04');
-        $response->assertSee('Settle & Profit', false);
+        $response->assertSee('SETTLE & PROFIT', false);
     }
 
-    public function test_welcome_page_contains_features_and_specialized_solutions(): void
+    public function test_welcome_page_contains_services_and_case_studies(): void
     {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Platform Features');
-        $response->assertSee('Solar PV Sizing', false);
-        $response->assertSee('Zoho-Style Milestone Billing', false);
-        $response->assertSee('Sub-Second Counter POS', false);
-        $response->assertSee('EPF & ETF Payroll Engine', false);
-        $response->assertSee('hero-dashboard.webp', false);
+        $response->assertSee('SERVICES');
+        $response->assertSee('SOLAR PV SIZING', false);
+        $response->assertSee('ZOHO-STYLE MILESTONE INVOICING', false);
+        $response->assertSee('80MM COUNTER THERMAL POS', false);
+        $response->assertSee('EPF & ETF STATUTORY PAYROLL', false);
+        $response->assertSee('SELECTED CASE STUDIES', false);
     }
 
     public function test_welcome_page_renders_lkr_pricing_plans_and_billing_switcher(): void
@@ -88,8 +87,9 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Custom Growth Tier');
         $response->assertSee('Rs. 5,000');
-        $response->assertSee('billingSwitcher', false);
-        $response->assertSee('switchBilling', false);
+        $response->assertSee('billing', false);
+        $response->assertSee('Monthly Billing', false);
+        $response->assertSee('Annual Billing', false);
     }
 
     public function test_welcome_page_contains_faq_accordion_and_official_metadata(): void
@@ -97,7 +97,7 @@ class MarketingLabWelcomePageTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Frequently Asked Questions');
+        $response->assertSee('FREQUENTLY ASKED QUESTIONS');
         $response->assertSee('How does the 14-day free trial work?');
         $response->assertSee('Is the Solar PV sizing tool compliant with CEB & LECO?', false);
         $response->assertSee('support@pixelcraftlk.com');

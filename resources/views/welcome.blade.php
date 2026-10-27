@@ -18,7 +18,7 @@
             ],
             (object) [
                 'id' => 2,
-                'name' => 'Professional EPC ERP',
+                'name' => 'Growth EPC ERP',
                 'slug' => 'professional',
                 'price_monthly' => 7500.00,
                 'price_yearly' => 75000.00,
@@ -40,224 +40,168 @@
     }
 @endphp
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth dark">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PixelCraft SaaS — Sri Lanka's Intelligent Cloud ERP, Counter POS & Solar PV Workspace</title>
+    <title>PixelCraft SaaS — Sri Lanka's Modern Cloud ERP, Milestone Invoicing & Solar PV Workspace</title>
     <meta name="description" content="PixelCraft SaaS is Sri Lanka's high-performance cloud platform designed for Solar EPC contractors, retail merchants, and business operations. Featuring CEB solar sizing, Zoho milestone invoicing, 80mm thermal POS, and EPF/ETF payroll.">
-    <meta name="theme-color" content="#070709">
 
-    <!-- Open Graph / Meta -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="PixelCraft SaaS — Cloud ERP, Counter POS & Solar PV Workspace">
-    <meta property="og:description" content="Engineered for Sri Lankan Solar EPCs, electrical distributors, and retail businesses. CEB Net-Metering sizing, milestone invoicing, and 80mm POS.">
+    <meta property="og:description" content="Sri Lanka's dedicated cloud ERP for Solar EPC contractors and retail distributors. CEB Net-Metering sizing, milestone invoicing, and 80mm POS.">
     <meta property="og:image" content="{{ asset('images/landing/hero-dashboard.webp') }}">
 
-    <!-- Typography: Urbanist (Display / Headings) & Inter (UI / Body) & JetBrains Mono -->
+    <!-- Typography: Anton (Display / Hero), Plus Jakarta Sans & Inter (Body/UI), JetBrains Mono (Badges) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS CDN with Custom Dark Config -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
-                        urbanist: ['Urbanist', 'sans-serif'],
-                        sans: ['Inter', 'sans-serif'],
+                        display: ['Anton', 'sans-serif'],
+                        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        obsidian: {
-                            base: '#070709',
-                            surface: '#0d0e12',
-                            card: '#121318',
-                            border: 'rgba(255, 255, 255, 0.08)',
-                            borderHover: 'rgba(255, 255, 255, 0.18)',
-                        },
-                        brand: {
-                            cyan: '#06b6d4',
-                            indigo: '#6366f1',
-                            violet: '#8b5cf6',
-                            purple: '#a855f7',
-                        }
+                        cream: '#F5F4F0',
+                        creamLight: '#FAF8F5',
+                        warmBorder: '#EAE6DF',
+                        pitch: '#0A0A0A',
+                        pitchSurface: '#141414',
+                        pitchCard: '#1C1C1C',
+                        pitchBorder: '#262626',
+                        crimson: '#FF3838',
+                        crimsonHover: '#E53935',
+                        crimsonDark: '#991B1B',
+                        crimsonSubtle: '#FEF2F2',
                     }
                 }
             }
         }
     </script>
 
+    <!-- Alpine.js Core for Reactivity & Accordions -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
         :root {
-            --bg-base: #070709;
-            --bg-surface: #0c0d12;
-            --card-glass: rgba(255, 255, 255, 0.025);
-            --card-glass-hover: rgba(255, 255, 255, 0.045);
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.2);
-            --glow-cyan: rgba(6, 182, 212, 0.15);
-            --glow-violet: rgba(139, 92, 246, 0.15);
+            --cream: #F5F4F0;
+            --cream-light: #FAF8F5;
+            --warm-border: #EAE6DF;
+            --pitch: #0A0A0A;
+            --crimson: #FF3838;
+            --crimson-hover: #E53935;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-base);
-            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background-color: var(--cream);
+            color: #111111;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        h1, h2, h3, h4, .font-display {
-            font-family: 'Urbanist', sans-serif;
-            letter-spacing: -0.035em;
+        .font-display {
+            font-family: 'Anton', 'Oswald', sans-serif;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
         }
 
-        /* Ambient Background Mesh Glows */
-        .ambient-mesh {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-        .mesh-blob-1 {
-            position: absolute;
-            top: -15%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 900px;
-            height: 550px;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.14) 0%, rgba(99, 102, 241, 0.08) 45%, transparent 70%);
-            filter: blur(80px);
-        }
-        .mesh-blob-2 {
-            position: absolute;
-            top: 25%;
-            left: -10%;
-            width: 700px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, rgba(14, 165, 233, 0.05) 50%, transparent 70%);
-            filter: blur(90px);
-        }
-        .mesh-blob-3 {
-            position: absolute;
-            top: 55%;
-            right: -10%;
-            width: 750px;
-            height: 650px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.12) 0%, rgba(99, 102, 241, 0.06) 50%, transparent 75%);
-            filter: blur(95px);
-        }
-
-        /* Subtle Geometric Dot Grid */
-        .bg-grid-dots {
-            background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-            background-size: 28px 28px;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0) 100%);
-            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0) 100%);
-        }
-
-        /* Glassmorphism Floating Navbar */
+        /* Glass Floating Navbar */
         .glass-nav {
-            background: rgba(7, 7, 9, 0.75);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-        }
-
-        /* Glass Cards */
-        .glass-card {
-            background: var(--card-glass);
-            border: 1px solid var(--border-subtle);
+            background: rgba(245, 244, 240, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-radius: 1.5rem;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-        }
-        .glass-card:hover {
-            background: var(--card-glass-hover);
-            border-color: var(--border-hover);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 35px -5px rgba(139, 92, 246, 0.12);
+            border-bottom: 1px solid rgba(234, 230, 223, 0.9);
         }
 
-        /* Radiant Pill Button (Framer style) */
-        .btn-radiant {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 50%, #3b82f6 100%);
-            color: #ffffff;
-            font-family: 'Urbanist', sans-serif;
+        /* Pill Buttons */
+        .btn-crimson {
+            background-color: #FF3838;
+            color: #FFFFFF;
             font-weight: 700;
             border-radius: 9999px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            position: relative;
-            box-shadow: 0 0 25px -4px rgba(139, 92, 246, 0.5);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .btn-radiant:hover {
+        .btn-crimson:hover {
+            background-color: #E53935;
             transform: translateY(-2px);
-            box-shadow: 0 0 35px 2px rgba(139, 92, 246, 0.7), 0 10px 25px -5px rgba(99, 102, 241, 0.5);
+            box-shadow: 0 10px 25px -5px rgba(255, 56, 56, 0.4);
         }
-        .btn-radiant:hover .btn-arrow {
+        .btn-crimson:hover .btn-arrow {
             transform: translate(2px, -2px);
         }
 
-        .btn-ghost-glass {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            font-family: 'Urbanist', sans-serif;
+        .btn-ghost-pill {
+            background-color: #FFFFFF;
+            color: #0A0A0A;
+            border: 1px solid #EAE6DF;
             font-weight: 700;
             border-radius: 9999px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            backdrop-filter: blur(12px);
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .btn-ghost-glass:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.3);
-            color: #ffffff;
+        .btn-ghost-pill:hover {
+            background-color: #FAF8F5;
+            border-color: #FF3838;
+            color: #FF3838;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.06);
         }
-        .btn-ghost-glass:hover .btn-arrow {
+        .btn-ghost-pill:hover .btn-arrow {
             transform: translate(2px, -2px);
         }
 
         .btn-arrow {
-            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.2s ease;
         }
 
-        /* Kinetic Giant Headline (MarketingLab Display) */
-        .hero-kinetic-title {
-            font-family: 'Urbanist', sans-serif;
-            font-weight: 900;
-            font-size: clamp(3.5rem, 13vw, 13rem);
+        /* Giant Display Word */
+        .hero-giant-word {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(4rem, 15vw, 15.5rem);
             line-height: 0.88;
-            letter-spacing: -0.05em;
+            letter-spacing: -0.01em;
             text-transform: uppercase;
             text-align: center;
             user-select: none;
-            background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 40%, rgba(255, 255, 255, 0.2) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-top: 1rem;
+            color: #0A0A0A;
+            margin-top: 0.5rem;
             margin-bottom: 2rem;
-            position: relative;
         }
 
-        /* Infinite Marquee Strip */
+        /* 4 Process Cards (01-04) */
+        .process-card {
+            background: linear-gradient(155deg, #FF3838 0%, #D32F2F 50%, #880E0E 100%);
+            border-radius: 1.75rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+            box-shadow: 0 15px 35px -10px rgba(255, 56, 56, 0.35);
+        }
+        .process-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(255, 56, 56, 0.55);
+        }
+
+        /* Infinite Marquee */
         @keyframes marquee {
             0% { transform: translate3d(0, 0, 0); }
             100% { transform: translate3d(-50%, 0, 0); }
@@ -265,260 +209,247 @@
         .marquee-track {
             display: flex;
             width: max-content;
-            animation: marquee 35s linear infinite;
+            animation: marquee 32s linear infinite;
         }
         .marquee-track:hover {
             animation-play-state: paused;
         }
 
-        /* Floating Badge Animations */
+        /* Bento / Showcase Cards */
+        .bento-card {
+            background: #FFFFFF;
+            border: 1px solid #EAE6DF;
+            border-radius: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .bento-card:hover {
+            border-color: #FF3838;
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(255, 56, 56, 0.15);
+        }
+
+        /* Floating Pill Badges */
         @keyframes floatSlow {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-8px); }
         }
         .floating-pill {
-            animation: floatSlow 4.5s ease-in-out infinite;
+            animation: floatSlow 4s ease-in-out infinite;
         }
         .floating-pill-delayed {
-            animation: floatSlow 5.5s ease-in-out 1.8s infinite;
+            animation: floatSlow 5s ease-in-out 1.5s infinite;
         }
 
-        /* Process Card Glowing Border */
-        .process-glass-card {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 1.75rem;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .process-glass-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15), transparent 70%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
+        /* Footer Watermark */
+        .footer-watermark {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(6rem, 24vw, 26rem);
+            line-height: 0.8;
+            color: rgba(255, 255, 255, 0.04);
+            user-select: none;
             pointer-events: none;
-        }
-        .process-glass-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: rgba(139, 92, 246, 0.4);
-            box-shadow: 0 25px 50px -15px rgba(0, 0, 0, 0.8), 0 0 35px -5px rgba(139, 92, 246, 0.25);
-        }
-        .process-glass-card:hover::before {
-            opacity: 1;
-        }
-
-        /* FAQ Accordion Smooth Reveal */
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-            opacity: 0;
-        }
-        .faq-item.active .faq-answer {
-            max-height: 280px;
-            opacity: 1;
-        }
-        .faq-item.active .faq-icon {
-            transform: rotate(45deg);
-        }
-
-        /* Glowing Accent Line */
-        .glow-line {
-            height: 1px;
-            background: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.6) 50%, transparent 100%);
+            text-align: center;
+            letter-spacing: -0.02em;
         }
     </style>
 </head>
-<body class="selection:bg-violet-600 selection:text-white relative min-h-screen">
-
-    <!-- Ambient Mesh Glow Canvas (Framer Style) -->
-    <div class="ambient-mesh">
-        <div class="mesh-blob-1"></div>
-        <div class="mesh-blob-2"></div>
-        <div class="mesh-blob-3"></div>
-    </div>
+<body
+    class="selection:bg-crimson selection:text-white"
+    x-data="{
+        billing: 'monthly',
+        activeService: 0,
+        faqTab: 'all',
+        activeFaq: 0,
+        mobileMenuOpen: false
+    }"
+    x-init="lucide.createIcons()"
+>
 
     <!-- 1. Sleek Frosted Glass Floating Navbar -->
     <header class="sticky top-0 z-50 glass-nav transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <!-- Brand Identity -->
+                <!-- Brand Logo (Editorial Style) -->
                 <a href="/" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-white font-black font-urbanist text-xl shadow-[0_0_20px_rgba(139,92,246,0.5)] group-hover:scale-105 transition-transform duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-pitch flex items-center justify-center text-white font-display text-2xl group-hover:bg-crimson transition-colors duration-300">
                         PC
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="font-urbanist font-extrabold text-2xl tracking-tight text-white">PixelCraft</span>
-                        <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee] animate-pulse"></span>
-                        <span class="text-[10px] font-urbanist font-bold uppercase tracking-widest text-slate-400 border border-white/10 px-2 py-0.5 rounded-full bg-white/[0.03] hidden sm:inline-block">SaaS ERP</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-display text-2xl tracking-wide text-pitch">PIXELCRAFT</span>
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span>
+                        <span class="ml-1 text-[11px] font-mono font-bold uppercase tracking-widest text-slate-500 hidden sm:inline-block">SaaS</span>
                     </div>
                 </a>
 
                 <!-- Desktop Navigation Links -->
-                <nav class="hidden md:flex items-center gap-8 text-sm font-urbanist font-bold text-slate-300">
-                    <a href="#features" class="hover:text-cyan-400 transition-colors">Platform Features</a>
-                    <a href="#process" class="hover:text-violet-400 transition-colors">Our Process</a>
-                    <a href="#solar-epc" class="hover:text-cyan-400 transition-colors">Solar PV Sizing</a>
-                    <a href="#pos-terminal" class="hover:text-violet-400 transition-colors">Counter POS</a>
-                    <a href="#pricing" class="hover:text-cyan-400 transition-colors">Pricing in LKR</a>
-                    <a href="#faq" class="hover:text-violet-400 transition-colors">FAQ</a>
+                <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-slate-600">
+                    <a href="#services" class="hover:text-crimson transition-colors">Services</a>
+                    <a href="#process" class="hover:text-crimson transition-colors">Our Process</a>
+                    <a href="#cases" class="hover:text-crimson transition-colors">Case Studies</a>
+                    <a href="#solar-erp" class="hover:text-crimson transition-colors">Solar PV ERP</a>
+                    <a href="#pricing" class="hover:text-crimson transition-colors">Pricing in LKR</a>
+                    <a href="#faq" class="hover:text-crimson transition-colors">FAQ</a>
                 </nav>
 
-                <!-- Auth CTA Buttons -->
+                <!-- Auth Buttons -->
                 <div class="flex items-center gap-4">
-                    <a href="/app/login" class="text-sm font-urbanist font-bold text-slate-200 hover:text-white transition-colors hidden sm:block">
+                    <a href="/app/login" class="text-xs font-bold uppercase tracking-wider text-pitch hover:text-crimson transition-colors hidden sm:block">
                         Sign In
                     </a>
-                    <a href="/app/register" class="btn-radiant px-6 py-2.5 text-sm shadow-md">
+                    <a href="/app/register" class="btn-crimson px-6 py-2.5 text-xs uppercase tracking-wider shadow-sm">
                         <span>Start Free Trial</span>
-                        <span class="btn-arrow text-base font-bold">↗</span>
+                        <span class="btn-arrow text-sm font-bold">↗</span>
                     </a>
+                    <!-- Mobile Hamburger -->
+                    <button
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                        class="md:hidden text-pitch p-2 rounded-lg hover:bg-black/5"
+                        aria-label="Toggle menu"
+                    >
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Nav Dropdown -->
+            <div
+                x-show="mobileMenuOpen"
+                x-transition
+                @click.away="mobileMenuOpen = false"
+                class="md:hidden py-4 border-t border-warmBorder space-y-3"
+            >
+                <a href="#services" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Services</a>
+                <a href="#process" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Our Process</a>
+                <a href="#cases" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Case Studies</a>
+                <a href="#solar-erp" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Solar PV ERP</a>
+                <a href="#pricing" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Pricing in LKR</a>
+                <a href="#faq" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">FAQ</a>
+                <div class="pt-2 flex flex-col gap-2">
+                    <a href="/app/login" class="text-sm font-bold text-pitch py-1">Sign In</a>
+                    <a href="/app/register" class="btn-crimson py-2.5 text-xs uppercase tracking-wider text-center">Start Free Trial ↗</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="relative z-10">
-        <!-- 2. The MarketingLab Style Kinetic Display Hero -->
-        <section class="pt-8 sm:pt-14 pb-16 sm:pb-24 relative overflow-hidden">
+    <main>
+        <!-- 2. The MarketingLab / GrowthLab Hero Section -->
+        <section class="pt-8 sm:pt-14 pb-16 relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Meta Row (©2026 left, Sri Lanka B2B right) -->
-                <div class="flex items-center justify-between text-xs sm:text-sm font-urbanist font-bold uppercase tracking-wider text-slate-400 border-b border-white/10 pb-4 mb-2">
+                <!-- Top Meta Row (©2026 left, Sri Lanka right) -->
+                <div class="flex items-center justify-between text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-pitch border-b border-warmBorder pb-4 mb-2">
                     <div class="flex items-center gap-2">
-                        <span class="text-white font-black">©2026</span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-violet-400"></span>
-                        <span class="text-slate-400 hidden sm:inline font-mono">COLOMBO, SRI LANKA</span>
+                        <span>©2026</span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-crimson"></span>
+                        <span class="text-slate-500 font-medium hidden sm:inline">COLOMBO, SRI LANKA</span>
                     </div>
-                    <div class="tracking-widest text-slate-300 font-mono text-[11px] sm:text-xs">
-                        MULTI-TENANT CLOUD ERP & POS PLATFORM
+                    <div class="tracking-widest text-pitch">
+                        MULTI-TENANT CLOUD ERP & POS
                     </div>
                 </div>
 
-                <!-- Massive Kinetic Display Word -->
-                <div class="hero-kinetic-title select-none" data-motion-hero>
+                <!-- Massive Tall Condensed Display Headline (MarketingLab Style) -->
+                <div class="hero-giant-word select-none" data-motion-hero>
                     PIXELCRAFT
                 </div>
 
-                <!-- Hero Interactive Visual Card / Obsidian Surface -->
-                <div class="relative rounded-3xl overflow-hidden glass-card p-6 sm:p-12 lg:p-16 border border-white/10 shadow-[0_20px_70px_rgba(0,0,0,0.8)]">
-                    <!-- Dot Grid Overlay -->
-                    <div class="absolute inset-0 bg-grid-dots pointer-events-none opacity-40"></div>
-
-                    <!-- Ambient Glow Corner Mesh -->
-                    <div class="absolute -top-32 -right-32 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-cyan-600/15 rounded-full blur-3xl pointer-events-none"></div>
+                <!-- Hero Crimson Ambient Visual Card -->
+                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#FF3838] via-[#E53935] to-[#7F1D1D] text-white p-6 sm:p-12 lg:p-16 shadow-2xl">
+                    <!-- Subtle Geometric Dot Grid -->
+                    <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#FFFFFF 1px, transparent 1px); background-size: 24px 24px;"></div>
+                    <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-red-400 rounded-full blur-3xl opacity-30 pointer-events-none"></div>
 
                     <!-- Hero Content Grid -->
-                    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         <div class="lg:col-span-7 space-y-6">
-                            <!-- Announcement Pill Badge -->
-                            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.05] border border-white/15 text-slate-200 text-xs font-urbanist font-bold tracking-wide">
-                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
-                                <span class="text-cyan-300 font-extrabold">NEW 3.4</span>
-                                <span class="text-slate-400">•</span>
-                                <span>CEB Solar PV Sizing & Milestone Invoicing</span>
-                                <span class="text-slate-400">→</span>
+                            <!-- Pill Tagline Badge -->
+                            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-bold tracking-wider uppercase">
+                                <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                14-Day Free Full Access • No Credit Card Required
                             </div>
 
-                            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-urbanist font-black text-white leading-[1.08] tracking-tight">
-                                Sri Lanka's Intelligent Cloud Workspace for <span class="bg-gradient-to-r from-violet-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">Solar EPC & Trade Retail.</span>
+                            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-display text-white leading-[1.05] tracking-wide">
+                                Smart Cloud Accounting, POS & <span class="underline decoration-white/40 decoration-wavy">Solar ERP</span> for Sri Lanka.
                             </h1>
 
-                            <p class="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
-                                Built from the ground up for Sri Lankan engineering contractors, trade distributors, and counter merchants. Seamlessly integrates CEB & LECO solar sizing, Zoho-style milestone billing, sub-second 80mm thermal POS, and statutory EPF/ETF payroll.
+                            <p class="text-base sm:text-lg text-white/90 font-normal leading-relaxed max-w-xl">
+                                Engineered specifically for Sri Lankan solar EPC contractors, electrical trade distributors, and retail merchants. Featuring CEB solar sizing, Zoho-style milestone invoicing, 80mm POS receipts, and EPF/ETF statutory payroll.
                             </p>
 
-                            <!-- Hero Action CTAs -->
+                            <!-- CTAs -->
                             <div class="pt-2 flex flex-wrap items-center gap-4">
-                                <a href="/app/register" class="btn-radiant px-8 py-4 text-base font-bold shadow-xl">
-                                    <span>Start 14-Day Free Trial</span>
-                                    <span class="btn-arrow font-black text-lg">↗</span>
+                                <a href="/app/register" class="btn-ghost-pill px-8 py-4 text-base font-bold shadow-lg">
+                                    <span class="text-pitch">Start Free 14-Day Trial</span>
+                                    <span class="btn-arrow text-crimson font-black text-lg">↗</span>
                                 </a>
-                                <a href="/app/login" class="btn-ghost-glass px-7 py-4 text-base font-bold">
+                                <a href="/app/login" class="inline-flex items-center gap-2 px-7 py-4 rounded-full border border-white/40 bg-white/10 hover:bg-white/20 text-white font-bold text-base backdrop-blur-sm transition-all">
                                     <span>Sign In to Workspace</span>
-                                    <span class="btn-arrow text-slate-400">↗</span>
+                                    <span class="btn-arrow">↗</span>
                                 </a>
-                            </div>
-
-                            <!-- Trust Checkmarks -->
-                            <div class="pt-2 flex flex-wrap items-center gap-6 text-xs text-slate-400 font-urbanist font-semibold">
-                                <span class="flex items-center gap-1.5 text-slate-300">
-                                    <span class="text-cyan-400 font-bold">✓</span> No credit card required
-                                </span>
-                                <span class="flex items-center gap-1.5 text-slate-300">
-                                    <span class="text-cyan-400 font-bold">✓</span> 100% Sri Lanka VAT compliant
-                                </span>
-                                <span class="flex items-center gap-1.5 text-slate-300">
-                                    <span class="text-cyan-400 font-bold">✓</span> Instant tenant activation
-                                </span>
                             </div>
                         </div>
 
-                        <!-- Right: Interactive Mockup Showcase with Glowing Mesh -->
-                        <div class="lg:col-span-5 relative">
-                            <!-- Hero SaaS UI Dashboard Mockup -->
-                            <div class="relative rounded-2xl overflow-hidden border border-white/15 bg-obsidian-card shadow-[0_20px_50px_rgba(0,0,0,0.9)] group">
-                                <img
-                                    src="{{ asset('images/landing/hero-dashboard.webp') }}"
-                                    alt="PixelCraft Cloud ERP & Solar PV Analytics Dashboard"
-                                    class="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
-                                    loading="eager"
-                                    width="1280"
-                                    height="720"
-                                >
-                                <div class="absolute inset-0 bg-gradient-to-t from-[#070709] via-transparent to-transparent opacity-60 pointer-events-none"></div>
+                        <!-- Right Floating Interactive Badges & KPI Metric Cards -->
+                        <div class="lg:col-span-5 flex flex-col gap-4">
+                            <!-- Floating Pill Badges Stack -->
+                            <div class="flex flex-wrap gap-2 justify-start lg:justify-end">
+                                <span class="floating-pill px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
+                                    ☀️ CEB & LECO Solar Sizing
+                                </span>
+                                <span class="floating-pill-delayed px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
+                                    📑 Zoho-Style Milestone Invoicing
+                                </span>
+                                <span class="floating-pill px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
+                                    🧾 80mm ESC/POS Printing
+                                </span>
+                                <span class="floating-pill-delayed px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
+                                    👥 EPF 12% & ETF 3% Payroll
+                                </span>
+                            </div>
 
-                                <!-- Floating Live Stat Badge Over Mockup -->
-                                <div class="absolute bottom-4 left-4 right-4 p-4 rounded-xl bg-black/60 backdrop-blur-xl border border-white/15 text-white flex items-center justify-between text-xs">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 font-black">
-                                            ☀️
-                                        </div>
-                                        <div>
-                                            <div class="font-urbanist font-black text-sm text-white">485 kWp Managed</div>
-                                            <div class="text-[11px] text-emerald-400 font-mono">CEB Net-Metering Sync</div>
-                                        </div>
+                            <!-- Live Stat Preview Box -->
+                            <div class="bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-white space-y-4 shadow-xl">
+                                <div class="flex items-center justify-between text-xs pb-3 border-b border-white/15 font-mono">
+                                    <span class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        app.pixelcraftlk.com
+                                    </span>
+                                    <span class="text-white/80 uppercase tracking-widest text-[10px]">Multi-Tenant v3.4</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4 text-left">
+                                    <div>
+                                        <div class="text-xs text-white/70 font-medium">Monthly Invoiced</div>
+                                        <div class="text-2xl font-display text-white mt-0.5 tracking-wide">Rs. 1.25M</div>
+                                        <div class="text-[11px] text-emerald-300 font-bold mt-0.5">↗ 30.6% this month</div>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="font-mono font-bold text-slate-200">Rs. 1.25M</div>
-                                        <div class="text-[10px] text-cyan-300 font-bold uppercase tracking-wider">Live Month</div>
+                                    <div>
+                                        <div class="text-xs text-white/70 font-medium">Solar Capacity</div>
+                                        <div class="text-2xl font-display text-white mt-0.5 tracking-wide">485 kWp</div>
+                                        <div class="text-[11px] text-amber-300 font-bold mt-0.5">CEB Net-Metering</div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Floating Floating Pills (Framer style) -->
-                            <div class="absolute -top-5 -left-4 floating-pill hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-xs font-urbanist font-bold shadow-xl">
-                                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                                📑 Zoho Milestone Invoicing
-                            </div>
-
-                            <div class="absolute -bottom-5 -right-4 floating-pill-delayed hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-xs font-urbanist font-bold shadow-xl">
-                                <span class="w-2 h-2 rounded-full bg-violet-400 animate-pulse"></span>
-                                🧾 80mm ESC/POS Printing
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bottom Metrics Strip (MarketingLab KPI Matrix) -->
-                    <div class="mt-14 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6 font-urbanist">
-                        <div class="space-y-1">
-                            <div class="text-3xl sm:text-4xl font-black text-white">14 Days</div>
-                            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Unrestricted Free Trial</div>
+                    <!-- Bottom Metrics Bar (10+ Years, 500M+ Impressions style from marketinglab) -->
+                    <div class="mt-12 pt-8 border-t border-white/20 grid grid-cols-2 md:grid-cols-4 gap-6 text-white font-display">
+                        <div>
+                            <div class="text-4xl sm:text-5xl tracking-wide">14 Days</div>
+                            <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Full Free Trial</div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl sm:text-4xl font-black text-white">Rs. 500M+</div>
-                            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Transactions Processed</div>
+                        <div>
+                            <div class="text-4xl sm:text-5xl tracking-wide">Rs. 500M+</div>
+                            <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Invoices Generated</div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl sm:text-4xl font-black text-white">100%</div>
-                            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">CEB & LECO Grid Standard</div>
+                        <div>
+                            <div class="text-4xl sm:text-5xl tracking-wide">220+</div>
+                            <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Active Workspaces</div>
                         </div>
-                        <div class="space-y-1">
-                            <div class="text-3xl sm:text-4xl font-black text-white">0.2 sec</div>
-                            <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Thermal POS Speed</div>
+                        <div>
+                            <div class="text-4xl sm:text-5xl tracking-wide">0.2 sec</div>
+                            <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Thermal POS Speed</div>
                         </div>
                     </div>
                 </div>
@@ -526,171 +457,160 @@
         </section>
 
         <!-- 3. Infinite Smooth Marquee Ticker -->
-        <div class="border-y border-white/10 bg-black/40 py-5 overflow-hidden select-none backdrop-blur-md">
-            <div class="marquee-track flex items-center text-xs sm:text-sm font-urbanist font-extrabold uppercase tracking-widest text-slate-300">
+        <div class="border-y border-warmBorder bg-creamLight py-5 overflow-hidden select-none">
+            <div class="marquee-track flex items-center text-xs sm:text-sm font-mono font-bold uppercase tracking-widest text-pitch">
                 <div class="flex items-center gap-8 shrink-0 px-4">
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> SOLAR PV SIZING ENGINE</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> ZOHO MILESTONE INVOICING</span>
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> 80MM ESC/POS COUNTER POS</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> EPF 8%/12% & ETF 3% PAYROLL</span>
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> CEB & LECO CONTRACT AGREEMENTS</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> OFFICIAL COMMISSIONING CERTIFICATES</span>
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> WARRANTY SERIAL NUMBER VAULT</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> MARGIN & COGS CONFIDENTIALITY</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> SOLAR PV SIZING</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> ZOHO MILESTONE INVOICING</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> 80MM COUNTER POS</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> EPF 8%/12% & ETF 3% PAYROLL</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> CEB & LECO AGREEMENTS</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> COMMISSIONING CERTIFICATES</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> WARRANTY SERIAL TRACKING</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> COGS & SUPPLIER BILLS</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> AGENT COMMISSION PAYOUTS</span>
                 </div>
                 <div class="flex items-center gap-8 shrink-0 px-4">
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> SOLAR PV SIZING ENGINE</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> ZOHO MILESTONE INVOICING</span>
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> 80MM ESC/POS COUNTER POS</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> EPF 8%/12% & ETF 3% PAYROLL</span>
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> CEB & LECO CONTRACT AGREEMENTS</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> OFFICIAL COMMISSIONING CERTIFICATES</span>
-                    <span><span class="text-cyan-400 font-black mr-2">/</span> WARRANTY SERIAL NUMBER VAULT</span>
-                    <span><span class="text-violet-400 font-black mr-2">/</span> MARGIN & COGS CONFIDENTIALITY</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> SOLAR PV SIZING</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> ZOHO MILESTONE INVOICING</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> 80MM COUNTER POS</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> EPF 8%/12% & ETF 3% PAYROLL</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> CEB & LECO AGREEMENTS</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> COMMISSIONING CERTIFICATES</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> WARRANTY SERIAL TRACKING</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> COGS & SUPPLIER BILLS</span>
+                    <span><span class="text-crimson font-black mr-2">/</span> AGENT COMMISSION PAYOUTS</span>
                 </div>
             </div>
         </div>
 
-        <!-- 4. The Manifesto Statement (MarketingLab Dark Aesthetic) -->
-        <section class="py-24 sm:py-32 relative">
+        <!-- 4. Client Logos / Trust Bar -->
+        <section class="py-12 border-b border-warmBorder bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                    <!-- Left Meta Column -->
-                    <div class="lg:col-span-3 space-y-4 font-mono text-xs text-slate-400 tracking-widest uppercase">
-                        <div class="text-cyan-400 font-bold">ESTABLISHED 2024</div>
-                        <div>SRI LANKA MARKET</div>
-                        <div>MULTI-TENANT ISOLATION</div>
-                        <div>FILAMENT 3.X DUAL PANELS</div>
+                <div class="text-center text-xs font-mono font-bold uppercase tracking-widest text-slate-500 mb-8">
+                    COMPLIANT WITH SRI LANKAN NATIONAL STANDARDS & HARDWARE
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center justify-items-center opacity-75">
+                    <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span> CEB GRID COMPLIANT
                     </div>
-
-                    <!-- Right Giant Manifesto -->
-                    <div class="lg:col-span-9 space-y-8">
-                        <h2 class="text-2xl sm:text-4xl lg:text-5xl font-urbanist font-extrabold text-white leading-[1.25]">
-                            We don't do disconnected spreadsheets. Every Sri Lankan enterprise gets a unified cloud workspace engineered with obsessive precision and localized compliance — <span class="bg-gradient-to-r from-violet-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">until every single rupee is accounted for.</span>
-                        </h2>
-
-                        <!-- Partner / Compliance Standards Cards -->
-                        <div class="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            <div class="glass-card p-5 text-center group">
-                                <div class="font-urbanist font-black text-lg text-white group-hover:text-cyan-300 transition-colors">CEB Ready</div>
-                                <div class="text-[11px] text-slate-400 mt-1">Net-Metering & Net-Plus</div>
-                            </div>
-                            <div class="glass-card p-5 text-center group">
-                                <div class="font-urbanist font-black text-lg text-white group-hover:text-violet-300 transition-colors">LECO Standards</div>
-                                <div class="text-[11px] text-slate-400 mt-1">Grid Sizing Algorithms</div>
-                            </div>
-                            <div class="glass-card p-5 text-center group">
-                                <div class="font-urbanist font-black text-lg text-white group-hover:text-cyan-300 transition-colors">ESC/POS 80mm</div>
-                                <div class="text-[11px] text-slate-400 mt-1">Raw Thermal Receipts</div>
-                            </div>
-                            <div class="glass-card p-5 text-center group">
-                                <div class="font-urbanist font-black text-lg text-white group-hover:text-violet-300 transition-colors">EPF / ETF Statutory</div>
-                                <div class="text-[11px] text-slate-400 mt-1">Labour Department Laws</div>
-                            </div>
-                        </div>
+                    <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span> LECO STANDARDS
+                    </div>
+                    <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span> ESC/POS 80MM
+                    </div>
+                    <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span> EPF & ETF DEPT
+                    </div>
+                    <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span> LKR NATIVE CURRENCY
+                    </div>
+                    <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-crimson"></span> MULTI-TENANT SAAS
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 5. "Our Process" — 4-Step Operational Framework (Framer MarketingLab Style) -->
-        <section id="process" class="py-24 sm:py-32 relative">
+        <!-- 5. "Our Process" — 4-Card Sequence in Deep Pitch Black #0A0A0A (MarketingLab Signature) -->
+        <section id="process" class="py-24 sm:py-32 bg-pitch text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div>
-                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
                             Disciplined Execution
                         </span>
-                        <h2 class="text-4xl sm:text-6xl font-urbanist font-black text-white mt-3 tracking-tight">
-                            Our Process
+                        <h2 class="text-4xl sm:text-6xl font-display text-white mt-3 tracking-wide">
+                            OUR PROCESS
                         </h2>
                     </div>
                     <p class="text-sm sm:text-base text-slate-400 max-w-md font-normal leading-relaxed">
-                        A disciplined four-step operational workflow that eliminates billing guesswork, protects profit margins, and secures cash flow.
+                        A disciplined four-step operational framework that eliminates billing guesswork, secures margins, and delivers predictable business growth.
                     </p>
                 </div>
 
-                <!-- 4 Process Glowing Glass Cards (01, 02, 03, 04) -->
+                <!-- 4 Glowing Process Cards (01, 02, 03, 04) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Step 01 -->
-                    <div class="process-glass-card p-8 h-[440px] flex flex-col justify-between group">
+                    <!-- Card 01 -->
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group">
                         <div class="flex items-start justify-between">
-                            <span class="text-6xl sm:text-7xl font-urbanist font-black text-white/90 group-hover:text-white transition-colors">01</span>
-                            <span class="w-8 h-8 rounded-full bg-violet-500/20 border border-violet-500/40 flex items-center justify-center text-violet-300 text-xs font-bold">✓</span>
+                            <span class="text-6xl sm:text-7xl font-display text-white leading-none">01</span>
+                            <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
                         <div class="space-y-3">
-                            <h3 class="text-2xl font-urbanist font-black text-white group-hover:translate-x-1 transition-transform">
-                                Onboard & Brand
+                            <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
+                                ONBOARD & BRAND
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                                Instant multi-tenant registration. Upload corporate logo, set branch locations, configure VAT registration numbers, and invite role-restricted staff in under 2 minutes.
+                            <p class="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
+                                Instant multi-tenant registration. Upload company logo, set branch locations, configure VAT numbers, and invite role-restricted staff in under 2 minutes.
                             </p>
                             <div class="pt-2">
-                                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-cyan-300 bg-cyan-950/60 border border-cyan-800/40 px-3 py-1 rounded-full">
+                                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-white/80 bg-black/30 px-3 py-1 rounded-full">
                                     Step 01 • Configuration
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 02 -->
-                    <div class="process-glass-card p-8 h-[440px] flex flex-col justify-between group">
+                    <!-- Card 02 -->
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF4545 0%, #D32F2F 50%, #7F1D1D 100%);">
                         <div class="flex items-start justify-between">
-                            <span class="text-6xl sm:text-7xl font-urbanist font-black text-white/90 group-hover:text-white transition-colors">02</span>
-                            <span class="w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 text-xs font-bold">✓</span>
+                            <span class="text-6xl sm:text-7xl font-display text-white leading-none">02</span>
+                            <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
                         <div class="space-y-3">
-                            <h3 class="text-2xl font-urbanist font-black text-white group-hover:translate-x-1 transition-transform">
-                                Engineer & Quote
+                            <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
+                                ENGINEER & QUOTE
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                            <p class="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
                                 Input customer CEB monthly electricity units for instant kWp solar sizing. Draft Zoho-style milestone proposals with exact inverter/panel bill of quantities.
                             </p>
                             <div class="pt-2">
-                                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-violet-300 bg-violet-950/60 border border-violet-800/40 px-3 py-1 rounded-full">
+                                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-white/80 bg-black/30 px-3 py-1 rounded-full">
                                     Step 02 • Estimation
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 03 -->
-                    <div class="process-glass-card p-8 h-[440px] flex flex-col justify-between group">
+                    <!-- Card 03 -->
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF3838 0%, #B91C1C 55%, #5C0E0E 100%);">
                         <div class="flex items-start justify-between">
-                            <span class="text-6xl sm:text-7xl font-urbanist font-black text-white/90 group-hover:text-white transition-colors">03</span>
-                            <span class="w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-300 text-xs font-bold">✓</span>
+                            <span class="text-6xl sm:text-7xl font-display text-white leading-none">03</span>
+                            <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
                         <div class="space-y-3">
-                            <h3 class="text-2xl font-urbanist font-black text-white group-hover:translate-x-1 transition-transform">
-                                Bill & Transact
+                            <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
+                                BILL & TRANSACT
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                            <p class="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
                                 Convert approved quotations into milestone invoices (60% advance, 30% delivery, 10% commissioning) or print instant 80mm ESC/POS counter receipts.
                             </p>
                             <div class="pt-2">
-                                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-indigo-300 bg-indigo-950/60 border border-indigo-800/40 px-3 py-1 rounded-full">
+                                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-white/80 bg-black/30 px-3 py-1 rounded-full">
                                     Step 03 • Transaction
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Step 04 -->
-                    <div class="process-glass-card p-8 h-[440px] flex flex-col justify-between group">
+                    <!-- Card 04 -->
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF5C5C 0%, #D32F2F 50%, #3D0909 100%);">
                         <div class="flex items-start justify-between">
-                            <span class="text-6xl sm:text-7xl font-urbanist font-black text-white/90 group-hover:text-white transition-colors">04</span>
-                            <span class="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 text-xs font-bold">✓</span>
+                            <span class="text-6xl sm:text-7xl font-display text-white leading-none">04</span>
+                            <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
                         <div class="space-y-3">
-                            <h3 class="text-2xl font-urbanist font-black text-white group-hover:translate-x-1 transition-transform">
-                                Settle & Profit
+                            <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
+                                SETTLE & PROFIT
                             </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                            <p class="text-xs sm:text-sm text-white/90 leading-relaxed font-normal">
                                 Issue official A4 Commissioning Certificates, vault serial numbers for warranty claims, generate EPF/ETF pay slips, and calculate net project margins.
                             </p>
                             <div class="pt-2">
-                                <span class="text-[11px] font-mono font-semibold uppercase tracking-wider text-emerald-300 bg-emerald-950/60 border border-emerald-800/40 px-3 py-1 rounded-full">
+                                <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-white/80 bg-black/30 px-3 py-1 rounded-full">
                                     Step 04 • Settlement
                                 </span>
                             </div>
@@ -700,216 +620,371 @@
             </div>
         </section>
 
-        <!-- 6. Features Bento Grid (MarketingLab Dark Bento Style) -->
-        <section id="features" class="py-24 sm:py-32 relative">
+        <!-- 6. Interactive Services Section (GrowthLab Expandable Style) -->
+        <section id="services" class="py-24 sm:py-32 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <!-- Section Header -->
+                <!-- Section Heading -->
                 <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
                     <div>
-                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-violet-400">
-                            Engineered Architecture
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
+                            CAPABILITIES & SOLUTIONS
                         </span>
-                        <h2 class="text-4xl sm:text-6xl font-urbanist font-black text-white mt-3 tracking-tight">
-                            Platform Features
+                        <h2 class="text-4xl sm:text-6xl font-display text-pitch mt-3 tracking-wide">
+                            WHAT WE OFFER / SERVICES
                         </h2>
                     </div>
-                    <p class="text-sm sm:text-base text-slate-400 max-w-md font-normal leading-relaxed">
-                        Comprehensive enterprise tools crafted specifically for Sri Lankan business workflows, tax frameworks, and hardware environments.
+                    <p class="text-sm sm:text-base text-slate-600 max-w-md font-normal leading-relaxed">
+                        End-to-end cloud infrastructure engineered to build, run, and scale your business without relying on multiple disconnected apps.
                     </p>
                 </div>
 
-                <!-- Bento Grid Layout -->
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                    <!-- Feature 1: Large Bento (Solar PV Sizing & BOQ) -->
-                    <div class="md:col-span-8 glass-card p-8 sm:p-10 relative overflow-hidden flex flex-col justify-between group">
-                        <div class="absolute -right-16 -top-16 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-cyan-500/20 transition-all duration-500"></div>
-
-                        <div class="relative z-10 space-y-4 max-w-xl">
-                            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl font-bold">
-                                ☀️
+                <!-- Interactive Services Accordion Rows -->
+                <div class="space-y-4">
+                    <!-- Service 01 -->
+                    <div
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
+                        :class="activeService === 0 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        @click="activeService = activeService === 0 ? -1 : 0"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <span class="font-display text-2xl sm:text-3xl text-crimson">01</span>
+                                <div>
+                                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">Engineering Service</span>
+                                    <h3 class="text-xl sm:text-3xl font-display text-pitch tracking-wide">
+                                        SOLAR PV SIZING & BOQ GENERATOR
+                                    </h3>
+                                </div>
                             </div>
-                            <span class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400">Solar EPC Module</span>
-                            <h3 class="text-2xl sm:text-4xl font-urbanist font-black text-white">
-                                Algorithmic Solar PV Sizing & Automated Legal Contracts
-                            </h3>
-                            <p class="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-                                Enter customer CEB monthly electricity consumption units to automatically compute exact kWp requirements, inverter configurations, and Tier-1 panel quantities. Generates official Sri Lankan contract agreements and gate pass PDFs in seconds.
-                            </p>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 0 ? 'rotate-45' : ''">+</span>
                         </div>
-
-                        <!-- Interactive Micro Graphic -->
-                        <div class="mt-8 pt-6 border-t border-white/10 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs font-mono text-slate-300">
-                            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10">
-                                <span class="text-slate-400 block text-[10px]">CEB STANDARD</span>
-                                <span class="text-white font-bold">Net-Metering / Plus</span>
+                        <div x-show="activeService === 0" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
+                                <p>
+                                    Algorithmic kWp capacity calculator based on Sri Lankan CEB/LECO electricity bills. Automatically determines Tier-1 panel wattage, inverter capacities, and single or three-phase connections.
+                                </p>
+                                <p class="text-xs font-mono text-slate-500">
+                                    Generates customer agreements, inverter technical specifications, bill of quantities, and gate passes in A4 PDF format.
+                                </p>
                             </div>
-                            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10">
-                                <span class="text-slate-400 block text-[10px]">GRID PHASES</span>
-                                <span class="text-white font-bold">Single & 3-Phase</span>
-                            </div>
-                            <div class="p-3 rounded-xl bg-white/[0.03] border border-white/10 col-span-2 sm:col-span-1">
-                                <span class="text-slate-400 block text-[10px]">CONTRACT BOQ</span>
-                                <span class="text-cyan-400 font-bold">Auto Inverter Specs</span>
+                            <div class="md:col-span-4 flex justify-start md:justify-end">
+                                <a href="/app/register" class="btn-crimson px-6 py-3 text-xs uppercase tracking-wider">
+                                    <span>Try Solar Sizing</span>
+                                    <span class="btn-arrow font-bold">↗</span>
+                                </a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Feature 2: 3D Abstract Badge Visual Card -->
-                    <div class="md:col-span-4 glass-card p-8 relative overflow-hidden flex flex-col justify-between text-center items-center group">
-                        <div class="relative w-48 h-48 my-auto">
-                            <img
-                                src="{{ asset('images/landing/abstract-badge.webp') }}"
-                                alt="3D Kinetic SaaS Badge"
-                                class="w-full h-full object-contain rounded-2xl transform group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_30px_rgba(139,92,246,0.4)]"
-                                loading="lazy"
-                                width="300"
-                                height="300"
-                            >
+                    <!-- Service 02 -->
+                    <div
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
+                        :class="activeService === 1 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        @click="activeService = activeService === 1 ? -1 : 1"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <span class="font-display text-2xl sm:text-3xl text-crimson">02</span>
+                                <div>
+                                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">Billing Engine</span>
+                                    <h3 class="text-xl sm:text-3xl font-display text-pitch tracking-wide">
+                                        ZOHO-STYLE MILESTONE INVOICING
+                                    </h3>
+                                </div>
+                            </div>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 1 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="space-y-2 pt-4">
-                            <h4 class="text-xl font-urbanist font-black text-white">Cloud Multi-Tenant Isolation</h4>
-                            <p class="text-xs text-slate-400 leading-relaxed">
-                                Complete database separation ensuring strict privacy for your inventory, margins, and customer data.
-                            </p>
+                        <div x-show="activeService === 1" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
+                                <p>
+                                    Split-pane live invoice editor with real-time A4 PDF preview. Seamlessly handle commercial EPC milestone billing: 60% Advance, 30% Material Delivery, and 10% Testing & Grid Commissioning.
+                                </p>
+                                <p class="text-xs font-mono text-slate-500">
+                                    Includes instant WhatsApp dispatch, email delivery, and multi-tenant custom logo branding.
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-start md:justify-end">
+                                <a href="/app/register" class="btn-crimson px-6 py-3 text-xs uppercase tracking-wider">
+                                    <span>Try Milestone Invoicing</span>
+                                    <span class="btn-arrow font-bold">↗</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Feature 3: Zoho-Style Milestone Invoicing -->
-                    <div class="md:col-span-4 glass-card p-8 relative overflow-hidden flex flex-col justify-between group">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-violet-400 text-2xl font-bold">
-                                📑
+                    <!-- Service 03 -->
+                    <div
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
+                        :class="activeService === 2 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        @click="activeService = activeService === 2 ? -1 : 2"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <span class="font-display text-2xl sm:text-3xl text-crimson">03</span>
+                                <div>
+                                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">Retail & Hardware</span>
+                                    <h3 class="text-xl sm:text-3xl font-display text-pitch tracking-wide">
+                                        80MM COUNTER THERMAL POS
+                                    </h3>
+                                </div>
                             </div>
-                            <span class="text-xs font-mono font-bold uppercase tracking-wider text-violet-400">Billing Engine</span>
-                            <h3 class="text-2xl font-urbanist font-black text-white">
-                                Zoho-Style Milestone Billing
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                                Dual-pane interactive editor with live PDF preview. Divide contracts into progress milestones: 60% Advance, 30% Material Delivery, and 10% Testing & Commissioning.
-                            </p>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 2 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-urbanist font-bold text-violet-300">
-                            <span>WhatsApp & Email Sharing</span>
-                            <span>↗</span>
+                        <div x-show="activeService === 2" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
+                                <p>
+                                    0.2-second cashier checkout terminal built for Sri Lankan hardware counters and trade shops. Rapid barcode scanner input, cash tender change computation, and raw ESC/POS thermal printing.
+                                </p>
+                                <p class="text-xs font-mono text-slate-500">
+                                    Supports USB, Bluetooth, and network thermal printers commonly used across Sri Lanka.
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-start md:justify-end">
+                                <a href="/app/register" class="btn-crimson px-6 py-3 text-xs uppercase tracking-wider">
+                                    <span>Try Counter POS</span>
+                                    <span class="btn-arrow font-bold">↗</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Feature 4: 80mm Counter POS Terminal -->
-                    <div class="md:col-span-4 glass-card p-8 relative overflow-hidden flex flex-col justify-between group">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl font-bold">
-                                🧾
+                    <!-- Service 04 -->
+                    <div
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
+                        :class="activeService === 3 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        @click="activeService = activeService === 3 ? -1 : 3"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <span class="font-display text-2xl sm:text-3xl text-crimson">04</span>
+                                <div>
+                                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">Statutory HR</span>
+                                    <h3 class="text-xl sm:text-3xl font-display text-pitch tracking-wide">
+                                        EPF & ETF STATUTORY PAYROLL ENGINE
+                                    </h3>
+                                </div>
                             </div>
-                            <span class="text-xs font-mono font-bold uppercase tracking-wider text-cyan-400">Cashier POS</span>
-                            <h3 class="text-2xl font-urbanist font-black text-white">
-                                Sub-Second Counter POS
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                                Lightning-fast retail counter checkout. Barcode scanner support, cash tender change computation, and raw ESC/POS 80mm thermal receipt printing.
-                            </p>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 3 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-urbanist font-bold text-cyan-300">
-                            <span>0.2s Direct Print Speed</span>
-                            <span>↗</span>
+                        <div x-show="activeService === 3" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
+                                <p>
+                                    Automated monthly payroll runs strictly adhering to Sri Lanka Department of Labour statutory rules. Computes employee EPF 8%, employer EPF 12%, employer ETF 3%, and generates professional printable payslips.
+                                </p>
+                                <p class="text-xs font-mono text-slate-500">
+                                    Eliminate human calculation errors and keep your business 100% compliant with labor audits.
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-start md:justify-end">
+                                <a href="/app/register" class="btn-crimson px-6 py-3 text-xs uppercase tracking-wider">
+                                    <span>Try Payroll Module</span>
+                                    <span class="btn-arrow font-bold">↗</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Feature 5: EPF/ETF Statutory Engine -->
-                    <div class="md:col-span-4 glass-card p-8 relative overflow-hidden flex flex-col justify-between group">
-                        <div class="space-y-4">
-                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 text-2xl font-bold">
-                                👥
+                    <!-- Service 05 -->
+                    <div
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
+                        :class="activeService === 4 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        @click="activeService = activeService === 4 ? -1 : 4"
+                    >
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-6">
+                                <span class="font-display text-2xl sm:text-3xl text-crimson">05</span>
+                                <div>
+                                    <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">Financial Governance</span>
+                                    <h3 class="text-xl sm:text-3xl font-display text-pitch tracking-wide">
+                                        MARGIN CONFIDENTIALITY & COGS VAULT
+                                    </h3>
+                                </div>
                             </div>
-                            <span class="text-xs font-mono font-bold uppercase tracking-wider text-indigo-400">Statutory Payroll</span>
-                            <h3 class="text-2xl font-urbanist font-black text-white">
-                                EPF & ETF Payroll Engine
-                            </h3>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                                Automated monthly payroll compliant with Sri Lanka Department of Labour. Computes Employee 8%, Employer 12%, and ETF 3% with printable payslips.
-                            </p>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 4 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-urbanist font-bold text-indigo-300">
-                            <span>Labour Law Compliant</span>
-                            <span>↗</span>
+                        <div x-show="activeService === 4" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
+                                <p>
+                                    Role-based security isolation. Protect sensitive equipment cost prices (COGS), supplier bills, and profit metrics from cashier and sales staff. Only verified company owners have administrative visibility.
+                                </p>
+                                <p class="text-xs font-mono text-slate-500">
+                                    Includes tamper-resistant document immutability upon customer dispatch.
+                                </p>
+                            </div>
+                            <div class="md:col-span-4 flex justify-start md:justify-end">
+                                <a href="/app/register" class="btn-crimson px-6 py-3 text-xs uppercase tracking-wider">
+                                    <span>Explore Governance</span>
+                                    <span class="btn-arrow font-bold">↗</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 7. Solar EPC Deep Dive & Certificate Preview (solar-epc section) -->
-        <section id="solar-epc" class="py-24 sm:py-32 relative border-t border-white/10">
+        <!-- 7. Case Studies Grid (MarketingLab 2-Column Showcase) -->
+        <section id="cases" class="py-24 sm:py-32 bg-creamLight border-y border-warmBorder">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                    <div>
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
+                            PROVEN IMPACT
+                        </span>
+                        <h2 class="text-4xl sm:text-6xl font-display text-pitch mt-3 tracking-wide">
+                            SELECTED CASE STUDIES
+                        </h2>
+                    </div>
+                    <p class="text-sm sm:text-base text-slate-600 max-w-md font-normal leading-relaxed">
+                        How leading Sri Lankan solar EPC contractors and retail stores streamlined billing and scaled profitability.
+                    </p>
+                </div>
+
+                <!-- 2-Column Showcase Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Case Study 01 -->
+                    <div class="bento-card overflow-hidden group">
+                        <div class="relative bg-pitch p-8 sm:p-12 text-white overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-crimson/20 rounded-full blur-2xl pointer-events-none"></div>
+                            <div class="flex items-center justify-between pb-6 border-b border-white/10 text-xs font-mono text-slate-400">
+                                <span>SOLAR EPC SECTOR</span>
+                                <span class="text-crimson font-bold">COLOMBO 07</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <h3 class="text-3xl sm:text-4xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
+                                    VERTEX SOLAR RESIDENCIES
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                    Transitioned from fragmented Excel spreadsheets to automated CEB solar PV sizing and Zoho milestone billing. Reduced invoice cycle time by 45%.
+                                </p>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 font-display">
+                                <div>
+                                    <div class="text-2xl sm:text-3xl text-crimson">485 kWp</div>
+                                    <div class="text-[10px] font-sans text-slate-400 uppercase">Installed</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl sm:text-3xl text-white">45%</div>
+                                    <div class="text-[10px] font-sans text-slate-400 uppercase">Faster Billing</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl sm:text-3xl text-emerald-400">100%</div>
+                                    <div class="text-[10px] font-sans text-slate-400 uppercase">CEB Approval</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Case Study 02 -->
+                    <div class="bento-card overflow-hidden group">
+                        <div class="relative bg-pitch p-8 sm:p-12 text-white overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-red-600/20 rounded-full blur-2xl pointer-events-none"></div>
+                            <div class="flex items-center justify-between pb-6 border-b border-white/10 text-xs font-mono text-slate-400">
+                                <span>ELECTRICAL & TRADE RETAIL</span>
+                                <span class="text-crimson font-bold">KANDY CITY</span>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <h3 class="text-3xl sm:text-4xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
+                                    ELECTRA WHOLESALE DISTRIBUTORS
+                                </h3>
+                                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                                    Implemented 80mm ESC/POS counter terminal across 3 trade branches. Handled 12,000+ monthly retail transactions with raw thermal print speeds under 0.2s.
+                                </p>
+                            </div>
+                            <div class="mt-8 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 font-display">
+                                <div>
+                                    <div class="text-2xl sm:text-3xl text-crimson">12K+</div>
+                                    <div class="text-[10px] font-sans text-slate-400 uppercase">Monthly Bills</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl sm:text-3xl text-white">0.2s</div>
+                                    <div class="text-[10px] font-sans text-slate-400 uppercase">Receipt Latency</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl sm:text-3xl text-emerald-400">0 Err</div>
+                                    <div class="text-[10px] font-sans text-slate-400 uppercase">Cash Tender</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. Solar EPC Deep Dive & Certificate Showcase (solar-erp section) -->
+        <section id="solar-erp" class="py-24 sm:py-32 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     <div class="lg:col-span-6 space-y-6">
-                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-3.5 py-1.5 rounded-full">
-                            Solar EPC Specialized Engine
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson bg-crimsonSubtle px-3.5 py-1.5 rounded-full border border-red-200">
+                            SOLAR EPC SPECIALIZED ENGINE
                         </span>
-                        <h2 class="text-3xl sm:text-5xl font-urbanist font-black text-white leading-tight">
-                            Official Commissioning Certificates & Warranty Serial Tracking
+                        <h2 class="text-3xl sm:text-5xl font-display text-pitch leading-tight tracking-wide">
+                            OFFICIAL COMMISSIONING CERTIFICATES & SERIAL TRACKING
                         </h2>
-                        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+                        <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
                             Never misplace serial numbers for high-value solar modules, inverters, or battery banks. PixelCraft SaaS links equipment barcodes directly to customer invoices and produces certified Commissioning Certificates ready for CEB grid approvals.
                         </p>
 
                         <div class="space-y-3 pt-2">
                             <div class="flex items-start gap-3">
-                                <span class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
-                                <div class="text-xs sm:text-sm text-slate-200">
-                                    <strong class="font-urbanist font-bold text-white">A4 & A5 Certificate Generator:</strong> Instant executive solar system commissioning certificates with verification QR codes.
+                                <span class="w-6 h-6 rounded-full bg-crimson text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
+                                <div class="text-xs sm:text-sm text-pitch font-medium">
+                                    <strong class="font-bold">A4 & A5 Certificate Generator:</strong> Instant executive solar system commissioning certificates with verification QR codes.
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
-                                <div class="text-xs sm:text-sm text-slate-200">
-                                    <strong class="font-urbanist font-bold text-white">Warranty Serial Vault:</strong> Track individual panel & inverter serial numbers for rapid warranty claims without searching through filing cabinets.
+                                <span class="w-6 h-6 rounded-full bg-crimson text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
+                                <div class="text-xs sm:text-sm text-pitch font-medium">
+                                    <strong class="font-bold">Warranty Serial Vault:</strong> Track individual panel & inverter serial numbers for rapid warranty claims without searching through filing cabinets.
                                 </div>
                             </div>
                             <div class="flex items-start gap-3">
-                                <span class="w-6 h-6 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
-                                <div class="text-xs sm:text-sm text-slate-200">
-                                    <strong class="font-urbanist font-bold text-white">Freelance Promoter Vouchers:</strong> 1-click A5 commission settlement vouchers for external solar sales promoters and lead agents.
+                                <span class="w-6 h-6 rounded-full bg-crimson text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</span>
+                                <div class="text-xs sm:text-sm text-pitch font-medium">
+                                    <strong class="font-bold">Freelance Promoter Vouchers:</strong> 1-click A5 commission settlement vouchers for external solar sales promoters and lead agents.
                                 </div>
                             </div>
                         </div>
 
                         <div class="pt-4">
-                            <a href="/app/register" class="btn-radiant px-8 py-3.5 text-sm">
+                            <a href="/app/register" class="btn-crimson px-8 py-3.5 text-xs uppercase tracking-wider">
                                 <span>Get Started with Solar EPC Module</span>
                                 <span class="btn-arrow text-base font-bold">↗</span>
                             </a>
                         </div>
                     </div>
 
-                    <!-- Interactive Certificate Preview Mockup -->
+                    <!-- Certificate Mockup Visual Card -->
                     <div class="lg:col-span-6">
-                        <div class="glass-card p-6 sm:p-8 relative shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/15">
-                            <div class="border border-white/10 rounded-2xl p-6 sm:p-8 bg-obsidian-surface text-center space-y-4">
-                                <div class="flex items-center justify-between border-b border-white/10 pb-3 text-xs text-slate-400">
-                                    <span class="font-mono font-bold text-cyan-400">CERTIFICATE #SL-SOL-2026-089</span>
-                                    <span class="bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/30 text-[10px]">VERIFIED FOR CEB</span>
+                        <div class="bento-card p-6 sm:p-8 relative bg-gradient-to-br from-creamLight to-cream shadow-xl">
+                            <div class="border-2 border-dashed border-warmBorder rounded-2xl p-6 sm:p-8 bg-white text-center space-y-4">
+                                <div class="flex items-center justify-between border-b border-warmBorder pb-3 text-xs text-slate-500">
+                                    <span class="font-mono font-bold text-crimson">CERTIFICATE #SL-SOL-2026-089</span>
+                                    <span class="bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 text-[10px]">VERIFIED FOR CEB</span>
                                 </div>
 
                                 <div class="pt-2">
-                                    <div class="text-[11px] font-mono font-bold text-slate-400 uppercase tracking-widest">OFFICIAL COMPLETION & COMMISSIONING</div>
-                                    <h3 class="text-xl sm:text-2xl font-urbanist font-black text-white mt-1">SOLAR PV POWER SYSTEM</h3>
-                                    <p class="text-xs text-slate-400 mt-1">Issued to Project Owner: <strong class="text-slate-200">Vertex Luxury Residencies Ltd</strong></p>
+                                    <div class="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-widest">OFFICIAL COMPLETION & COMMISSIONING</div>
+                                    <h3 class="text-2xl sm:text-3xl font-display text-pitch mt-1 tracking-wide">SOLAR PV POWER SYSTEM</h3>
+                                    <p class="text-xs text-slate-600 mt-1">Issued to Project Owner: <strong class="text-pitch">Vertex Luxury Residencies Ltd</strong></p>
                                 </div>
 
-                                <div class="inline-flex items-center gap-2 bg-white/[0.04] border border-white/10 text-white px-4 py-2 rounded-xl text-xs font-urbanist font-bold">
+                                <div class="inline-flex items-center gap-2 bg-pitch text-white px-4 py-2 rounded-xl text-xs font-mono font-bold">
                                     <span>☀️ 15.0 kWp On-Grid System</span>
                                     <span class="text-white/40">•</span>
                                     <span>28x 550W Tier-1 Mono PERC</span>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-3 text-left pt-2 text-xs">
-                                    <div class="bg-white/[0.02] p-2.5 rounded-lg border border-white/10">
-                                        <div class="text-[10px] text-slate-400 font-bold">INVERTER S/N</div>
-                                        <div class="font-mono font-bold text-slate-200 truncate">SUNGROW-2026-9812A</div>
+                                <div class="grid grid-cols-2 gap-3 text-left pt-2 text-xs font-mono">
+                                    <div class="bg-creamLight p-2.5 rounded-lg border border-warmBorder">
+                                        <div class="text-[10px] text-slate-500 font-bold">INVERTER S/N</div>
+                                        <div class="font-bold text-pitch truncate">SUNGROW-2026-9812A</div>
                                     </div>
-                                    <div class="bg-white/[0.02] p-2.5 rounded-lg border border-white/10">
-                                        <div class="text-[10px] text-slate-400 font-bold">GRID APPROVAL</div>
-                                        <div class="font-mono font-bold text-emerald-400">CEB NET-METERING</div>
+                                    <div class="bg-creamLight p-2.5 rounded-lg border border-warmBorder">
+                                        <div class="text-[10px] text-slate-500 font-bold">GRID APPROVAL</div>
+                                        <div class="font-bold text-emerald-600">CEB NET-METERING</div>
                                     </div>
                                 </div>
                             </div>
@@ -919,108 +994,122 @@
             </div>
         </section>
 
-        <!-- 8. Counter POS & Margin Confidentiality (pos-terminal section) -->
-        <section id="pos-terminal" class="py-24 sm:py-32 relative border-t border-white/10">
+        <!-- 9. Testimonials (Dark #0A0A0A, MarketingLab Style) -->
+        <section class="py-24 sm:py-32 bg-pitch text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <!-- Left: Role & Document Immutability Matrix -->
-                    <div class="lg:col-span-6 order-2 lg:order-1">
-                        <div class="glass-card p-6 sm:p-8 bg-obsidian-surface shadow-2xl border border-white/15">
-                            <div class="flex items-center justify-between pb-4 border-b border-white/10 text-xs">
-                                <span class="font-urbanist font-bold text-white tracking-wider uppercase">Staff Role Hierarchy</span>
-                                <span class="text-violet-400 font-mono font-bold">Strict Audit Log</span>
+                <!-- Section Header -->
+                <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
+                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
+                        CUSTOMER STORIES
+                    </span>
+                    <h2 class="text-4xl sm:text-6xl font-display text-white tracking-wide">
+                        TRUSTED BY SRI LANKAN FOUNDERS
+                    </h2>
+                </div>
+
+                <!-- Testimonial Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Review 1 -->
+                    <div class="bg-pitchSurface border border-pitchBorder p-8 rounded-2xl flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <!-- Star Rating -->
+                            <div class="flex items-center gap-1 text-crimson text-sm">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                             </div>
-
-                            <div class="space-y-3 pt-5">
-                                <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                                    <div>
-                                        <div class="text-sm font-urbanist font-extrabold text-white">Company Owner / MD</div>
-                                        <div class="text-xs text-slate-400">Executive Admin Access</div>
-                                    </div>
-                                    <span class="bg-violet-500/20 text-violet-300 border border-violet-500/40 text-xs font-bold px-3 py-1 rounded-full">
-                                        Full P&L & COGS
-                                    </span>
-                                </div>
-
-                                <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                                    <div>
-                                        <div class="text-sm font-urbanist font-extrabold text-white">Sales Engineer</div>
-                                        <div class="text-xs text-slate-400">Solar PV Quoting & Invoicing</div>
-                                    </div>
-                                    <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-xs font-bold px-3 py-1 rounded-full">
-                                        Create Immutable Quotes
-                                    </span>
-                                </div>
-
-                                <div class="p-4 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
-                                    <div>
-                                        <div class="text-sm font-urbanist font-extrabold text-white">Counter Cashier</div>
-                                        <div class="text-xs text-slate-400">80mm POS Terminal</div>
-                                    </div>
-                                    <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1 rounded-full">
-                                        Receipts Only (Zero Profit View)
-                                    </span>
-                                </div>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                                "The CEB solar PV sizing algorithm saved our engineering team dozens of hours every week. Generating milestone proposals and A4 Commissioning Certificates directly from one platform is revolutionary for EPC contractors in Sri Lanka."
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-pitchBorder flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-crimson flex items-center justify-center font-display text-white text-lg">
+                                RK
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-white">Rohan Kariyawasam</div>
+                                <div class="text-xs text-slate-400">Managing Director, SunPro Solar Ltd</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right: Info -->
-                    <div class="lg:col-span-6 order-1 lg:order-2 space-y-6">
-                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-violet-400 bg-violet-950/60 border border-violet-800/40 px-3.5 py-1.5 rounded-full">
-                            Security & Margin Governance
-                        </span>
-                        <h2 class="text-3xl sm:text-5xl font-urbanist font-black text-white leading-tight">
-                            Immutable Records & Margin Confidentiality
-                        </h2>
-                        <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
-                            Protect your profit margins. Supplier equipment wholesale costs and company net margins are strictly invisible to non-admin staff. Once quotations and invoices are dispatched, tamper-resistant locking ensures figures cannot be altered without owner approval.
-                        </p>
-                        <div class="pt-2 flex flex-wrap gap-4">
-                            <a href="/app/register" class="btn-radiant px-8 py-3.5 text-sm">
-                                <span>Create Your Secure Workspace</span>
-                                <span class="btn-arrow font-bold">↗</span>
-                            </a>
+                    <!-- Review 2 -->
+                    <div class="bg-pitchSurface border border-crimson/50 p-8 rounded-2xl flex flex-col justify-between space-y-6 relative shadow-[0_0_35px_rgba(255,56,56,0.2)]">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-1 text-crimson text-sm">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                                "Our trade counter processes over 400 customer walk-ins every Saturday. PixelCraft's 80mm thermal POS prints instantaneously without browser dialog lag. Margin confidentiality keeps our wholesale costs safe."
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-pitchBorder flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-crimson to-red-800 flex items-center justify-center font-display text-white text-lg">
+                                DN
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-white">Dinesh Nanayakkara</div>
+                                <div class="text-xs text-slate-400">Owner, Colombo Electrical Center</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review 3 -->
+                    <div class="bg-pitchSurface border border-pitchBorder p-8 rounded-2xl flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-1 text-crimson text-sm">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                                "The EPF/ETF payroll module is 100% compliant with Sri Lanka Department of Labour rules. We ran our monthly salaries, generated printable slips, and settled agent vouchers in under 15 minutes."
+                            </p>
+                        </div>
+                        <div class="pt-4 border-t border-pitchBorder flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-crimson flex items-center justify-center font-display text-white text-lg">
+                                MS
+                            </div>
+                            <div>
+                                <div class="font-bold text-sm text-white">Malith Samarasinghe</div>
+                                <div class="text-xs text-slate-400">Head of Operations, Apex Engineering</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 9. Dynamic Pricing Section in LKR (with Monthly / Annual Switcher) -->
-        <section id="pricing" class="py-24 sm:py-32 relative border-t border-white/10">
+        <!-- 10. Dynamic Pricing Section in LKR (with Monthly / Annual Switcher) -->
+        <section id="pricing" class="py-24 sm:py-32 bg-cream border-t border-warmBorder">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto space-y-4 mb-14">
-                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400 bg-cyan-950/60 border border-cyan-800/40 px-3.5 py-1.5 rounded-full">
-                        Predictable Pricing in LKR
+                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson bg-crimsonSubtle px-3.5 py-1.5 rounded-full border border-red-200">
+                        PREDICTABLE PRICING IN LKR
                     </span>
-                    <h2 class="text-4xl sm:text-6xl font-urbanist font-black text-white tracking-tight">
-                        Simple Plans for Sri Lankan Businesses
+                    <h2 class="text-4xl sm:text-6xl font-display text-pitch tracking-wide">
+                        SIMPLE PLANS FOR SRI LANKAN BUSINESSES
                     </h2>
-                    <p class="text-sm sm:text-base text-slate-400">
+                    <p class="text-sm sm:text-base text-slate-600">
                         Every plan includes a 14-day risk-free trial. Upgrade or renew conveniently via local bank transfer or card.
                     </p>
 
-                    <!-- Monthly vs Annual Switcher -->
+                    <!-- Monthly vs Annual Interactive Switcher -->
                     <div class="pt-6 flex items-center justify-center">
-                        <div class="bg-white/[0.04] p-1.5 rounded-full inline-flex items-center gap-1 border border-white/10 shadow-inner" id="billingSwitcher">
+                        <div class="bg-creamLight p-1.5 rounded-full inline-flex items-center gap-1 border border-warmBorder shadow-inner">
                             <button
                                 type="button"
-                                id="btnMonthly"
-                                class="px-6 py-2.5 rounded-full text-xs font-urbanist font-extrabold transition-all bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-md"
-                                onclick="switchBilling('monthly')"
+                                class="px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
+                                :class="billing === 'monthly' ? 'bg-pitch text-white shadow-md' : 'text-slate-600 hover:text-pitch'"
+                                @click="billing = 'monthly'"
                             >
                                 Monthly Billing
                             </button>
                             <button
                                 type="button"
-                                id="btnYearly"
-                                class="px-6 py-2.5 rounded-full text-xs font-urbanist font-extrabold transition-all text-slate-400 hover:text-white"
-                                onclick="switchBilling('yearly')"
+                                class="px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all"
+                                :class="billing === 'yearly' ? 'bg-pitch text-white shadow-md' : 'text-slate-600 hover:text-pitch'"
+                                @click="billing = 'yearly'"
                             >
                                 <span>Annual Billing</span>
-                                <span class="ml-1 text-[10px] bg-cyan-400 text-black font-extrabold px-2 py-0.5 rounded-full">Save 2 Mo.</span>
+                                <span class="ml-1 text-[10px] bg-crimson text-white font-bold px-2 py-0.5 rounded-full">Save 2 Mo.</span>
                             </button>
                         </div>
                     </div>
@@ -1032,48 +1121,60 @@
                         @php
                             $isPopular = $plan->slug === 'professional';
                         @endphp
-                        <div class="glass-card p-8 flex flex-col justify-between relative transition-all duration-300 {{ $isPopular ? 'border-2 border-violet-500 shadow-[0_0_40px_rgba(139,92,246,0.3)] scale-[1.03] z-10' : '' }}">
+                        <div
+                            class="p-8 flex flex-col justify-between relative transition-all duration-300 rounded-3xl {{ $isPopular ? 'bg-pitch text-white border-2 border-crimson ring-8 ring-red-500/10 shadow-2xl scale-[1.03] z-10' : 'bento-card text-pitch' }}"
+                        >
                             @if ($isPopular)
-                                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-[11px] font-urbanist font-black uppercase tracking-wider px-4 py-1 rounded-full shadow-lg">
+                                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-crimson text-white text-[11px] font-display uppercase tracking-wider px-4 py-1 rounded-full shadow-md">
                                     ★ Most Popular for EPC
                                 </div>
                             @endif
 
                             <div>
-                                <h3 class="text-xl font-urbanist font-black text-white">{{ $plan->name }}</h3>
-                                <p class="text-xs text-slate-400 mt-1">
+                                <h3 class="text-2xl font-display tracking-wide {{ $isPopular ? 'text-white' : 'text-pitch' }}">
+                                    {{ $plan->name }}
+                                </h3>
+                                <p class="text-xs mt-1 {{ $isPopular ? 'text-slate-400' : 'text-slate-500' }}">
                                     {{ $plan->slug === 'starter' ? 'Ideal for solo installers & retail counters' : ($plan->slug === 'professional' ? 'Complete EPC ERP for growing contractors' : 'Unlimited multi-branch corporate governance') }}
                                 </p>
 
                                 <!-- Dynamic Price Display -->
                                 <div class="mt-6 flex items-baseline gap-1">
-                                    <span class="text-4xl font-urbanist font-black text-white plan-price" data-monthly="{{ $plan->price_monthly }}" data-yearly="{{ $plan->price_yearly }}">
-                                        Rs. {{ number_format($plan->price_monthly, 0) }}
+                                    <span class="text-4xl sm:text-5xl font-display tracking-wide {{ $isPopular ? 'text-white' : 'text-pitch' }}">
+                                        <template x-if="billing === 'monthly'">
+                                            <span>Rs. {{ number_format($plan->price_monthly, 0) }}</span>
+                                        </template>
+                                        <template x-if="billing === 'yearly'">
+                                            <span>Rs. {{ number_format(round($plan->price_yearly / 12), 0) }}</span>
+                                        </template>
                                     </span>
-                                    <span class="text-xs text-slate-400 font-semibold period-label">/ month</span>
+                                    <span class="text-xs font-semibold {{ $isPopular ? 'text-slate-400' : 'text-slate-500' }}" x-text="billing === 'monthly' ? '/ month' : '/ mo (billed yearly)'"></span>
                                 </div>
 
-                                <div class="text-[11px] text-cyan-400 font-mono font-bold mt-1 period-subtext">
-                                    or Rs. {{ number_format($plan->price_yearly, 0) }} paid annually
+                                <div class="text-[11px] font-mono font-bold mt-1 text-crimson">
+                                    <span x-show="billing === 'yearly'">Billed annually: Rs. {{ number_format($plan->price_yearly, 0) }} (Save ~17%)</span>
+                                    <span x-show="billing === 'monthly'">or Rs. {{ number_format($plan->price_yearly, 0) }} paid annually</span>
                                 </div>
 
                                 <!-- Features List -->
-                                <div class="mt-8 pt-6 border-t border-white/10 space-y-3">
-                                    <div class="text-xs font-urbanist font-extrabold uppercase tracking-wider text-slate-400">Features Included:</div>
+                                <div class="mt-8 pt-6 border-t {{ $isPopular ? 'border-white/10' : 'border-warmBorder' }} space-y-3">
+                                    <div class="text-xs font-mono font-bold uppercase tracking-wider {{ $isPopular ? 'text-slate-400' : 'text-slate-500' }}">
+                                        Features Included:
+                                    </div>
                                     @if (is_array($plan->features))
                                         @foreach ($plan->features as $feature)
-                                            <div class="flex items-center gap-2.5 text-xs text-slate-200">
-                                                <span class="text-cyan-400 font-black text-sm">✓</span>
+                                            <div class="flex items-center gap-2.5 text-xs {{ $isPopular ? 'text-slate-200' : 'text-pitch' }}">
+                                                <span class="text-crimson font-black text-sm">✓</span>
                                                 <span>{{ $feature }}</span>
                                             </div>
                                         @endforeach
                                     @else
-                                        <div class="flex items-center gap-2.5 text-xs text-slate-200">
-                                            <span class="text-cyan-400 font-black text-sm">✓</span>
+                                        <div class="flex items-center gap-2.5 text-xs {{ $isPopular ? 'text-slate-200' : 'text-pitch' }}">
+                                            <span class="text-crimson font-black text-sm">✓</span>
                                             <span>Max Users: {{ $plan->max_users }}</span>
                                         </div>
-                                        <div class="flex items-center gap-2.5 text-xs text-slate-200">
-                                            <span class="text-cyan-400 font-black text-sm">✓</span>
+                                        <div class="flex items-center gap-2.5 text-xs {{ $isPopular ? 'text-slate-200' : 'text-pitch' }}">
+                                            <span class="text-crimson font-black text-sm">✓</span>
                                             <span>Max Invoices: {{ $plan->max_invoices }}</span>
                                         </div>
                                     @endif
@@ -1081,10 +1182,10 @@
                             </div>
 
                             <!-- CTA Button -->
-                            <div class="mt-8 pt-6 border-t border-white/10">
+                            <div class="mt-8 pt-6 border-t {{ $isPopular ? 'border-white/10' : 'border-warmBorder' }}">
                                 <a
                                     href="/app/register"
-                                    class="{{ $isPopular ? 'btn-radiant' : 'btn-ghost-glass' }} w-full py-3 text-center text-sm font-urbanist font-bold block"
+                                    class="{{ $isPopular ? 'btn-crimson' : 'btn-ghost-pill' }} w-full py-3.5 text-center text-xs uppercase tracking-wider font-bold block"
                                 >
                                     <span>Start 14-Day Free Trial</span>
                                     <span class="btn-arrow font-black">↗</span>
@@ -1096,80 +1197,137 @@
             </div>
         </section>
 
-        <!-- 10. Frequently Asked Questions (Accordion) -->
-        <section id="faq" class="py-24 sm:py-32 relative border-t border-white/10">
+        <!-- 11. Interactive FAQ with Filter Tabs -->
+        <section id="faq" class="py-24 sm:py-32 bg-cream">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center space-y-3 mb-16">
-                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-violet-400">
-                        Common Questions
+                <div class="text-center space-y-3 mb-12">
+                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
+                        COMMON QUESTIONS
                     </span>
-                    <h2 class="text-4xl sm:text-5xl font-urbanist font-black text-white tracking-tight">
-                        Frequently Asked Questions
+                    <h2 class="text-4xl sm:text-6xl font-display text-pitch tracking-wide">
+                        FREQUENTLY ASKED QUESTIONS
                     </h2>
                 </div>
 
+                <!-- FAQ Filter Tabs -->
+                <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
+                    <button
+                        type="button"
+                        class="px-5 py-2 rounded-full text-xs font-mono font-bold uppercase transition-all"
+                        :class="faqTab === 'all' ? 'bg-pitch text-white' : 'bg-white border border-warmBorder text-slate-600 hover:border-pitch'"
+                        @click="faqTab = 'all'"
+                    >
+                        All Questions
+                    </button>
+                    <button
+                        type="button"
+                        class="px-5 py-2 rounded-full text-xs font-mono font-bold uppercase transition-all"
+                        :class="faqTab === 'general' ? 'bg-pitch text-white' : 'bg-white border border-warmBorder text-slate-600 hover:border-pitch'"
+                        @click="faqTab = 'general'"
+                    >
+                        Trial & General
+                    </button>
+                    <button
+                        type="button"
+                        class="px-5 py-2 rounded-full text-xs font-mono font-bold uppercase transition-all"
+                        :class="faqTab === 'solar' ? 'bg-pitch text-white' : 'bg-white border border-warmBorder text-slate-600 hover:border-pitch'"
+                        @click="faqTab = 'solar'"
+                    >
+                        Solar EPC
+                    </button>
+                    <button
+                        type="button"
+                        class="px-5 py-2 rounded-full text-xs font-mono font-bold uppercase transition-all"
+                        :class="faqTab === 'pos' ? 'bg-pitch text-white' : 'bg-white border border-warmBorder text-slate-600 hover:border-pitch'"
+                        @click="faqTab = 'pos'"
+                    >
+                        POS & Security
+                    </button>
+                </div>
+
+                <!-- FAQ Items -->
                 <div class="space-y-4">
                     <!-- FAQ 1 -->
-                    <div class="glass-card p-6 faq-item active cursor-pointer" onclick="toggleFaq(this)">
+                    <div
+                        class="bento-card p-6 cursor-pointer"
+                        x-show="faqTab === 'all' || faqTab === 'general'"
+                        @click="activeFaq = activeFaq === 0 ? -1 : 0"
+                    >
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base sm:text-lg font-urbanist font-bold text-white">
+                            <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 How does the 14-day free trial work?
                             </h3>
-                            <span class="faq-icon text-2xl font-light text-cyan-400 transition-transform duration-300">✕</span>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 0 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="faq-answer text-xs sm:text-sm text-slate-300 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 0" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
                             You get immediate, unrestricted access to the complete PixelCraft SaaS platform including Solar PV sizing, milestone invoicing, and POS. No credit card is required to register. After 14 days, you can choose any LKR subscription plan.
                         </div>
                     </div>
 
                     <!-- FAQ 2 -->
-                    <div class="glass-card p-6 faq-item cursor-pointer" onclick="toggleFaq(this)">
+                    <div
+                        class="bento-card p-6 cursor-pointer"
+                        x-show="faqTab === 'all' || faqTab === 'solar'"
+                        @click="activeFaq = activeFaq === 1 ? -1 : 1"
+                    >
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base sm:text-lg font-urbanist font-bold text-white">
+                            <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 Is the Solar PV sizing tool compliant with CEB & LECO?
                             </h3>
-                            <span class="faq-icon text-2xl font-light text-cyan-400 transition-transform duration-300">+</span>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 1 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="faq-answer text-xs sm:text-sm text-slate-300 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 1" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
                             Yes. Our sizing algorithms calculate required system kilowatt-peak (kWp) against Sri Lankan solar irradiance factors, CEB single/three-phase thresholds, and Net-Metering/Net-Plus policies.
                         </div>
                     </div>
 
                     <!-- FAQ 3 -->
-                    <div class="glass-card p-6 faq-item cursor-pointer" onclick="toggleFaq(this)">
+                    <div
+                        class="bento-card p-6 cursor-pointer"
+                        x-show="faqTab === 'all' || faqTab === 'pos'"
+                        @click="activeFaq = activeFaq === 2 ? -1 : 2"
+                    >
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base sm:text-lg font-urbanist font-bold text-white">
+                            <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 Can I use standard 80mm ESC/POS thermal printers?
                             </h3>
-                            <span class="faq-icon text-2xl font-light text-cyan-400 transition-transform duration-300">+</span>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 2 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="faq-answer text-xs sm:text-sm text-slate-300 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 2" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
                             Absolutely. The counter POS module formats receipts specifically for 80mm thermal paper widths, supporting USB, Bluetooth, and network thermal printers commonly used across Sri Lankan retail stores.
                         </div>
                     </div>
 
                     <!-- FAQ 4 -->
-                    <div class="glass-card p-6 faq-item cursor-pointer" onclick="toggleFaq(this)">
+                    <div
+                        class="bento-card p-6 cursor-pointer"
+                        x-show="faqTab === 'all' || faqTab === 'pos'"
+                        @click="activeFaq = activeFaq === 3 ? -1 : 3"
+                    >
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base sm:text-lg font-urbanist font-bold text-white">
+                            <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 Can staff members see our profit margins or cost prices?
                             </h3>
-                            <span class="faq-icon text-2xl font-light text-cyan-400 transition-transform duration-300">+</span>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 3 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="faq-answer text-xs sm:text-sm text-slate-300 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 3" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
                             No. Role-based tenant isolation strictly hides internal cost of goods sold (COGS), supplier bills, and profit metrics from sales staff and cashiers. Only verified Company Owners and Admins have access to profitability reports.
                         </div>
                     </div>
 
                     <!-- FAQ 5 -->
-                    <div class="glass-card p-6 faq-item cursor-pointer" onclick="toggleFaq(this)">
+                    <div
+                        class="bento-card p-6 cursor-pointer"
+                        x-show="faqTab === 'all' || faqTab === 'general'"
+                        @click="activeFaq = activeFaq === 4 ? -1 : 4"
+                    >
                         <div class="flex items-center justify-between">
-                            <h3 class="text-base sm:text-lg font-urbanist font-bold text-white">
+                            <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 What payment methods are supported in Sri Lanka?
                             </h3>
-                            <span class="faq-icon text-2xl font-light text-cyan-400 transition-transform duration-300">+</span>
+                            <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 4 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div class="faq-answer text-xs sm:text-sm text-slate-300 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 4" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
                             We support Sri Lankan direct bank transfers (Sampath, Commercial, HNB, BOC), corporate cheques, and Visa/Mastercard payments. Subscriptions are billed natively in LKR with zero foreign exchange fees.
                         </div>
                     </div>
@@ -1177,20 +1335,20 @@
             </div>
         </section>
 
-        <!-- 11. High-Impact Call to Action Banner (MarketingLab Dark Glow Style) -->
-        <section class="py-16 sm:py-24 relative">
+        <!-- 12. Final High-Impact CTA Banner with 3D Graphic (MarketingLab Style) -->
+        <section class="py-16 sm:py-24 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="rounded-3xl glass-card p-8 sm:p-16 lg:p-20 relative overflow-hidden border border-white/15 text-center space-y-8 shadow-[0_20px_60px_rgba(0,0,0,0.9)]">
-                    <!-- Radial Glow in CTA -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-violet-600/20 via-indigo-600/20 to-cyan-600/20 pointer-events-none"></div>
-                    <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="rounded-3xl bg-pitch text-white p-8 sm:p-16 lg:p-20 relative overflow-hidden shadow-2xl space-y-8">
+                    <!-- Red Ambient Radial Glow -->
+                    <div class="absolute -right-20 -top-20 w-96 h-96 bg-crimson/25 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-red-800/20 rounded-full blur-3xl pointer-events-none"></div>
 
-                    <div class="relative z-10 max-w-2xl mx-auto space-y-4">
-                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400">
-                            Get Started Today
+                    <div class="relative z-10 max-w-2xl mx-auto text-center space-y-4">
+                        <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
+                            GET STARTED TODAY
                         </span>
-                        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-urbanist font-black text-white leading-tight">
-                            Ready to upgrade your business operations?
+                        <h2 class="text-4xl sm:text-6xl font-display text-white leading-tight tracking-wide">
+                            READY TO UPGRADE YOUR BUSINESS OPERATIONS?
                         </h2>
                         <p class="text-sm sm:text-base text-slate-300 max-w-lg mx-auto">
                             Join leading Sri Lankan solar EPC contractors and retail distributors running on PixelCraft SaaS.
@@ -1198,175 +1356,113 @@
                     </div>
 
                     <div class="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-                        <a href="/app/register" class="btn-radiant px-9 py-4 text-base font-bold shadow-xl w-full sm:w-auto">
+                        <a href="/app/register" class="btn-crimson px-9 py-4 text-xs uppercase tracking-wider font-bold shadow-xl w-full sm:w-auto">
                             <span>Start 14-Day Free Trial</span>
-                            <span class="btn-arrow text-lg font-black">↗</span>
+                            <span class="btn-arrow text-base font-bold">↗</span>
                         </a>
-                        <a href="/app/login" class="btn-ghost-glass px-8 py-4 text-base font-bold w-full sm:w-auto">
+                        <a href="/app/login" class="px-8 py-4 rounded-full border border-white/30 hover:border-white text-white text-xs uppercase tracking-wider font-bold transition-colors w-full sm:w-auto">
                             <span>Sign In to Workspace</span>
-                            <span class="btn-arrow text-slate-400">↗</span>
+                            <span class="btn-arrow">↗</span>
                         </a>
+                    </div>
+
+                    <!-- Newsletter Input Strip -->
+                    <div class="relative z-10 max-w-md mx-auto pt-8 border-t border-white/10">
+                        <div class="text-center text-xs text-slate-400 mb-3">Stay updated with Sri Lankan regulatory updates & releases</div>
+                        <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to PixelCraft updates!');" class="flex gap-2">
+                            <input
+                                type="email"
+                                required
+                                placeholder="Enter your business email"
+                                class="bg-white/10 border border-white/20 rounded-full px-5 py-2.5 text-xs text-white placeholder-slate-400 flex-1 focus:outline-none focus:border-crimson"
+                            >
+                            <button type="submit" class="btn-crimson px-5 py-2.5 text-xs uppercase tracking-wider">
+                                Subscribe
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- 12. Clean Obsidian Dark Footer -->
-    <footer class="border-t border-white/10 bg-black/60 py-16 relative z-10 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- 13. Clean Editorial Dark Footer with Giant Watermark -->
+    <footer class="border-t border-pitchBorder bg-pitch text-white pt-20 pb-12 relative overflow-hidden">
+        <!-- Giant Faint Footer Watermark (MarketingLab Signature) -->
+        <div class="footer-watermark">
+            PIXELCRAFT
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
                 <!-- Col 1: Brand -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center text-white font-urbanist font-black text-lg shadow-[0_0_15px_rgba(139,92,246,0.4)]">
+                        <div class="w-9 h-9 rounded-xl bg-crimson flex items-center justify-center text-white font-display text-xl">
                             PC
                         </div>
                         <div class="flex items-center gap-1.5">
-                            <span class="font-urbanist font-extrabold text-xl text-white">PixelCraft</span>
-                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            <span class="font-display text-2xl text-white tracking-wide">PIXELCRAFT</span>
+                            <span class="w-2 h-2 rounded-full bg-crimson"></span>
                         </div>
                     </div>
-                    <p class="text-xs text-slate-400 leading-relaxed">
+                    <p class="text-xs text-slate-400 leading-relaxed font-sans">
                         Sri Lanka's dedicated multi-tenant cloud platform for engineering, retail point-of-sale, and wholesale milestone invoicing.
                     </p>
-                    <div class="text-[11px] font-mono text-cyan-400 font-bold">
+                    <div class="text-[11px] font-mono text-crimson font-bold">
                         app.pixelcraftlk.com
                     </div>
                 </div>
 
                 <!-- Col 2: Solutions -->
-                <div class="space-y-3 font-urbanist">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-300">Solutions</h4>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-white">Solutions</h4>
                     <ul class="space-y-2 text-xs text-slate-400">
-                        <li><a href="#solar-epc" class="hover:text-cyan-400 transition-colors">CEB Solar PV Sizing</a></li>
-                        <li><a href="#features" class="hover:text-violet-400 transition-colors">Zoho Milestone Invoicing</a></li>
-                        <li><a href="#pos-terminal" class="hover:text-cyan-400 transition-colors">80mm Counter Thermal POS</a></li>
-                        <li><a href="#features" class="hover:text-violet-400 transition-colors">Statutory EPF/ETF Payroll</a></li>
+                        <li><a href="#solar-erp" class="hover:text-crimson transition-colors">CEB Solar PV Sizing</a></li>
+                        <li><a href="#services" class="hover:text-crimson transition-colors">Zoho Milestone Invoicing</a></li>
+                        <li><a href="#services" class="hover:text-crimson transition-colors">80mm Counter Thermal POS</a></li>
+                        <li><a href="#services" class="hover:text-crimson transition-colors">Statutory EPF/ETF Payroll</a></li>
                     </ul>
                 </div>
 
                 <!-- Col 3: Access -->
-                <div class="space-y-3 font-urbanist">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-300">Access & Company</h4>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-white">Access & Company</h4>
                     <ul class="space-y-2 text-xs text-slate-400">
-                        <li><a href="/app/login" class="hover:text-cyan-400 transition-colors">Workspace Sign In</a></li>
-                        <li><a href="/app/register" class="hover:text-violet-400 transition-colors">Register Company</a></li>
-                        <li><a href="#pricing" class="hover:text-cyan-400 transition-colors">Subscription Plans in LKR</a></li>
-                        <li><a href="#process" class="hover:text-violet-400 transition-colors">Operational Framework</a></li>
+                        <li><a href="/app/login" class="hover:text-crimson transition-colors">Workspace Sign In</a></li>
+                        <li><a href="/app/register" class="hover:text-crimson transition-colors">Register Company</a></li>
+                        <li><a href="#pricing" class="hover:text-crimson transition-colors">Subscription Plans in LKR</a></li>
+                        <li><a href="#process" class="hover:text-crimson transition-colors">Operational Framework</a></li>
                     </ul>
                 </div>
 
                 <!-- Col 4: Regional Compliance -->
-                <div class="space-y-3 font-urbanist">
-                    <h4 class="text-xs font-black uppercase tracking-wider text-slate-300">Compliance & Support</h4>
+                <div class="space-y-3">
+                    <h4 class="text-xs font-mono font-bold uppercase tracking-wider text-white">Compliance & Support</h4>
                     <p class="text-xs text-slate-400 leading-relaxed font-sans">
                         Multi-tenant database isolation. Native Sri Lankan LKR currency, VAT invoice compliance, and bank transfer support.
                     </p>
                     <div class="text-xs text-slate-400 font-sans">
-                        Support: <a href="mailto:support@pixelcraftlk.com" class="text-cyan-400 hover:underline font-bold">support@pixelcraftlk.com</a>
+                        Support: <a href="mailto:support@pixelcraftlk.com" class="text-crimson hover:underline font-bold">support@pixelcraftlk.com</a>
                     </div>
-                    <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 pt-1">
+                    <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 pt-1 font-mono">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                         Official Cloud Production System
                     </div>
                 </div>
             </div>
 
-            <div class="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4 font-urbanist">
+            <div class="pt-8 border-t border-pitchBorder flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
                 <div>
                     © {{ date('Y') }} PixelCraft SaaS. All rights reserved.
                 </div>
                 <div class="flex items-center gap-6">
-                    <a href="/privacy" class="hover:text-cyan-400 transition-colors">Privacy Policy</a>
-                    <a href="/terms" class="hover:text-violet-400 transition-colors">Terms of Service</a>
-                    <a href="/app/login" class="hover:text-cyan-400 transition-colors">Staff Launchpad</a>
+                    <a href="/privacy" class="hover:text-crimson transition-colors">Privacy Policy</a>
+                    <a href="/terms" class="hover:text-crimson transition-colors">Terms of Service</a>
+                    <a href="/app/login" class="hover:text-crimson transition-colors">Staff Launchpad</a>
                 </div>
             </div>
         </div>
     </footer>
-
-    <!-- Interactive Scripts & Framer Motion Engine -->
-    <script type="module">
-        import { animate, inView, stagger, spring } from 'https://cdn.jsdelivr.net/npm/motion@12.4.2/+esm';
-
-        // 1. Framer Motion Scroll Reveals
-        try {
-            animate('[data-motion-hero]', 
-                { opacity: [0, 1], y: [40, 0], scale: [0.96, 1] }, 
-                { duration: 0.9, easing: spring({ stiffness: 120, damping: 20 }) }
-            );
-
-            inView('#process', () => {
-                animate('.process-glass-card', 
-                    { opacity: [0, 1], y: [60, 0] }, 
-                    { delay: stagger(0.12), duration: 0.8, easing: spring({ stiffness: 100, damping: 18 }) }
-                );
-            });
-
-            inView('.glass-card', (info) => {
-                animate(info.target, 
-                    { opacity: [0, 1], y: [25, 0] }, 
-                    { duration: 0.6, easing: spring({ stiffness: 110, damping: 20 }) }
-                );
-            });
-        } catch (e) {
-            console.log('Framer Motion initialized with CSS fallback:', e);
-        }
-
-        // 2. Billing Period Switcher
-        window.switchBilling = function(period) {
-            const btnMonthly = document.getElementById('btnMonthly');
-            const btnYearly = document.getElementById('btnYearly');
-            const priceElements = document.querySelectorAll('.plan-price');
-            const periodLabels = document.querySelectorAll('.period-label');
-            const periodSubtexts = document.querySelectorAll('.period-subtext');
-
-            if (period === 'yearly') {
-                btnYearly.classList.add('bg-gradient-to-r', 'from-violet-600', 'to-indigo-600', 'text-white', 'shadow-md');
-                btnYearly.classList.remove('text-slate-400');
-                btnMonthly.classList.remove('bg-gradient-to-r', 'from-violet-600', 'to-indigo-600', 'text-white', 'shadow-md');
-                btnMonthly.classList.add('text-slate-400');
-
-                priceElements.forEach(el => {
-                    const yearly = parseFloat(el.getAttribute('data-yearly'));
-                    const monthlyEquiv = Math.round(yearly / 12);
-                    el.innerText = 'Rs. ' + monthlyEquiv.toLocaleString();
-                });
-                periodLabels.forEach(el => el.innerText = '/ month, billed yearly');
-                periodSubtexts.forEach(el => el.innerText = 'Save ~17% (2 Months Free)');
-            } else {
-                btnMonthly.classList.add('bg-gradient-to-r', 'from-violet-600', 'to-indigo-600', 'text-white', 'shadow-md');
-                btnMonthly.classList.remove('text-slate-400');
-                btnYearly.classList.remove('bg-gradient-to-r', 'from-violet-600', 'to-indigo-600', 'text-white', 'shadow-md');
-                btnYearly.classList.add('text-slate-400');
-
-                priceElements.forEach(el => {
-                    const monthly = parseFloat(el.getAttribute('data-monthly'));
-                    el.innerText = 'Rs. ' + monthly.toLocaleString();
-                });
-                periodLabels.forEach(el => el.innerText = '/ month');
-                periodSubtexts.forEach(el => el.innerText = 'Billed monthly');
-            }
-        };
-
-        // 3. FAQ Accordion Toggle
-        window.toggleFaq = function(element) {
-            const allItems = document.querySelectorAll('.faq-item');
-            const isAlreadyActive = element.classList.contains('active');
-
-            allItems.forEach(item => {
-                item.classList.remove('active');
-                const icon = item.querySelector('.faq-icon');
-                if (icon) icon.innerText = '+';
-            });
-
-            if (!isAlreadyActive) {
-                element.classList.add('active');
-                const icon = element.querySelector('.faq-icon');
-                if (icon) icon.innerText = '✕';
-            }
-        };
-    </script>
 </body>
 </html>
