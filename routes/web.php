@@ -7,9 +7,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 Route::get('/', function () {
-    $plans = Schema::hasTable('plans')
-        ? Plan::where('is_active', true)->orderBy('price_monthly')->get()
-        : collect();
+    try {
+        $plans = Schema::hasTable('plans')
+            ? Plan::where('is_active', true)->orderBy('price_monthly')->get()
+            : collect();
+    } catch (Throwable $e) {
+        $plans = collect();
+    }
 
     return response()
         ->view('welcome', compact('plans'))
