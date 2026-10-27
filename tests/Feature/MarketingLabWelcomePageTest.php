@@ -121,4 +121,20 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertSee('/app/register');
         $response->assertSee('/app/login');
     }
+
+    public function test_welcome_page_contains_lev_style_interactive_simulation_and_spotlight_effects(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('PixelCraft Autonomous Copilot', false);
+        $response->assertSee('spotlight-card', false);
+        $response->assertSee('data-count-target', false);
+        $response->assertSee('copilot-stream', false);
+        $response->assertSee('Size CEB Solar Capacity', false);
+        $response->assertSee('Draft Zoho Milestone Invoice', false);
+        $response->assertSee('Instant 80mm Counter POS', false);
+        $response->assertSee('Compute EPF/ETF Payroll', false);
+        $response->assertSee('--mouse-x', false);
+    }
 }

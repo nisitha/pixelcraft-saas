@@ -245,6 +245,28 @@
         }
 
         /* ==========================================================================
+           LEV.COM SPOTLIGHT GLOW EFFECT (Mouse-following radial spotlight)
+           ========================================================================== */
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(550px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 56, 56, 0.12), transparent 45%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        /* ==========================================================================
            LIQUID EFFECTS & MORPHING BLOBS
            ========================================================================== */
         @keyframes liquidMorph {
@@ -320,7 +342,78 @@
         activeService: 0,
         faqTab: 'all',
         activeFaq: 0,
-        mobileMenuOpen: false
+        mobileMenuOpen: false,
+        activeCopilotTab: 0,
+        copilotPrompts: [
+            {
+                title: 'Size CEB Solar Capacity',
+                badge: 'SOLAR EPC COPILOT',
+                input: 'Customer CEB monthly consumption is 4,200 kWh under commercial tariff. Calculate kWp and Tier-1 panel BOQ.',
+                steps: [
+                    'Analyzing CEB commercial Net-Plus tariff slabs & regional irradiance factor (4.2 kWh/kWp/day)...',
+                    'Sizing optimal solar capacity: 28.5 kWp with 52x 550W Tier-1 Mono PERC panels...',
+                    'Selecting 3-Phase Sungrow SG30CX on-grid inverter with surge protection...',
+                    'Generating Milestone BOQ quotation: 60% Advance, 30% Material Delivery, 10% Grid Commissioning.'
+                ],
+                resultMetrics: [
+                    { label: 'System Capacity', val: '28.5 kWp' },
+                    { label: 'Annual Yield', val: '43,800 kWh' },
+                    { label: 'Est. Monthly ROI', val: 'Rs. 248,500' },
+                    { label: 'CEB Tariff Match', val: '100% Net-Plus' }
+                ]
+            },
+            {
+                title: 'Draft Zoho Milestone Invoice',
+                badge: 'MILESTONE BILLING',
+                input: 'Create Milestone 01 invoice for Vertex Luxury Residencies Ltd (Project #SL-2026-89) for 60% Advance.',
+                steps: [
+                    'Retrieving linked BOQ contract #SL-SOL-2026-089 for 15.0 kWp On-Grid System...',
+                    'Calculating 60% Advance Payment milestone: Rs. 1,650,000.00 + 18% VAT...',
+                    'Generating tamper-resistant immutable invoice with dynamic QR verification...',
+                    'Attaching A4 commercial quotation agreement and gate pass PDF.'
+                ],
+                resultMetrics: [
+                    { label: 'Milestone Stage', val: '60% Advance' },
+                    { label: 'Invoice Subtotal', val: 'Rs. 1,650,000' },
+                    { label: 'VAT Rate', val: '18% Standard' },
+                    { label: 'Dispatch', val: 'WhatsApp & Email' }
+                ]
+            },
+            {
+                title: 'Instant 80mm Counter POS',
+                badge: 'RETAIL POS ENGINE',
+                input: 'Cashier terminal: Scan 4x 16A Schneider MCB, 2x 100m 4mm DC Solar Cable, Tender Rs. 50,000 cash.',
+                steps: [
+                    'Scanning hardware barcode database via counter optical scanner (latency 0.04s)...',
+                    'Computing total with localized trade contractor 5% discount: Rs. 42,850.00...',
+                    'Calculating tender change: Rs. 7,150.00 (Cash drawer triggered via ESC/POS pin 2)...',
+                    'Direct thermal dispatch to 80mm Epson ESC/POS printer (print speed 0.2s).'
+                ],
+                resultMetrics: [
+                    { label: 'Terminal Speed', val: '0.2s Direct' },
+                    { label: 'Items Scanned', val: '6 Units' },
+                    { label: 'Tender Change', val: 'Rs. 7,150' },
+                    { label: 'Margin Status', val: 'COGS Hidden' }
+                ]
+            },
+            {
+                title: 'Compute EPF/ETF Payroll',
+                badge: 'STATUTORY PAYROLL',
+                input: 'Run monthly payroll for 12 technical and sales staff under Sri Lanka Department of Labour statutory rules.',
+                steps: [
+                    'Validating basic wages, approved allowances, and overtime hours for active staff...',
+                    'Calculating employee EPF 8% deduction and statutory employer EPF 12% contribution...',
+                    'Computing employer ETF 3% statutory fund allocation under labour audit compliance...',
+                    'Compiling automated salary sheets and generating individual encrypted PDF payslips.'
+                ],
+                resultMetrics: [
+                    { label: 'Employee EPF (8%)', val: 'Rs. 98,400' },
+                    { label: 'Employer EPF (12%)', val: 'Rs. 147,600' },
+                    { label: 'Employer ETF (3%)', val: 'Rs. 36,900' },
+                    { label: 'Audit Status', val: '100% Compliant' }
+                ]
+            }
+        ]
     }"
     x-init="lucide.createIcons()"
 >
@@ -350,6 +443,10 @@
 
                 <!-- Desktop Navigation Links -->
                 <nav class="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-slate-600">
+                    <a href="#copilot" class="hover:text-crimson transition-colors flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-crimson animate-ping"></span>
+                        AI Copilot
+                    </a>
                     <a href="#services" class="hover:text-crimson transition-colors">Services</a>
                     <a href="#process" class="hover:text-crimson transition-colors">Our Process</a>
                     <a href="#cases" class="hover:text-crimson transition-colors">Case Studies</a>
@@ -385,6 +482,7 @@
                 @click.away="mobileMenuOpen = false"
                 class="md:hidden py-4 border-t border-warmBorder space-y-3"
             >
+                <a href="#copilot" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">AI Copilot Simulation</a>
                 <a href="#services" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Services</a>
                 <a href="#process" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Our Process</a>
                 <a href="#cases" @click="mobileMenuOpen = false" class="block text-sm font-bold text-slate-700 py-1">Case Studies</a>
@@ -420,8 +518,8 @@
                     PIXELCRAFT
                 </div>
 
-                <!-- Hero Crimson Ambient Visual Card with Liquid Glow -->
-                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#FF3838] via-[#E53935] to-[#7F1D1D] text-white p-6 sm:p-12 lg:p-16 shadow-2xl" data-motion-card>
+                <!-- Hero Crimson Ambient Visual Card with Spotlight Effect -->
+                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#FF3838] via-[#E53935] to-[#7F1D1D] text-white p-6 sm:p-12 lg:p-16 shadow-2xl spotlight-card" data-motion-card>
                     <!-- Subtle Geometric Dot Grid -->
                     <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#FFFFFF 1px, transparent 1px); background-size: 24px 24px;"></div>
                     <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-red-400 rounded-full blur-3xl opacity-35 pointer-events-none"></div>
@@ -458,7 +556,7 @@
 
                         <!-- Right: Interactive Hero Dashboard Mockup Image with Floating Badges -->
                         <div class="lg:col-span-6 relative">
-                            <!-- Main Hero Image (Suitable Asset Added) -->
+                            <!-- Main Hero Image -->
                             <div class="relative rounded-2xl overflow-hidden border border-white/25 shadow-2xl bg-black/40 group transform transition-transform duration-500 hover:scale-[1.02]">
                                 <img
                                     src="{{ asset('images/landing/hero-dashboard.webp') }}"
@@ -496,24 +594,136 @@
                         </div>
                     </div>
 
-                    <!-- Bottom Metrics Bar -->
-                    <div class="mt-12 pt-8 border-t border-white/20 grid grid-cols-2 md:grid-cols-4 gap-6 text-white font-display">
+                    <!-- Bottom Metrics Bar with Lev.com Count-Up Numbers -->
+                    <div class="mt-12 pt-8 border-t border-white/20 grid grid-cols-2 md:grid-cols-4 gap-6 text-white font-display" id="hero-metrics">
                         <div>
-                            <div class="text-4xl sm:text-5xl tracking-wide">14 Days</div>
+                            <div class="text-4xl sm:text-5xl tracking-wide" data-count-target="14" data-suffix=" Days">14 Days</div>
                             <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Full Free Trial</div>
                         </div>
                         <div>
-                            <div class="text-4xl sm:text-5xl tracking-wide">Rs. 500M+</div>
+                            <div class="text-4xl sm:text-5xl tracking-wide" data-count-target="500" data-prefix="Rs. " data-suffix="M+">Rs. 500M+</div>
                             <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Invoices Generated</div>
                         </div>
                         <div>
-                            <div class="text-4xl sm:text-5xl tracking-wide">220+</div>
+                            <div class="text-4xl sm:text-5xl tracking-wide" data-count-target="220" data-suffix="+">220+</div>
                             <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Active Workspaces</div>
                         </div>
                         <div>
-                            <div class="text-4xl sm:text-5xl tracking-wide">0.2 sec</div>
+                            <div class="text-4xl sm:text-5xl tracking-wide" data-count-target="0.2" data-suffix=" sec">0.2 sec</div>
                             <div class="text-xs font-sans text-white/80 font-bold tracking-wider uppercase mt-1">Thermal POS Speed</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================================================
+             LEV.COM SIGNATURE ANIMATION FEATURE:
+             INTERACTIVE AI AGENT / WORKFLOW SIMULATION TERMINAL ("Lev Agent" style)
+             ========================================================================== -->
+        <section id="copilot" class="py-16 sm:py-24 bg-cream">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Section Header -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-crimsonSubtle border border-red-200 text-crimson text-xs font-mono font-bold uppercase tracking-wider mb-3">
+                            <span class="w-2 h-2 rounded-full bg-crimson animate-ping"></span>
+                            AUTONOMOUS AI ENGINE • LEV-STYLE WORKFLOW
+                        </div>
+                        <h2 class="text-3xl sm:text-5xl font-display text-pitch tracking-wide">
+                            WATCH PIXELCRAFT AI AGENT IN ACTION
+                        </h2>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-600 max-w-md font-normal leading-relaxed">
+                        Click any prompt below to simulate real-time autonomous execution for Sri Lankan solar sizing, milestone invoices, retail checkout, and EPF payroll.
+                    </p>
+                </div>
+
+                <!-- Interactive Prompt Selector Tabs (Lev.com style) -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                    <template x-for="(p, index) in copilotPrompts" :key="index">
+                        <button
+                            type="button"
+                            @click="activeCopilotTab = index"
+                            class="p-4 rounded-2xl text-left border transition-all duration-300 relative overflow-hidden"
+                            :class="activeCopilotTab === index ? 'bg-pitch text-white border-crimson shadow-xl scale-[1.02]' : 'bg-white text-pitch border-warmBorder hover:border-crimson/50'"
+                        >
+                            <div class="text-[10px] font-mono font-bold uppercase tracking-widest text-crimson" x-text="p.badge"></div>
+                            <div class="text-sm font-display tracking-wide mt-1 line-clamp-1" x-text="p.title"></div>
+                            <!-- Active Progress Indicator -->
+                            <div
+                                x-show="activeCopilotTab === index"
+                                class="absolute bottom-0 left-0 right-0 h-1 bg-crimson animate-pulse"
+                            ></div>
+                        </button>
+                    </template>
+                </div>
+
+                <!-- Simulated Live AI Agent Terminal Window -->
+                <div class="rounded-3xl bg-pitch text-white border border-pitchBorder p-6 sm:p-10 shadow-2xl spotlight-card relative overflow-hidden">
+                    <!-- Red Ambient Glow inside Terminal -->
+                    <div class="absolute -right-24 -top-24 w-80 h-80 bg-crimson/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- Terminal Top Bar -->
+                    <div class="flex items-center justify-between pb-6 border-b border-pitchBorder text-xs font-mono">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span class="ml-3 text-slate-400 font-bold uppercase tracking-wider">PixelCraft Autonomous Copilot v3.4</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-emerald-400">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="hidden sm:inline">Engine Ready (Colombo Cloud Node)</span>
+                        </div>
+                    </div>
+
+                    <!-- Prompt Input Bubble (Lev-style user message) -->
+                    <div class="mt-6 p-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-crimson flex items-center justify-center font-display text-white text-xs shrink-0 mt-0.5">
+                            YOU
+                        </div>
+                        <div class="flex-1 space-y-1">
+                            <div class="text-[10px] font-mono text-slate-400 uppercase">Input Workflow Instruction</div>
+                            <div class="text-sm sm:text-base font-mono text-white font-medium" x-text="copilotPrompts[activeCopilotTab].input"></div>
+                        </div>
+                    </div>
+
+                    <!-- Simulated Autonomous Execution Steps (Lev Sourcing Agent style) -->
+                    <div id="copilot-stream" class="mt-6 space-y-3 font-mono text-xs">
+                        <div class="text-[11px] font-bold text-crimson uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-4 h-4"></i>
+                            Autonomous Reasoning & Execution Stream:
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                            <template x-for="(step, sIdx) in copilotPrompts[activeCopilotTab].steps" :key="sIdx">
+                                <div class="p-3.5 rounded-xl bg-pitchSurface border border-pitchBorder flex items-start gap-2.5">
+                                    <span class="text-emerald-400 font-bold shrink-0">✓</span>
+                                    <span class="text-slate-300 leading-relaxed text-xs" x-text="step"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Output Result Metrics Card -->
+                    <div class="mt-8 pt-6 border-t border-pitchBorder grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <template x-for="(m, mIdx) in copilotPrompts[activeCopilotTab].resultMetrics" :key="mIdx">
+                            <div class="p-4 rounded-2xl bg-white/[0.03] border border-white/10 text-center">
+                                <div class="text-[10px] font-mono uppercase text-slate-400" x-text="m.label"></div>
+                                <div class="text-2xl sm:text-3xl font-display text-crimson tracking-wide mt-1" x-text="m.val"></div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Terminal Action Footer -->
+                    <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-pitchBorder">
+                        <div class="text-xs text-slate-400 font-mono">
+                            ⚡ Zero latency execution with tamper-resistant audit logs.
+                        </div>
+                        <a href="/app/register" class="btn-crimson px-6 py-2.5 text-xs uppercase tracking-wider font-bold">
+                            <span>Execute in Your Workspace</span>
+                            <span class="btn-arrow">↗</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -576,7 +786,7 @@
             </div>
         </section>
 
-        <!-- 5. "Our Process" — 4-Card Sequence in Deep Pitch Black #0A0A0A -->
+        <!-- 5. "Our Process" — 4-Card Sequence in Deep Pitch Black #0A0A0A with Spotlight Glow -->
         <section id="process" class="py-24 sm:py-32 bg-pitch text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
@@ -594,15 +804,15 @@
                     </p>
                 </div>
 
-                <!-- 4 Glowing Process Cards (01, 02, 03, 04) with Stagger Motion -->
+                <!-- 4 Glowing Process Cards (01, 02, 03, 04) with Stagger Motion & Spotlight Effect -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Card 01 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" data-motion-process>
-                        <div class="flex items-start justify-between">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group spotlight-card" data-motion-process>
+                        <div class="flex items-start justify-between relative z-10">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">01</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 relative z-10">
                             <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
                                 ONBOARD & BRAND
                             </h3>
@@ -618,12 +828,12 @@
                     </div>
 
                     <!-- Card 02 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF4545 0%, #D32F2F 50%, #7F1D1D 100%);" data-motion-process>
-                        <div class="flex items-start justify-between">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group spotlight-card" style="background: linear-gradient(155deg, #FF4545 0%, #D32F2F 50%, #7F1D1D 100%);" data-motion-process>
+                        <div class="flex items-start justify-between relative z-10">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">02</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 relative z-10">
                             <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
                                 ENGINEER & QUOTE
                             </h3>
@@ -639,12 +849,12 @@
                     </div>
 
                     <!-- Card 03 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF3838 0%, #B91C1C 55%, #5C0E0E 100%);" data-motion-process>
-                        <div class="flex items-start justify-between">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group spotlight-card" style="background: linear-gradient(155deg, #FF3838 0%, #B91C1C 55%, #5C0E0E 100%);" data-motion-process>
+                        <div class="flex items-start justify-between relative z-10">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">03</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 relative z-10">
                             <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
                                 BILL & TRANSACT
                             </h3>
@@ -660,12 +870,12 @@
                     </div>
 
                     <!-- Card 04 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF5C5C 0%, #D32F2F 50%, #3D0909 100%);" data-motion-process>
-                        <div class="flex items-start justify-between">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group spotlight-card" style="background: linear-gradient(155deg, #FF5C5C 0%, #D32F2F 50%, #3D0909 100%);" data-motion-process>
+                        <div class="flex items-start justify-between relative z-10">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">04</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
                         </div>
-                        <div class="space-y-3">
+                        <div class="space-y-3 relative z-10">
                             <h3 class="text-2xl font-display text-white tracking-wide group-hover:translate-x-1 transition-transform">
                                 SETTLE & PROFIT
                             </h3>
@@ -683,7 +893,7 @@
             </div>
         </section>
 
-        <!-- 6. Interactive Services Section (GrowthLab Expandable Style) -->
+        <!-- 6. Interactive Services Section (GrowthLab Expandable Style with Spotlight) -->
         <section id="services" class="py-24 sm:py-32 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Heading -->
@@ -705,11 +915,11 @@
                 <div class="space-y-4">
                     <!-- Service 01 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection spotlight-card"
                         :class="activeService === 0 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 0 ? -1 : 0"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <div class="flex items-center gap-6">
                                 <span class="font-display text-2xl sm:text-3xl text-crimson">01</span>
                                 <div>
@@ -721,7 +931,7 @@
                             </div>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 0 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeService === 0" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div x-show="activeService === 0" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
                             <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
                                 <p>
                                     Algorithmic kWp capacity calculator based on Sri Lankan CEB/LECO electricity bills. Automatically determines Tier-1 panel wattage, inverter capacities, and single or three-phase connections.
@@ -741,11 +951,11 @@
 
                     <!-- Service 02 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection spotlight-card"
                         :class="activeService === 1 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 1 ? -1 : 1"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <div class="flex items-center gap-6">
                                 <span class="font-display text-2xl sm:text-3xl text-crimson">02</span>
                                 <div>
@@ -757,7 +967,7 @@
                             </div>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 1 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeService === 1" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div x-show="activeService === 1" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
                             <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
                                 <p>
                                     Split-pane live invoice editor with real-time A4 PDF preview. Seamlessly handle commercial EPC milestone billing: 60% Advance, 30% Material Delivery, and 10% Testing & Grid Commissioning.
@@ -777,11 +987,11 @@
 
                     <!-- Service 03 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection spotlight-card"
                         :class="activeService === 2 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 2 ? -1 : 2"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <div class="flex items-center gap-6">
                                 <span class="font-display text-2xl sm:text-3xl text-crimson">03</span>
                                 <div>
@@ -793,7 +1003,7 @@
                             </div>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 2 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeService === 2" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div x-show="activeService === 2" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
                             <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
                                 <p>
                                     0.2-second cashier checkout terminal built for Sri Lankan hardware counters and trade shops. Rapid barcode scanner input, cash tender change computation, and raw ESC/POS thermal printing.
@@ -813,11 +1023,11 @@
 
                     <!-- Service 04 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection spotlight-card"
                         :class="activeService === 3 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 3 ? -1 : 3"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <div class="flex items-center gap-6">
                                 <span class="font-display text-2xl sm:text-3xl text-crimson">04</span>
                                 <div>
@@ -829,7 +1039,7 @@
                             </div>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 3 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeService === 3" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div x-show="activeService === 3" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
                             <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
                                 <p>
                                     Automated monthly payroll runs strictly adhering to Sri Lanka Department of Labour statutory rules. Computes employee EPF 8%, employer EPF 12%, employer ETF 3%, and generates professional printable payslips.
@@ -849,11 +1059,11 @@
 
                     <!-- Service 05 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection spotlight-card"
                         :class="activeService === 4 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 4 ? -1 : 4"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <div class="flex items-center gap-6">
                                 <span class="font-display text-2xl sm:text-3xl text-crimson">05</span>
                                 <div>
@@ -865,7 +1075,7 @@
                             </div>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeService === 4 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeService === 4" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                        <div x-show="activeService === 4" x-collapse class="pt-6 mt-6 border-t border-warmBorder grid grid-cols-1 md:grid-cols-12 gap-6 items-center relative z-10">
                             <div class="md:col-span-8 text-sm text-slate-600 leading-relaxed space-y-3">
                                 <p>
                                     Role-based security isolation. Protect sensitive equipment cost prices (COGS), supplier bills, and profit metrics from cashier and sales staff. Only verified company owners have administrative visibility.
@@ -907,7 +1117,7 @@
                 <!-- 2-Column Showcase Cards with Real Photography -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Case Study 01: Solar EPC (Real Image Embedded) -->
-                    <div class="bento-card overflow-hidden group shadow-lg" data-motion-case>
+                    <div class="bento-card overflow-hidden group shadow-lg spotlight-card" data-motion-case>
                         <!-- Top Case Study Photographic Mockup -->
                         <div class="relative h-64 sm:h-72 overflow-hidden bg-pitch">
                             <img
@@ -924,7 +1134,7 @@
                         </div>
 
                         <!-- Content Body -->
-                        <div class="p-8 bg-pitch text-white">
+                        <div class="p-8 bg-pitch text-white relative z-10">
                             <h3 class="text-3xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
                                 VERTEX SOLAR RESIDENCIES
                             </h3>
@@ -949,7 +1159,7 @@
                     </div>
 
                     <!-- Case Study 02: Retail POS (Real Image Embedded) -->
-                    <div class="bento-card overflow-hidden group shadow-lg" data-motion-case>
+                    <div class="bento-card overflow-hidden group shadow-lg spotlight-card" data-motion-case>
                         <!-- Top Case Study Photographic Mockup -->
                         <div class="relative h-64 sm:h-72 overflow-hidden bg-pitch">
                             <img
@@ -966,7 +1176,7 @@
                         </div>
 
                         <!-- Content Body -->
-                        <div class="p-8 bg-pitch text-white">
+                        <div class="p-8 bg-pitch text-white relative z-10">
                             <h3 class="text-3xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
                                 ELECTRA WHOLESALE DISTRIBUTORS
                             </h3>
@@ -1039,8 +1249,8 @@
 
                     <!-- Certificate Mockup Visual Card -->
                     <div class="lg:col-span-6">
-                        <div class="bento-card p-6 sm:p-8 relative bg-gradient-to-br from-creamLight to-cream shadow-xl liquid-reflection">
-                            <div class="border-2 border-dashed border-warmBorder rounded-2xl p-6 sm:p-8 bg-white text-center space-y-4">
+                        <div class="bento-card p-6 sm:p-8 relative bg-gradient-to-br from-creamLight to-cream shadow-xl liquid-reflection spotlight-card">
+                            <div class="border-2 border-dashed border-warmBorder rounded-2xl p-6 sm:p-8 bg-white text-center space-y-4 relative z-10">
                                 <div class="flex items-center justify-between border-b border-warmBorder pb-3 text-xs text-slate-500">
                                     <span class="font-mono font-bold text-crimson">CERTIFICATE #SL-SOL-2026-089</span>
                                     <span class="bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 text-[10px]">VERIFIED FOR CEB</span>
@@ -1095,7 +1305,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
                     <!-- Left Floating Review Card -->
                     <div class="lg:col-span-4 space-y-6">
-                        <div class="bg-pitchSurface border border-pitchBorder p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-2xl" data-motion-review>
+                        <div class="bg-pitchSurface border border-pitchBorder p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-2xl spotlight-card" data-motion-review>
                             <div class="flex items-center gap-1 text-crimson text-sm mb-3">
                                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                             </div>
@@ -1113,7 +1323,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-pitchSurface border border-pitchBorder p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-2xl" data-motion-review>
+                        <div class="bg-pitchSurface border border-pitchBorder p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-2xl spotlight-card" data-motion-review>
                             <div class="flex items-center gap-1 text-crimson text-sm mb-3">
                                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                             </div>
@@ -1132,7 +1342,7 @@
                         </div>
                     </div>
 
-                    <!-- Center Executive Portrait (Suitable Image Added) -->
+                    <!-- Center Executive Portrait -->
                     <div class="lg:col-span-4 flex justify-center">
                         <div class="relative rounded-3xl overflow-hidden border-2 border-crimson/50 shadow-[0_0_50px_rgba(255,56,56,0.3)] max-w-sm w-full group">
                             <img
@@ -1154,7 +1364,7 @@
 
                     <!-- Right Floating Review Card -->
                     <div class="lg:col-span-4 space-y-6">
-                        <div class="bg-pitchSurface border-2 border-crimson/60 p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-[0_0_35px_rgba(255,56,56,0.25)]" data-motion-review>
+                        <div class="bg-pitchSurface border-2 border-crimson/60 p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-[0_0_35px_rgba(255,56,56,0.25)] spotlight-card" data-motion-review>
                             <div class="flex items-center gap-1 text-crimson text-sm mb-3">
                                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                             </div>
@@ -1225,23 +1435,23 @@
                     </div>
                 </div>
 
-                <!-- 3 Pricing Cards with Framer Motion Entrance -->
+                <!-- 3 Pricing Cards with Framer Motion Entrance & Spotlight Glow -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
                     @foreach ($plans as $plan)
                         @php
                             $isPopular = $plan->slug === 'professional';
                         @endphp
                         <div
-                            class="p-8 flex flex-col justify-between relative transition-all duration-300 rounded-3xl {{ $isPopular ? 'bg-pitch text-white border-2 border-crimson ring-8 ring-red-500/10 shadow-2xl scale-[1.03] z-10' : 'bento-card text-pitch' }}"
+                            class="p-8 flex flex-col justify-between relative transition-all duration-300 rounded-3xl spotlight-card {{ $isPopular ? 'bg-pitch text-white border-2 border-crimson ring-8 ring-red-500/10 shadow-2xl scale-[1.03] z-10' : 'bento-card text-pitch' }}"
                             data-motion-pricing
                         >
                             @if ($isPopular)
-                                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-crimson text-white text-[11px] font-display uppercase tracking-wider px-4 py-1 rounded-full shadow-md">
+                                <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-crimson text-white text-[11px] font-display uppercase tracking-wider px-4 py-1 rounded-full shadow-md z-20">
                                     ★ Most Popular for EPC
                                 </div>
                             @endif
 
-                            <div>
+                            <div class="relative z-10">
                                 <h3 class="text-2xl font-display tracking-wide {{ $isPopular ? 'text-white' : 'text-pitch' }}">
                                     {{ $plan->name }}
                                 </h3>
@@ -1293,7 +1503,7 @@
                             </div>
 
                             <!-- CTA Button -->
-                            <div class="mt-8 pt-6 border-t {{ $isPopular ? 'border-white/10' : 'border-warmBorder' }}">
+                            <div class="mt-8 pt-6 border-t {{ $isPopular ? 'border-white/10' : 'border-warmBorder' }} relative z-10">
                                 <a
                                     href="/app/register"
                                     class="{{ $isPopular ? 'btn-crimson' : 'btn-ghost-pill' }} w-full py-3.5 text-center text-xs uppercase tracking-wider font-bold block"
@@ -1360,85 +1570,85 @@
                 <div class="space-y-4">
                     <!-- FAQ 1 -->
                     <div
-                        class="bento-card p-6 cursor-pointer"
+                        class="bento-card p-6 cursor-pointer spotlight-card"
                         x-show="faqTab === 'all' || faqTab === 'general'"
                         @click="activeFaq = activeFaq === 0 ? -1 : 0"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 How does the 14-day free trial work?
                             </h3>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 0 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeFaq === 0" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 0" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 relative z-10">
                             You get immediate, unrestricted access to the complete PixelCraft SaaS platform including Solar PV sizing, milestone invoicing, and POS. No credit card is required to register. After 14 days, you can choose any LKR subscription plan.
                         </div>
                     </div>
 
                     <!-- FAQ 2 -->
                     <div
-                        class="bento-card p-6 cursor-pointer"
+                        class="bento-card p-6 cursor-pointer spotlight-card"
                         x-show="faqTab === 'all' || faqTab === 'solar'"
                         @click="activeFaq = activeFaq === 1 ? -1 : 1"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 Is the Solar PV sizing tool compliant with CEB & LECO?
                             </h3>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 1 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeFaq === 1" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 1" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 relative z-10">
                             Yes. Our sizing algorithms calculate required system kilowatt-peak (kWp) against Sri Lankan solar irradiance factors, CEB single/three-phase thresholds, and Net-Metering/Net-Plus policies.
                         </div>
                     </div>
 
                     <!-- FAQ 3 -->
                     <div
-                        class="bento-card p-6 cursor-pointer"
+                        class="bento-card p-6 cursor-pointer spotlight-card"
                         x-show="faqTab === 'all' || faqTab === 'pos'"
                         @click="activeFaq = activeFaq === 2 ? -1 : 2"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 Can I use standard 80mm ESC/POS thermal printers?
                             </h3>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 2 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeFaq === 2" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 2" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 relative z-10">
                             Absolutely. The counter POS module formats receipts specifically for 80mm thermal paper widths, supporting USB, Bluetooth, and network thermal printers commonly used across Sri Lankan retail stores.
                         </div>
                     </div>
 
                     <!-- FAQ 4 -->
                     <div
-                        class="bento-card p-6 cursor-pointer"
+                        class="bento-card p-6 cursor-pointer spotlight-card"
                         x-show="faqTab === 'all' || faqTab === 'pos'"
                         @click="activeFaq = activeFaq === 3 ? -1 : 3"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 Can staff members see our profit margins or cost prices?
                             </h3>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 3 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeFaq === 3" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 3" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 relative z-10">
                             No. Role-based tenant isolation strictly hides internal cost of goods sold (COGS), supplier bills, and profit metrics from sales staff and cashiers. Only verified Company Owners and Admins have access to profitability reports.
                         </div>
                     </div>
 
                     <!-- FAQ 5 -->
                     <div
-                        class="bento-card p-6 cursor-pointer"
+                        class="bento-card p-6 cursor-pointer spotlight-card"
                         x-show="faqTab === 'all' || faqTab === 'general'"
                         @click="activeFaq = activeFaq === 4 ? -1 : 4"
                     >
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between relative z-10">
                             <h3 class="text-base sm:text-lg font-bold text-pitch">
                                 What payment methods are supported in Sri Lanka?
                             </h3>
                             <span class="text-2xl font-light text-crimson transition-transform duration-300" :class="activeFaq === 4 ? 'rotate-45' : ''">+</span>
                         </div>
-                        <div x-show="activeFaq === 4" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3">
+                        <div x-show="activeFaq === 4" x-collapse class="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 relative z-10">
                             We support Sri Lankan direct bank transfers (Sampath, Commercial, HNB, BOC), corporate cheques, and Visa/Mastercard payments. Subscriptions are billed natively in LKR with zero foreign exchange fees.
                         </div>
                     </div>
@@ -1446,16 +1656,16 @@
             </div>
         </section>
 
-        <!-- 12. Final High-Impact CTA Banner with 3D Liquid Accent Graphic -->
+        <!-- 12. Final High-Impact CTA Banner with 3D Liquid Accent Graphic & Spotlight -->
         <section class="py-16 sm:py-24 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="rounded-3xl bg-pitch text-white p-8 sm:p-16 lg:p-20 relative overflow-hidden shadow-2xl space-y-8" data-motion-cta>
+                <div class="rounded-3xl bg-pitch text-white p-8 sm:p-16 lg:p-20 relative overflow-hidden shadow-2xl space-y-8 spotlight-card" data-motion-cta>
                     <!-- Red Ambient Radial Glow -->
                     <div class="absolute -right-20 -top-20 w-96 h-96 bg-crimson/30 rounded-full blur-3xl pointer-events-none"></div>
                     <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-red-800/25 rounded-full blur-3xl pointer-events-none"></div>
 
-                    <!-- Floating 3D Liquid Sphere Graphic (Suitable Asset Added) -->
-                    <div class="absolute top-6 right-6 sm:top-12 sm:right-12 w-28 h-28 sm:w-40 sm:h-40 pointer-events-none opacity-85 floating-pill">
+                    <!-- Floating 3D Liquid Sphere Graphic -->
+                    <div class="absolute top-6 right-6 sm:top-12 sm:right-12 w-28 h-28 sm:w-40 sm:h-40 pointer-events-none opacity-85 floating-pill z-10">
                         <img
                             src="{{ asset('images/landing/liquid-cta-blob.webp') }}"
                             alt="3D Liquid Chrome & Crimson Accent Sphere"
@@ -1489,15 +1699,15 @@
 
                     <!-- Newsletter Input Strip -->
                     <div class="relative z-10 max-w-md mx-auto pt-8 border-t border-white/10">
-                        <div class="text-center text-xs text-slate-400 mb-3">Stay updated with Sri Lankan regulatory updates & releases</div>
+                        <div class="text-center text-xs text-slate-400 mb-3 font-mono">Stay updated with Sri Lankan regulatory updates & releases</div>
                         <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to PixelCraft updates!');" class="flex gap-2">
                             <input
                                 type="email"
                                 required
                                 placeholder="Enter your business email"
-                                class="bg-white/10 border border-white/20 rounded-full px-5 py-2.5 text-xs text-white placeholder-slate-400 flex-1 focus:outline-none focus:border-crimson"
+                                class="bg-white/10 border border-white/20 rounded-full px-5 py-2.5 text-xs text-white placeholder-slate-400 flex-1 focus:outline-none focus:border-crimson font-mono"
                             >
-                            <button type="submit" class="btn-crimson px-5 py-2.5 text-xs uppercase tracking-wider">
+                            <button type="submit" class="btn-crimson px-5 py-2.5 text-xs uppercase tracking-wider font-bold">
                                 Subscribe
                             </button>
                         </form>
@@ -1586,7 +1796,7 @@
         </div>
     </footer>
 
-    <!-- Framer Motion Engine ESM Integration -->
+    <!-- Framer Motion Engine & Lev.com Spotlight & Count-Up Script -->
     <script type="module">
         import { animate, inView, stagger, spring } from 'https://cdn.jsdelivr.net/npm/motion@12.4.2/+esm';
 
@@ -1641,9 +1851,42 @@
                     { duration: 0.8, easing: spring({ stiffness: 100, damping: 18 }) }
                 );
             });
+
+            // 7. Lev.com Live Metric Count-Up Animation
+            inView('#hero-metrics', () => {
+                const counters = document.querySelectorAll('[data-count-target]');
+                counters.forEach(el => {
+                    const target = parseFloat(el.getAttribute('data-count-target'));
+                    const prefix = el.getAttribute('data-prefix') || '';
+                    const suffix = el.getAttribute('data-suffix') || '';
+                    const isDecimal = target % 1 !== 0;
+
+                    animate(0, target, {
+                        duration: 1.8,
+                        easing: [0.16, 1, 0.3, 1],
+                        onUpdate: latest => {
+                            el.innerText = prefix + (isDecimal ? latest.toFixed(1) : Math.round(latest)) + suffix;
+                        }
+                    });
+                });
+            });
         } catch (e) {
-            console.log('Framer Motion initialized with CSS fallback:', e);
+            console.log('Motion initialized with CSS fallback:', e);
         }
+
+        // ==========================================================================
+        // 8. Lev.com Interactive Cursor Spotlight Following Effect
+        // ==========================================================================
+        function initSpotlights() {
+            document.querySelectorAll('.spotlight-card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+                });
+            });
+        }
+        initSpotlights();
     </script>
 </body>
 </html>
