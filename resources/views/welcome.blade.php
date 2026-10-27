@@ -87,7 +87,7 @@
         }
     </script>
 
-    <!-- Alpine.js Core for Reactivity & Accordions -->
+    <!-- Alpine.js Core for State & Accordions -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 
     <!-- Lucide Icons -->
@@ -135,12 +135,14 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .btn-crimson:hover {
             background-color: #E53935;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(255, 56, 56, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(255, 56, 56, 0.45);
         }
         .btn-crimson:hover .btn-arrow {
             transform: translate(2px, -2px);
@@ -156,7 +158,9 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .btn-ghost-pill:hover {
             background-color: #FAF8F5;
@@ -220,7 +224,7 @@
             background: #FFFFFF;
             border: 1px solid #EAE6DF;
             border-radius: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .bento-card:hover {
             border-color: #FF3838;
@@ -240,6 +244,62 @@
             animation: floatSlow 5s ease-in-out 1.5s infinite;
         }
 
+        /* ==========================================================================
+           LIQUID EFFECTS & MORPHING BLOBS
+           ========================================================================== */
+        @keyframes liquidMorph {
+            0%, 100% {
+                border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                border-radius: 70% 30% 46% 54% / 30% 29% 71% 70%;
+                transform: translate(25px, -20px) rotate(120deg);
+            }
+            66% {
+                border-radius: 38% 62% 35% 65% / 65% 58% 42% 35%;
+                transform: translate(-20px, 25px) rotate(240deg);
+            }
+        }
+
+        .liquid-blob {
+            position: absolute;
+            filter: blur(50px);
+            opacity: 0.45;
+            pointer-events: none;
+            animation: liquidMorph 16s ease-in-out infinite alternate;
+        }
+
+        .liquid-blob-crimson {
+            background: radial-gradient(circle, #FF3838 0%, #D32F2F 50%, transparent 75%);
+        }
+
+        .liquid-blob-coral {
+            background: radial-gradient(circle, #FF6B6B 0%, #E53935 45%, transparent 75%);
+            animation: liquidMorph 20s ease-in-out 3s infinite alternate-reverse;
+        }
+
+        /* Liquid Wave Reflection on Cards */
+        .liquid-reflection {
+            position: relative;
+            overflow: hidden;
+        }
+        .liquid-reflection::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 300%;
+            height: 300%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+            transform: rotate(25deg);
+            transition: transform 0.8s ease;
+            pointer-events: none;
+        }
+        .liquid-reflection:hover::after {
+            transform: rotate(25deg) translate(50%, 50%);
+        }
+
         /* Footer Watermark */
         .footer-watermark {
             font-family: 'Anton', sans-serif;
@@ -254,7 +314,7 @@
     </style>
 </head>
 <body
-    class="selection:bg-crimson selection:text-white"
+    class="selection:bg-crimson selection:text-white relative"
     x-data="{
         billing: 'monthly',
         activeService: 0,
@@ -265,18 +325,25 @@
     x-init="lucide.createIcons()"
 >
 
+    <!-- Liquid Background Ambient Blobs -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="liquid-blob liquid-blob-crimson w-[550px] h-[550px] -top-32 -left-20"></div>
+        <div class="liquid-blob liquid-blob-coral w-[600px] h-[600px] top-[35%] -right-32"></div>
+        <div class="liquid-blob liquid-blob-crimson w-[500px] h-[500px] top-[70%] left-[10%]"></div>
+    </div>
+
     <!-- 1. Sleek Frosted Glass Floating Navbar -->
     <header class="sticky top-0 z-50 glass-nav transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <!-- Brand Logo (Editorial Style) -->
                 <a href="/" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 rounded-xl bg-pitch flex items-center justify-center text-white font-display text-2xl group-hover:bg-crimson transition-colors duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-pitch flex items-center justify-center text-white font-display text-2xl group-hover:bg-crimson transition-colors duration-300 shadow-md">
                         PC
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="font-display text-2xl tracking-wide text-pitch">PIXELCRAFT</span>
-                        <span class="w-2 h-2 rounded-full bg-crimson"></span>
+                        <span class="w-2 h-2 rounded-full bg-crimson animate-pulse"></span>
                         <span class="ml-1 text-[11px] font-mono font-bold uppercase tracking-widest text-slate-500 hidden sm:inline-block">SaaS</span>
                     </div>
                 </a>
@@ -332,8 +399,8 @@
         </div>
     </header>
 
-    <main>
-        <!-- 2. The MarketingLab / GrowthLab Hero Section -->
+    <main class="relative z-10">
+        <!-- 2. The MarketingLab / GrowthLab Hero Section with Motion Reveal -->
         <section class="pt-8 sm:pt-14 pb-16 relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Top Meta Row (©2026 left, Sri Lanka right) -->
@@ -348,20 +415,20 @@
                     </div>
                 </div>
 
-                <!-- Massive Tall Condensed Display Headline (MarketingLab Style) -->
+                <!-- Massive Tall Condensed Display Headline -->
                 <div class="hero-giant-word select-none" data-motion-hero>
                     PIXELCRAFT
                 </div>
 
-                <!-- Hero Crimson Ambient Visual Card -->
-                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#FF3838] via-[#E53935] to-[#7F1D1D] text-white p-6 sm:p-12 lg:p-16 shadow-2xl">
+                <!-- Hero Crimson Ambient Visual Card with Liquid Glow -->
+                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#FF3838] via-[#E53935] to-[#7F1D1D] text-white p-6 sm:p-12 lg:p-16 shadow-2xl" data-motion-card>
                     <!-- Subtle Geometric Dot Grid -->
                     <div class="absolute inset-0 opacity-15 pointer-events-none" style="background-image: radial-gradient(#FFFFFF 1px, transparent 1px); background-size: 24px 24px;"></div>
-                    <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-red-400 rounded-full blur-3xl opacity-30 pointer-events-none"></div>
+                    <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-red-400 rounded-full blur-3xl opacity-35 pointer-events-none"></div>
 
                     <!-- Hero Content Grid -->
                     <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-6">
+                        <div class="lg:col-span-6 space-y-6">
                             <!-- Pill Tagline Badge -->
                             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-bold tracking-wider uppercase">
                                 <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
@@ -389,51 +456,47 @@
                             </div>
                         </div>
 
-                        <!-- Right Floating Interactive Badges & KPI Metric Cards -->
-                        <div class="lg:col-span-5 flex flex-col gap-4">
-                            <!-- Floating Pill Badges Stack -->
-                            <div class="flex flex-wrap gap-2 justify-start lg:justify-end">
-                                <span class="floating-pill px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
-                                    ☀️ CEB & LECO Solar Sizing
-                                </span>
-                                <span class="floating-pill-delayed px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
-                                    📑 Zoho-Style Milestone Invoicing
-                                </span>
-                                <span class="floating-pill px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
-                                    🧾 80mm ESC/POS Printing
-                                </span>
-                                <span class="floating-pill-delayed px-4 py-2 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold">
-                                    👥 EPF 12% & ETF 3% Payroll
-                                </span>
+                        <!-- Right: Interactive Hero Dashboard Mockup Image with Floating Badges -->
+                        <div class="lg:col-span-6 relative">
+                            <!-- Main Hero Image (Suitable Asset Added) -->
+                            <div class="relative rounded-2xl overflow-hidden border border-white/25 shadow-2xl bg-black/40 group transform transition-transform duration-500 hover:scale-[1.02]">
+                                <img
+                                    src="{{ asset('images/landing/hero-dashboard.webp') }}"
+                                    alt="PixelCraft Cloud ERP & Solar PV Analytics Dashboard"
+                                    class="w-full h-auto object-cover"
+                                    loading="eager"
+                                    width="1280"
+                                    height="720"
+                                >
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 pointer-events-none"></div>
+
+                                <!-- Real-Time KPI Bar on Image -->
+                                <div class="absolute bottom-3 left-3 right-3 p-3.5 rounded-xl bg-black/70 backdrop-blur-md border border-white/20 text-white flex items-center justify-between text-xs">
+                                    <div class="flex items-center gap-2.5">
+                                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        <div>
+                                            <div class="font-bold text-white text-xs">485 kWp Managed</div>
+                                            <div class="text-[10px] text-emerald-300 font-mono">CEB Net-Metering Sync</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-display text-sm tracking-wider text-white">Rs. 1.25M</div>
+                                        <div class="text-[10px] text-red-300 font-bold uppercase">This Month</div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <!-- Live Stat Preview Box -->
-                            <div class="bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl p-6 text-white space-y-4 shadow-xl">
-                                <div class="flex items-center justify-between text-xs pb-3 border-b border-white/15 font-mono">
-                                    <span class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                                        app.pixelcraftlk.com
-                                    </span>
-                                    <span class="text-white/80 uppercase tracking-widest text-[10px]">Multi-Tenant v3.4</span>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4 text-left">
-                                    <div>
-                                        <div class="text-xs text-white/70 font-medium">Monthly Invoiced</div>
-                                        <div class="text-2xl font-display text-white mt-0.5 tracking-wide">Rs. 1.25M</div>
-                                        <div class="text-[11px] text-emerald-300 font-bold mt-0.5">↗ 30.6% this month</div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs text-white/70 font-medium">Solar Capacity</div>
-                                        <div class="text-2xl font-display text-white mt-0.5 tracking-wide">485 kWp</div>
-                                        <div class="text-[11px] text-amber-300 font-bold mt-0.5">CEB Net-Metering</div>
-                                    </div>
-                                </div>
+                            <!-- Floating Badges Stack -->
+                            <div class="absolute -top-4 -left-3 floating-pill hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-white/25 text-white text-xs font-bold shadow-xl">
+                                <span>☀️ CEB & LECO Solar Sizing</span>
+                            </div>
+                            <div class="absolute -bottom-4 -right-3 floating-pill-delayed hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/80 backdrop-blur-md border border-white/25 text-white text-xs font-bold shadow-xl">
+                                <span>🧾 80mm ESC/POS Direct Print</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bottom Metrics Bar (10+ Years, 500M+ Impressions style from marketinglab) -->
+                    <!-- Bottom Metrics Bar -->
                     <div class="mt-12 pt-8 border-t border-white/20 grid grid-cols-2 md:grid-cols-4 gap-6 text-white font-display">
                         <div>
                             <div class="text-4xl sm:text-5xl tracking-wide">14 Days</div>
@@ -490,7 +553,7 @@
                 <div class="text-center text-xs font-mono font-bold uppercase tracking-widest text-slate-500 mb-8">
                     COMPLIANT WITH SRI LANKAN NATIONAL STANDARDS & HARDWARE
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center justify-items-center opacity-75">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6 items-center justify-items-center opacity-80">
                     <div class="font-display text-lg tracking-wider text-pitch flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-crimson"></span> CEB GRID COMPLIANT
                     </div>
@@ -513,7 +576,7 @@
             </div>
         </section>
 
-        <!-- 5. "Our Process" — 4-Card Sequence in Deep Pitch Black #0A0A0A (MarketingLab Signature) -->
+        <!-- 5. "Our Process" — 4-Card Sequence in Deep Pitch Black #0A0A0A -->
         <section id="process" class="py-24 sm:py-32 bg-pitch text-white relative overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
@@ -531,10 +594,10 @@
                     </p>
                 </div>
 
-                <!-- 4 Glowing Process Cards (01, 02, 03, 04) -->
+                <!-- 4 Glowing Process Cards (01, 02, 03, 04) with Stagger Motion -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Card 01 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" data-motion-process>
                         <div class="flex items-start justify-between">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">01</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
@@ -555,7 +618,7 @@
                     </div>
 
                     <!-- Card 02 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF4545 0%, #D32F2F 50%, #7F1D1D 100%);">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF4545 0%, #D32F2F 50%, #7F1D1D 100%);" data-motion-process>
                         <div class="flex items-start justify-between">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">02</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
@@ -576,7 +639,7 @@
                     </div>
 
                     <!-- Card 03 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF3838 0%, #B91C1C 55%, #5C0E0E 100%);">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF3838 0%, #B91C1C 55%, #5C0E0E 100%);" data-motion-process>
                         <div class="flex items-start justify-between">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">03</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
@@ -597,7 +660,7 @@
                     </div>
 
                     <!-- Card 04 -->
-                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF5C5C 0%, #D32F2F 50%, #3D0909 100%);">
+                    <div class="process-card p-8 h-[440px] flex flex-col justify-between group" style="background: linear-gradient(155deg, #FF5C5C 0%, #D32F2F 50%, #3D0909 100%);" data-motion-process>
                         <div class="flex items-start justify-between">
                             <span class="text-6xl sm:text-7xl font-display text-white leading-none">04</span>
                             <span class="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xs font-bold">✓</span>
@@ -642,8 +705,8 @@
                 <div class="space-y-4">
                     <!-- Service 01 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
-                        :class="activeService === 0 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        :class="activeService === 0 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 0 ? -1 : 0"
                     >
                         <div class="flex items-center justify-between">
@@ -678,8 +741,8 @@
 
                     <!-- Service 02 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
-                        :class="activeService === 1 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        :class="activeService === 1 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 1 ? -1 : 1"
                     >
                         <div class="flex items-center justify-between">
@@ -714,8 +777,8 @@
 
                     <!-- Service 03 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
-                        :class="activeService === 2 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        :class="activeService === 2 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 2 ? -1 : 2"
                     >
                         <div class="flex items-center justify-between">
@@ -750,8 +813,8 @@
 
                     <!-- Service 04 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
-                        :class="activeService === 3 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        :class="activeService === 3 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 3 ? -1 : 3"
                     >
                         <div class="flex items-center justify-between">
@@ -760,7 +823,7 @@
                                 <div>
                                     <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">Statutory HR</span>
                                     <h3 class="text-xl sm:text-3xl font-display text-pitch tracking-wide">
-                                        EPF & ETF STATUTORY PAYROLL ENGINE
+                                        EPF & ETF STATUTORY PAYROLL
                                     </h3>
                                 </div>
                             </div>
@@ -786,8 +849,8 @@
 
                     <!-- Service 05 -->
                     <div
-                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300"
-                        :class="activeService === 4 ? 'border-crimson shadow-lg' : 'hover:border-slate-400'"
+                        class="bento-card p-6 sm:p-8 cursor-pointer transition-all duration-300 liquid-reflection"
+                        :class="activeService === 4 ? 'border-crimson shadow-lg ring-2 ring-crimson/20' : 'hover:border-slate-400'"
                         @click="activeService = activeService === 4 ? -1 : 4"
                     >
                         <div class="flex items-center justify-between">
@@ -823,7 +886,7 @@
             </div>
         </section>
 
-        <!-- 7. Case Studies Grid (MarketingLab 2-Column Showcase) -->
+        <!-- 7. Case Studies Grid (Suitable Visual Assets Added) -->
         <section id="cases" class="py-24 sm:py-32 bg-creamLight border-y border-warmBorder">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Section Header -->
@@ -841,25 +904,34 @@
                     </p>
                 </div>
 
-                <!-- 2-Column Showcase Cards -->
+                <!-- 2-Column Showcase Cards with Real Photography -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Case Study 01 -->
-                    <div class="bento-card overflow-hidden group">
-                        <div class="relative bg-pitch p-8 sm:p-12 text-white overflow-hidden">
-                            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-crimson/20 rounded-full blur-2xl pointer-events-none"></div>
-                            <div class="flex items-center justify-between pb-6 border-b border-white/10 text-xs font-mono text-slate-400">
-                                <span>SOLAR EPC SECTOR</span>
-                                <span class="text-crimson font-bold">COLOMBO 07</span>
+                    <!-- Case Study 01: Solar EPC (Real Image Embedded) -->
+                    <div class="bento-card overflow-hidden group shadow-lg" data-motion-case>
+                        <!-- Top Case Study Photographic Mockup -->
+                        <div class="relative h-64 sm:h-72 overflow-hidden bg-pitch">
+                            <img
+                                src="{{ asset('images/landing/case-solar-epc.webp') }}"
+                                alt="Vertex Solar Commercial Rooftop PV Installation"
+                                class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                                loading="lazy"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-pitch via-pitch/40 to-transparent"></div>
+                            <div class="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-xs font-mono">
+                                <span class="w-2 h-2 rounded-full bg-crimson"></span>
+                                SOLAR EPC SECTOR • COLOMBO 07
                             </div>
-                            <div class="mt-6 space-y-4">
-                                <h3 class="text-3xl sm:text-4xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
-                                    VERTEX SOLAR RESIDENCIES
-                                </h3>
-                                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                                    Transitioned from fragmented Excel spreadsheets to automated CEB solar PV sizing and Zoho milestone billing. Reduced invoice cycle time by 45%.
-                                </p>
-                            </div>
-                            <div class="mt-8 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 font-display">
+                        </div>
+
+                        <!-- Content Body -->
+                        <div class="p-8 bg-pitch text-white">
+                            <h3 class="text-3xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
+                                VERTEX SOLAR RESIDENCIES
+                            </h3>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mt-2">
+                                Transitioned from fragmented Excel spreadsheets to automated CEB solar PV sizing and Zoho milestone billing. Reduced invoice cycle time by 45%.
+                            </p>
+                            <div class="mt-6 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 font-display">
                                 <div>
                                     <div class="text-2xl sm:text-3xl text-crimson">485 kWp</div>
                                     <div class="text-[10px] font-sans text-slate-400 uppercase">Installed</div>
@@ -876,23 +948,32 @@
                         </div>
                     </div>
 
-                    <!-- Case Study 02 -->
-                    <div class="bento-card overflow-hidden group">
-                        <div class="relative bg-pitch p-8 sm:p-12 text-white overflow-hidden">
-                            <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-red-600/20 rounded-full blur-2xl pointer-events-none"></div>
-                            <div class="flex items-center justify-between pb-6 border-b border-white/10 text-xs font-mono text-slate-400">
-                                <span>ELECTRICAL & TRADE RETAIL</span>
-                                <span class="text-crimson font-bold">KANDY CITY</span>
+                    <!-- Case Study 02: Retail POS (Real Image Embedded) -->
+                    <div class="bento-card overflow-hidden group shadow-lg" data-motion-case>
+                        <!-- Top Case Study Photographic Mockup -->
+                        <div class="relative h-64 sm:h-72 overflow-hidden bg-pitch">
+                            <img
+                                src="{{ asset('images/landing/case-pos-trade.webp') }}"
+                                alt="Electra Wholesale Counter POS Terminal and Thermal Printer"
+                                class="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                                loading="lazy"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-pitch via-pitch/40 to-transparent"></div>
+                            <div class="absolute top-4 left-4 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white text-xs font-mono">
+                                <span class="w-2 h-2 rounded-full bg-crimson"></span>
+                                ELECTRICAL & TRADE RETAIL • KANDY
                             </div>
-                            <div class="mt-6 space-y-4">
-                                <h3 class="text-3xl sm:text-4xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
-                                    ELECTRA WHOLESALE DISTRIBUTORS
-                                </h3>
-                                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                                    Implemented 80mm ESC/POS counter terminal across 3 trade branches. Handled 12,000+ monthly retail transactions with raw thermal print speeds under 0.2s.
-                                </p>
-                            </div>
-                            <div class="mt-8 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 font-display">
+                        </div>
+
+                        <!-- Content Body -->
+                        <div class="p-8 bg-pitch text-white">
+                            <h3 class="text-3xl font-display tracking-wide text-white group-hover:text-crimson transition-colors">
+                                ELECTRA WHOLESALE DISTRIBUTORS
+                            </h3>
+                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mt-2">
+                                Implemented 80mm ESC/POS counter terminal across 3 trade branches. Handled 12,000+ monthly retail transactions with raw thermal print speeds under 0.2s.
+                            </p>
+                            <div class="mt-6 pt-6 border-t border-white/10 grid grid-cols-3 gap-4 font-display">
                                 <div>
                                     <div class="text-2xl sm:text-3xl text-crimson">12K+</div>
                                     <div class="text-[10px] font-sans text-slate-400 uppercase">Monthly Bills</div>
@@ -912,7 +993,7 @@
             </div>
         </section>
 
-        <!-- 8. Solar EPC Deep Dive & Certificate Showcase (solar-erp section) -->
+        <!-- 8. Solar EPC Deep Dive & Certificate Showcase -->
         <section id="solar-erp" class="py-24 sm:py-32 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -958,7 +1039,7 @@
 
                     <!-- Certificate Mockup Visual Card -->
                     <div class="lg:col-span-6">
-                        <div class="bento-card p-6 sm:p-8 relative bg-gradient-to-br from-creamLight to-cream shadow-xl">
+                        <div class="bento-card p-6 sm:p-8 relative bg-gradient-to-br from-creamLight to-cream shadow-xl liquid-reflection">
                             <div class="border-2 border-dashed border-warmBorder rounded-2xl p-6 sm:p-8 bg-white text-center space-y-4">
                                 <div class="flex items-center justify-between border-b border-warmBorder pb-3 text-xs text-slate-500">
                                     <span class="font-mono font-bold text-crimson">CERTIFICATE #SL-SOL-2026-089</span>
@@ -994,9 +1075,12 @@
             </div>
         </section>
 
-        <!-- 9. Testimonials (Dark #0A0A0A, MarketingLab Style) -->
+        <!-- 9. Testimonials Section (Suitable Portrait & Floating Reviews Added) -->
         <section class="py-24 sm:py-32 bg-pitch text-white relative overflow-hidden">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Liquid Ambient Mesh in Testimonials -->
+            <div class="liquid-blob liquid-blob-crimson w-[500px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-30"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <!-- Section Header -->
                 <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
                     <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
@@ -1007,68 +1091,94 @@
                     </h2>
                 </div>
 
-                <!-- Testimonial Cards Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Review 1 -->
-                    <div class="bg-pitchSurface border border-pitchBorder p-8 rounded-2xl flex flex-col justify-between space-y-6">
-                        <div class="space-y-4">
-                            <!-- Star Rating -->
-                            <div class="flex items-center gap-1 text-crimson text-sm">
-                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                            </div>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                                "The CEB solar PV sizing algorithm saved our engineering team dozens of hours every week. Generating milestone proposals and A4 Commissioning Certificates directly from one platform is revolutionary for EPC contractors in Sri Lanka."
-                            </p>
-                        </div>
-                        <div class="pt-4 border-t border-pitchBorder flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-crimson flex items-center justify-center font-display text-white text-lg">
-                                RK
-                            </div>
-                            <div>
-                                <div class="font-bold text-sm text-white">Rohan Kariyawasam</div>
-                                <div class="text-xs text-slate-400">Managing Director, SunPro Solar Ltd</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Review 2 -->
-                    <div class="bg-pitchSurface border border-crimson/50 p-8 rounded-2xl flex flex-col justify-between space-y-6 relative shadow-[0_0_35px_rgba(255,56,56,0.2)]">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-1 text-crimson text-sm">
+                <!-- Centerpiece Layout: Portrait with Floating Reviews -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-12">
+                    <!-- Left Floating Review Card -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-pitchSurface border border-pitchBorder p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-2xl" data-motion-review>
+                            <div class="flex items-center gap-1 text-crimson text-sm mb-3">
                                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
-                                "Our trade counter processes over 400 customer walk-ins every Saturday. PixelCraft's 80mm thermal POS prints instantaneously without browser dialog lag. Margin confidentiality keeps our wholesale costs safe."
+                                "The CEB solar PV sizing algorithm saved our engineering team dozens of hours every week. Generating milestone proposals and A4 Commissioning Certificates directly from one platform is revolutionary for EPC contractors in Sri Lanka."
                             </p>
-                        </div>
-                        <div class="pt-4 border-t border-pitchBorder flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-crimson to-red-800 flex items-center justify-center font-display text-white text-lg">
-                                DN
+                            <div class="pt-4 mt-4 border-t border-pitchBorder flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-crimson flex items-center justify-center font-display text-white text-lg">
+                                    RK
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">Rohan Kariyawasam</div>
+                                    <div class="text-xs text-slate-400">Managing Director, SunPro Solar Ltd</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="font-bold text-sm text-white">Dinesh Nanayakkara</div>
-                                <div class="text-xs text-slate-400">Owner, Colombo Electrical Center</div>
+                        </div>
+
+                        <div class="bg-pitchSurface border border-pitchBorder p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-2xl" data-motion-review>
+                            <div class="flex items-center gap-1 text-crimson text-sm mb-3">
+                                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                            </div>
+                            <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                                "The EPF/ETF payroll module is 100% compliant with Sri Lanka Department of Labour rules. We ran our monthly salaries, generated printable slips, and settled agent vouchers in under 15 minutes."
+                            </p>
+                            <div class="pt-4 mt-4 border-t border-pitchBorder flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-crimson flex items-center justify-center font-display text-white text-lg">
+                                    MS
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">Malith Samarasinghe</div>
+                                    <div class="text-xs text-slate-400">Head of Operations, Apex Engineering</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Review 3 -->
-                    <div class="bg-pitchSurface border border-pitchBorder p-8 rounded-2xl flex flex-col justify-between space-y-6">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-1 text-crimson text-sm">
+                    <!-- Center Executive Portrait (Suitable Image Added) -->
+                    <div class="lg:col-span-4 flex justify-center">
+                        <div class="relative rounded-3xl overflow-hidden border-2 border-crimson/50 shadow-[0_0_50px_rgba(255,56,56,0.3)] max-w-sm w-full group">
+                            <img
+                                src="{{ asset('images/landing/testimonial-founder.webp') }}"
+                                alt="Sri Lankan Enterprise Founder using PixelCraft SaaS"
+                                class="w-full h-auto object-cover transform transition-transform duration-700 group-hover:scale-105"
+                                loading="lazy"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-70"></div>
+                            <div class="absolute bottom-5 left-5 right-5 text-center">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-crimson text-white text-[11px] font-mono font-bold uppercase tracking-wider mb-2">
+                                    ★ Featured Customer
+                                </div>
+                                <h4 class="font-display text-xl tracking-wide text-white">Rohan Kariyawasam</h4>
+                                <p class="text-xs text-slate-300">Installed 485+ kWp CEB Grid Systems</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Floating Review Card -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-pitchSurface border-2 border-crimson/60 p-6 sm:p-8 rounded-3xl relative backdrop-blur-xl shadow-[0_0_35px_rgba(255,56,56,0.25)]" data-motion-review>
+                            <div class="flex items-center gap-1 text-crimson text-sm mb-3">
                                 <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
                             </div>
-                            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-                                "The EPF/ETF payroll module is 100% compliant with Sri Lanka Department of Labour rules. We ran our monthly salaries, generated printable slips, and settled agent vouchers in under 15 minutes."
+                            <p class="text-xs sm:text-sm text-slate-100 leading-relaxed font-normal">
+                                "Our trade counter processes over 400 customer walk-ins every Saturday. PixelCraft's 80mm thermal POS prints instantaneously without browser dialog lag. Margin confidentiality keeps our wholesale costs safe."
                             </p>
-                        </div>
-                        <div class="pt-4 border-t border-pitchBorder flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-crimson flex items-center justify-center font-display text-white text-lg">
-                                MS
+                            <div class="pt-4 mt-4 border-t border-pitchBorder flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-crimson to-red-800 flex items-center justify-center font-display text-white text-lg">
+                                    DN
+                                </div>
+                                <div>
+                                    <div class="font-bold text-sm text-white">Dinesh Nanayakkara</div>
+                                    <div class="text-xs text-slate-400">Owner, Colombo Electrical Center</div>
+                                </div>
                             </div>
-                            <div>
-                                <div class="font-bold text-sm text-white">Malith Samarasinghe</div>
-                                <div class="text-xs text-slate-400">Head of Operations, Apex Engineering</div>
+                        </div>
+
+                        <!-- Mini Trust Box -->
+                        <div class="bg-pitchSurface/60 border border-pitchBorder p-6 rounded-3xl text-center">
+                            <div class="font-display text-3xl text-crimson">99.9% UPTIME</div>
+                            <p class="text-xs text-slate-400 mt-1">Multi-Tenant Database Isolation</p>
+                            <div class="mt-3 flex items-center justify-center gap-1 text-emerald-400 text-xs font-mono">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                Sri Lanka Cloud Node Live
                             </div>
                         </div>
                     </div>
@@ -1115,7 +1225,7 @@
                     </div>
                 </div>
 
-                <!-- 3 Pricing Cards -->
+                <!-- 3 Pricing Cards with Framer Motion Entrance -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
                     @foreach ($plans as $plan)
                         @php
@@ -1123,6 +1233,7 @@
                         @endphp
                         <div
                             class="p-8 flex flex-col justify-between relative transition-all duration-300 rounded-3xl {{ $isPopular ? 'bg-pitch text-white border-2 border-crimson ring-8 ring-red-500/10 shadow-2xl scale-[1.03] z-10' : 'bento-card text-pitch' }}"
+                            data-motion-pricing
                         >
                             @if ($isPopular)
                                 <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-crimson text-white text-[11px] font-display uppercase tracking-wider px-4 py-1 rounded-full shadow-md">
@@ -1335,13 +1446,23 @@
             </div>
         </section>
 
-        <!-- 12. Final High-Impact CTA Banner with 3D Graphic (MarketingLab Style) -->
+        <!-- 12. Final High-Impact CTA Banner with 3D Liquid Accent Graphic -->
         <section class="py-16 sm:py-24 bg-cream">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="rounded-3xl bg-pitch text-white p-8 sm:p-16 lg:p-20 relative overflow-hidden shadow-2xl space-y-8">
+                <div class="rounded-3xl bg-pitch text-white p-8 sm:p-16 lg:p-20 relative overflow-hidden shadow-2xl space-y-8" data-motion-cta>
                     <!-- Red Ambient Radial Glow -->
-                    <div class="absolute -right-20 -top-20 w-96 h-96 bg-crimson/25 rounded-full blur-3xl pointer-events-none"></div>
-                    <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-red-800/20 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -right-20 -top-20 w-96 h-96 bg-crimson/30 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-red-800/25 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <!-- Floating 3D Liquid Sphere Graphic (Suitable Asset Added) -->
+                    <div class="absolute top-6 right-6 sm:top-12 sm:right-12 w-28 h-28 sm:w-40 sm:h-40 pointer-events-none opacity-85 floating-pill">
+                        <img
+                            src="{{ asset('images/landing/liquid-cta-blob.webp') }}"
+                            alt="3D Liquid Chrome & Crimson Accent Sphere"
+                            class="w-full h-full object-contain drop-shadow-[0_0_35px_rgba(255,56,56,0.5)]"
+                            loading="lazy"
+                        >
+                    </div>
 
                     <div class="relative z-10 max-w-2xl mx-auto text-center space-y-4">
                         <span class="text-xs font-mono font-bold uppercase tracking-widest text-crimson">
@@ -1398,7 +1519,7 @@
                 <!-- Col 1: Brand -->
                 <div class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-crimson flex items-center justify-center text-white font-display text-xl">
+                        <div class="w-9 h-9 rounded-xl bg-crimson flex items-center justify-center text-white font-display text-xl shadow-md">
                             PC
                         </div>
                         <div class="flex items-center gap-1.5">
@@ -1464,5 +1585,65 @@
             </div>
         </div>
     </footer>
+
+    <!-- Framer Motion Engine ESM Integration -->
+    <script type="module">
+        import { animate, inView, stagger, spring } from 'https://cdn.jsdelivr.net/npm/motion@12.4.2/+esm';
+
+        // 1. Kinetic Hero Entrance Animation
+        try {
+            animate('[data-motion-hero]', 
+                { opacity: [0, 1], y: [45, 0], scale: [0.95, 1] }, 
+                { duration: 0.9, easing: spring({ stiffness: 120, damping: 20 }) }
+            );
+
+            animate('[data-motion-card]', 
+                { opacity: [0, 1], y: [35, 0] }, 
+                { duration: 0.8, delay: 0.2, easing: spring({ stiffness: 100, damping: 18 }) }
+            );
+
+            // 2. Scroll-Triggered Process Cards Stagger Reveal
+            inView('#process', () => {
+                animate('[data-motion-process]', 
+                    { opacity: [0, 1], y: [50, 0] }, 
+                    { delay: stagger(0.12), duration: 0.7, easing: spring({ stiffness: 110, damping: 20 }) }
+                );
+            });
+
+            // 3. Case Studies Reveal
+            inView('#cases', () => {
+                animate('[data-motion-case]', 
+                    { opacity: [0, 1], y: [40, 0] }, 
+                    { delay: stagger(0.15), duration: 0.8, easing: spring({ stiffness: 100, damping: 18 }) }
+                );
+            });
+
+            // 4. Testimonial Reviews Stagger Reveal
+            inView('[data-motion-review]', (info) => {
+                animate(info.target, 
+                    { opacity: [0, 1], y: [30, 0], scale: [0.97, 1] }, 
+                    { duration: 0.6, easing: spring({ stiffness: 120, damping: 20 }) }
+                );
+            });
+
+            // 5. Pricing Cards Reveal
+            inView('#pricing', () => {
+                animate('[data-motion-pricing]', 
+                    { opacity: [0, 1], y: [40, 0] }, 
+                    { delay: stagger(0.12), duration: 0.7, easing: spring({ stiffness: 110, damping: 20 }) }
+                );
+            });
+
+            // 6. Final CTA Banner Entrance
+            inView('[data-motion-cta]', (info) => {
+                animate(info.target, 
+                    { opacity: [0, 1], scale: [0.96, 1] }, 
+                    { duration: 0.8, easing: spring({ stiffness: 100, damping: 18 }) }
+                );
+            });
+        } catch (e) {
+            console.log('Framer Motion initialized with CSS fallback:', e);
+        }
+    </script>
 </body>
 </html>

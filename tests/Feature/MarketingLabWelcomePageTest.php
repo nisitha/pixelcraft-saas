@@ -30,14 +30,29 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertSee('#0A0A0A');
     }
 
-    public function test_welcome_page_loads_alpine_and_lucide(): void
+    public function test_welcome_page_loads_motion_and_liquid_effects(): void
     {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('alpinejs', false);
-        $response->assertSee('lucide', false);
-        $response->assertSee('x-data', false);
+        $response->assertSee('https://cdn.jsdelivr.net/npm/motion@12.4.2/+esm', false);
+        $response->assertSee('liquid-blob', false);
+        $response->assertSee('liquidMorph', false);
+        $response->assertSee('data-motion-hero', false);
+        $response->assertSee('inView', false);
+        $response->assertSee('stagger', false);
+    }
+
+    public function test_welcome_page_contains_suitable_curated_images(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('hero-dashboard.webp', false);
+        $response->assertSee('case-solar-epc.webp', false);
+        $response->assertSee('case-pos-trade.webp', false);
+        $response->assertSee('testimonial-founder.webp', false);
+        $response->assertSee('liquid-cta-blob.webp', false);
     }
 
     public function test_welcome_page_contains_four_process_cards(): void
