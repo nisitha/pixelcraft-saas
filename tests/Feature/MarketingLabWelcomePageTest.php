@@ -17,7 +17,7 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_welcome_page_contains_framer_marketinglab_design_tokens_and_fonts(): void
+    public function test_welcome_page_contains_framer_marketinglab_dark_design_tokens_and_fonts(): void
     {
         $response = $this->get('/');
 
@@ -25,9 +25,9 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertSee('Urbanist');
         $response->assertSee('Inter');
         $response->assertSee('PIXELCRAFT');
-        $response->assertSee('#f3efe8');
-        $response->assertSee('#ff4c39');
-        $response->assertSee('#0a0a0a');
+        $response->assertSee('#070709');
+        $response->assertSee('glass-card', false);
+        $response->assertSee('ambient-mesh', false);
     }
 
     public function test_welcome_page_loads_framer_motion_engine(): void
@@ -57,17 +57,17 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertSee('Settle & Profit', false);
     }
 
-    public function test_welcome_page_contains_services_and_specialized_solutions(): void
+    public function test_welcome_page_contains_features_and_specialized_solutions(): void
     {
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('What we offer / Services');
-        $response->assertSee('Solar PV Sizing & BOQ', false);
-        $response->assertSee('Zoho Milestone Invoicing');
-        $response->assertSee('80mm Counter POS');
-        $response->assertSee('EPF/ETF Payroll Engine');
-        $response->assertSee('Project Profitability & COGS', false);
+        $response->assertSee('Platform Features');
+        $response->assertSee('Solar PV Sizing', false);
+        $response->assertSee('Zoho-Style Milestone Billing', false);
+        $response->assertSee('Sub-Second Counter POS', false);
+        $response->assertSee('EPF & ETF Payroll Engine', false);
+        $response->assertSee('hero-dashboard.webp', false);
     }
 
     public function test_welcome_page_renders_lkr_pricing_plans_and_billing_switcher(): void
@@ -103,5 +103,7 @@ class MarketingLabWelcomePageTest extends TestCase
         $response->assertSee('support@pixelcraftlk.com');
         $response->assertSee('app.pixelcraftlk.com');
         $response->assertDontSee('pixelcraftstudioslk@gmail.com');
+        $response->assertSee('/app/register');
+        $response->assertSee('/app/login');
     }
 }
